@@ -42,4 +42,3 @@ func calculate_damage(attacker: Node, defender: Node, weapon_data: Dictionary) -
 
 # TODO: Добавить метод для инициации боя (start_combat)
 # TODO: Добавить сигналы о нанесении урона, смерти, начале/конце боя
-
