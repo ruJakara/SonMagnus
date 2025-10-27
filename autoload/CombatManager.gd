@@ -6,10 +6,9 @@ extends Node
 
 ## @brief Инициализация класса CombatManager.
 func _ready():
-		if Config.DEBUG_LOGS:
-			print_debug("[CombatManager] Загружен.")
-		if Config.COMBAT_V2_ENABLED:
-			print_debug("[CombatManager] Используется Боевая Система V2.")
+	print("CombatManager.gd загружен.")
+	if Config.COMBAT_V2_ENABLED:
+		print("CombatManager: Используется Боевая Система V2.")
 
 ## @brief Рассчитывает урон, наносимый атакующим защитнику.
 ## @param attacker: Объект атакующего (BaseEntity или производный).
@@ -42,4 +41,3 @@ func calculate_damage(attacker: Node, defender: Node, weapon_data: Dictionary) -
 
 # TODO: Добавить метод для инициации боя (start_combat)
 # TODO: Добавить сигналы о нанесении урона, смерти, начале/конце боя
-
