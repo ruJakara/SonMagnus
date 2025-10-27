@@ -4,8 +4,8 @@
 [application]
 
 config/name="SonMagnus"
-run/main_scene="res://scenes/main.tscn"
-config/features=PackedStringArray("4.5", "Forward Plus")
+run/main_scene="res://scenes/hub/hub.tscn" # Для 2D проектов часто начинают с UI сцены или хаба
+config/features=PackedStringArray("4.5", "Forward Plus") # Оставляем, Godot сам оптимизирует
 config/icon="res://icon.svg"
 
 [autoload]
@@ -28,6 +28,7 @@ window/stretch/aspect="expand"
 
 [rendering]
 
-renderer/rendering_method="forward_plus"
-renderer/rendering_method.mobile="mobile"
+# Настройки рендеринга по умолчанию для 2D.
+# Godot 4 автоматически оптимизирует рендеринг для 2D, но можно явно указать:
+# renderer/rendering_method="forward_plus"
 

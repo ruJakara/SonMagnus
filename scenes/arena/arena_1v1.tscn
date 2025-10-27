@@ -1,6 +1,6 @@
 [gd_scene load_steps=1 format=3 uid="uid://f3i605m2x095f"]
 
-[node name="Arena1v1" type="Node3D"]
+[node name="Arena1v1" type="Node"]
 # scenes/arena/arena_1v1.tscn
 # Сцена для боя 1 на 1.
 # Используется для тестирования боевой системы или специальных боев.

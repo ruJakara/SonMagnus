@@ -3,7 +3,7 @@
 # Содержит общие свойства и методы, такие как здоровье, уровень, получение урона.
 
 class_name BaseEntity
-extends CharacterBody3D # Или CharacterBody2D, в зависимости от типа проекта
+extends CharacterBody2D # Изменено на 2D по запросу пользователя
 
 ## Сигнал, который испускается при изменении здоровья сущности.
 signal health_changed(new_health: int, max_health: int)

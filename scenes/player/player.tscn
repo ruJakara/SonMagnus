@@ -1,6 +1,6 @@
 [gd_scene load_steps=1 format=3 uid="uid://g4j716n3y106g"]
 
-[node name="Player" type="CharacterBody3D"]
+[node name="Player" type="CharacterBody2D"]
 # scenes/player/player.tscn
 # Основная сцена игрока.
 # Должна содержать BaseEntity или производный скрипт.

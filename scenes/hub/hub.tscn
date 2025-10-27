@@ -1,6 +1,6 @@
 [gd_scene load_steps=1 format=3 uid="uid://d1g483k0v873d"]
 
-[node name="Hub" type="Node3D"]
+[node name="Hub" type="Node"]
 # scenes/hub/hub.tscn
 # Сцена главного меню или стартового хаба. 
 # Отсюда происходит переход в другие части мира или начало игры.
