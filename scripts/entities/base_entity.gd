@@ -38,9 +38,17 @@ func initialize(name: String, max_hp: int, lvl: int):
 ## @brief Принимает урон.
 ## @param damage_amount: Количество урона.
 func take_damage(damage_amount: int):
-	health -= damage_amount
-	print("%s получил %d урона. Здоровье: %d/%d" % [entity_name, damage_amount, health, max_health])
+		health -= damage_amount
+		print("%s получил %d урона. Здоровье: %d/%d" % [entity_name, damage_amount, health, max_health])
+	
+	## @brief Возвращает значение защиты сущности от определенного типа урона.
+	## @param damage_type: Тип урона (например, "physical", "magic").
+	## @return: Значение защиты.
+	func get_defense(damage_type: String) -> int:
+		# TODO: Реализовать логику расчета защиты (броня, резисты)
+		# Возвращаем простейшую заглушку для работы CombatManager V2
+		return level * 2 
 
-# TODO: Добавить метод для получения опыта (gain_experience)
-# TODO: Добавить метод для применения статусного эффекта (apply_status_effect)
+	# TODO: Добавить метод для получения опыта (gain_experience)
+	# TODO: Добавить метод для применения статусного эффекта (apply_status_effect)
 

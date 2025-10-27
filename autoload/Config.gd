@@ -6,12 +6,12 @@ extends Node
 
 ## @brief Инициализация класса Config.
 func _ready():
-	print("Config.gd загружен. Режим отладки: %s" % str(DEBUG_MODE_ENABLED))
+	print("Config.gd загружен. Режим отладки: %s" % str(DEBUG_LOGS))
 
 # --- [ Настройки Разработки (Dev Switches) ] ---
 
 ## Включить/выключить режим отладки (отображение FPS, отладочная информация).
-const DEBUG_MODE_ENABLED: bool = true
+const DEBUG_LOGS: bool = true
 
 ## Включить новую версию боевой системы.
 const COMBAT_V2_ENABLED: bool = true
