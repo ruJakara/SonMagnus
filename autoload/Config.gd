@@ -6,18 +6,22 @@ extends Node
 
 ## @brief Инициализация класса Config.
 func _ready():
-	print("Config.gd загружен. Режим отладки: %s" % str(DEBUG_LOGS))
+	if DEBUG_LOGS:
+		print_debug("[Config] Загружен.")
 
 # --- [ Настройки Разработки (Dev Switches) ] ---
 
 ## Включить/выключить режим отладки (отображение FPS, отладочная информация).
-const DEBUG_LOGS: bool = true
+var DEBUG_LOGS := true
 
 ## Включить новую версию боевой системы.
-const COMBAT_V2_ENABLED: bool = true
+var COMBAT_V2_ENABLED := true
 
 ## Включить тестовый режим сохранения (отключает шифрование).
-const SAVE_TEST_MODE: bool = false
+var SAVE_TEST_MODE := false
+
+## Включить автоматическое сохранение.
+var AUTOSAVE_ENABLED := true
 
 # TODO: Добавить другие глобальные константы и настройки (например, VOLUME_MASTER)
 

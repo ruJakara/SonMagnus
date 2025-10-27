@@ -32,5 +32,22 @@ func change_scene_to_file(path: String):
 	scene_changed.emit(path)
 
 # TODO: Добавить глобальное состояние игры (enum State: TITLE, MENU, GAMEPLAY, PAUSED)
+## @brief Собирает минимальные данные для автосохранения.
+## @return: Словарь с данными.
+func get_autosave_data() -> Dictionary:
+	# TODO: Заменить заглушки на реальные ссылки на Player (например, через глобальную переменную или поиск по сцене)
+	# Предполагаем, что Player - это глобальный синглтон или доступен через get_node().
+	return {
+		"player": {
+			"position": Vector2.ZERO, # Player.position,
+			"hp": 100, # Player.hp,
+			"exp": 0 # Player.exp
+		},
+		"world": {
+			"scene": get_tree().current_scene.name if get_tree().current_scene else "Unknown"
+		}
+	}
+
+# TODO: Добавить глобальное состояние игры (enum State: TITLE, MENU, GAMEPLAY, PAUSED)
 # TODO: Добавить методы для выхода из игры (quit_game) и возврата в главное меню
 
