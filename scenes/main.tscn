@@ -1,0 +1,8 @@
+[gd_scene load_steps=1 format=3 uid="uid://c6r204k2v873d"]
+
+[node name="Main" type="Node"]
+# scenes/main.tscn
+# Главная сцена, которая загружается первой. 
+# Используется для инициализации всех Autoload-ов и перехода в главное меню (hub.tscn).
+# Подключите сюда скрипт, который вызывает GameManager.change_scene_to_file("res://scenes/hub/hub.tscn")
+

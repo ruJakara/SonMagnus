@@ -1,0 +1,49 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="SonMagnus"
+run/main_scene="res://scenes/hub/hub.tscn"
+config/features=PackedStringArray("4.5")
+"#ÐÐ»Ñ2DÐ¿ÑÐ¾ÐµÐºÑÐ¾Ð²ÑÐ°ÑÑÐ¾Ð½Ð°ÑÐ¸Ð½Ð°ÑÑÑUIÑÑÐµÐ½ÑÐ¸Ð»Ð¸ÑÐ°Ð±Ð°config/features"=PackedStringArray("4.5", "Forward Plus")
+"#ÐÑÑÐ°Ð²Ð»ÑÐµÐ¼,GodotÑÐ°Ð¼Ð¾Ð¿ÑÐ¸Ð¼Ð¸Ð·Ð¸ÑÑÐµÑconfig/icon"="res://icon.svg"
+
+[autoload]
+
+Config="*res://autoload/Config.gd"
+GameManager="*res://autoload/GameManager.gd"
+SaveManager="*res://autoload/SaveManager.gd"
+CombatManager="*res://autoload/CombatManager.gd"
+SkillManager="*res://autoload/SkillManager.gd"
+CraftManager="*res://autoload/CraftManager.gd"
+EconomyManager="*res://autoload/EconomyManager.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/resizable=false
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+"#ÐÐ°ÑÑÑÐ¾Ð¹ÐºÐ¸ÑÐµÐ½Ð´ÐµÑÐ¸Ð½Ð³Ð°Ð¿Ð¾ÑÐ¼Ð¾Ð»ÑÐ°Ð½Ð¸ÑÐ´Ð»Ñ2D.#Godot4Ð°Ð²ÑÐ¾Ð¼Ð°ÑÐ¸ÑÐµÑÐºÐ¸Ð¾Ð¿ÑÐ¸Ð¼Ð¸Ð·Ð¸ÑÑÐµÑÑÐµÐ½Ð´ÐµÑÐ¸Ð½Ð³Ð´Ð»Ñ2D,Ð½Ð¾Ð¼Ð¾Ð¶Ð½Ð¾ÑÐ²Ð½Ð¾ÑÐºÐ°Ð·Ð°ÑÑ:#renderer/rendering_method"="forward_plus"
+=======
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+>>>>>>> Stashed changes
+=======
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+>>>>>>> Stashed changes

@@ -1,0 +1,7 @@
+[gd_scene load_steps=1 format=3 uid="uid://e2h594l1w984e"]
+
+[node name="Forest" type="Node"]
+# scenes/world/forest.tscn
+# Пример игровой сцены мира.
+# Здесь размещаются ландшафт, враги и интерактивные объекты.
+

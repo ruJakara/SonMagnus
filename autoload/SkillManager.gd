@@ -1,0 +1,57 @@
+# autoload/SkillManager.gd
+# Менеджер навыков и опыта. Отвечает за накопление опыта, повышение уровней и управление навыками.
+# Подключается как Autoload с именем "SkillManager".
+
+extends Node
+
+## Сигнал, который испускается при повышении уровня.
+signal level_up(new_level: int)
+## Сигнал, который испускается при получении опыта.
+signal exp_gained(skill_id: String, amount: int)
+
+## Текущий глобальный уровень игрока.
+var global_level: int = 1
+## Словарь для хранения опыта по ID навыков.
+var skill_exp: Dictionary = {} # {"swordsmanship": 0, "archery": 0}
+
+## @brief Инициализация класса SkillManager.
+func _ready():
+	print("SkillManager.gd загружен.")
+	# TODO: Загрузить данные из SaveManager при старте
+
+## @brief Добавляет опыт к указанному навыку и проверяет повышение уровня.
+## @param skill_id: Идентификатор навыка (например, "swordsmanship").
+## @param amount: Количество полученного опыта.
+func gain_exp(skill_id: String, amount: int):
+	# 1. Обновление опыта навыка
+	skill_exp[skill_id] = skill_exp.get(skill_id, 0) + amount
+	exp_gained.emit(skill_id, amount)
+	print("Получено %d опыта для навыка '%s'. Всего: %d" % [amount, skill_id, skill_exp[skill_id]])
+	
+	# 2. Проверка глобального уровня
+	_recalculate_global_level()
+
+## @brief Пересчитывает глобальный уровень на основе накопленного опыта.
+func _recalculate_global_level():
+	var total_exp = 0
+	for exp in skill_exp.values():
+		total_exp += exp
+		
+	var new_level = _calculate_level_from_total_exp(total_exp)
+	
+	if new_level > global_level:
+		var old_level = global_level
+		global_level = new_level
+		level_up.emit(global_level)
+		print("Уровень повышен! %d -> %d" % [old_level, global_level])
+
+## @brief Функция для расчета уровня на основе общего опыта.
+## @param total_exp: Общее количество опыта.
+## @return: Рассчитанный уровень.
+func _calculate_level_from_total_exp(total_exp: int) -> int:
+	# Простейшая формула: Уровень = floor(sqrt(ОбщийОпыт / 100)) + 1
+	return floor(sqrt(total_exp / 100.0)) + 1
+
+# TODO: Добавить методы для изучения/забывания навыков
+# TODO: Загрузить данные навыков из res://data/skills.json
+
