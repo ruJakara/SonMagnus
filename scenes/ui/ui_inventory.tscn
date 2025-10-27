@@ -1,0 +1,7 @@
+[gd_scene load_steps=1 format=3 uid="uid://h5k827o4z217h"]
+
+[node name="UIInventory" type="Control"]
+# scenes/ui/ui_inventory.tscn
+# Сцена пользовательского интерфейса инвентаря.
+# Должна взаимодействовать с CraftManager и EconomyManager.
+
