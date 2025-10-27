@@ -1,0 +1,33 @@
+; Engine configuration file.
+; It's best edited using the editor to ensure consistency across all platforms.
+
+[application]
+
+config/name="SonMagnus"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.5", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+Config="*res://autoload/Config.gd"
+GameManager="*res://autoload/GameManager.gd"
+SaveManager="*res://autoload/SaveManager.gd"
+CombatManager="*res://autoload/CombatManager.gd"
+SkillManager="*res://autoload/SkillManager.gd"
+CraftManager="*res://autoload/CraftManager.gd"
+EconomyManager="*res://autoload/EconomyManager.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/resizable=false
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"
+
