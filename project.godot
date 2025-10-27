@@ -35,4 +35,6 @@ window/stretch/aspect="expand"
 
 [rendering]
 
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
 "#ÐÐ°ÑÑÑÐ¾Ð¹ÐºÐ¸ÑÐµÐ½Ð´ÐµÑÐ¸Ð½Ð³Ð°Ð¿Ð¾ÑÐ¼Ð¾Ð»ÑÐ°Ð½Ð¸ÑÐ´Ð»Ñ2D.#Godot4Ð°Ð²ÑÐ¾Ð¼Ð°ÑÐ¸ÑÐµÑÐºÐ¸Ð¾Ð¿ÑÐ¸Ð¼Ð¸Ð·Ð¸ÑÑÐµÑÑÐµÐ½Ð´ÐµÑÐ¸Ð½Ð³Ð´Ð»Ñ2D,Ð½Ð¾Ð¼Ð¾Ð¶Ð½Ð¾ÑÐ²Ð½Ð¾ÑÐºÐ°Ð·Ð°ÑÑ:#renderer/rendering_method"="forward_plus"
