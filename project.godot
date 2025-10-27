@@ -12,9 +12,8 @@ config_version=5
 
 config/name="SonMagnus"
 run/main_scene="res://scenes/hub/hub.tscn"
-config/features=PackedStringArray("4.5")
-"#ÐÐ»Ñ2DÐ¿ÑÐ¾ÐµÐºÑÐ¾Ð²ÑÐ°ÑÑÐ¾Ð½Ð°ÑÐ¸Ð½Ð°ÑÑÑUIÑÑÐµÐ½ÑÐ¸Ð»Ð¸ÑÐ°Ð±Ð°config/features"=PackedStringArray("4.5", "Forward Plus")
-"#ÐÑÑÐ°Ð²Ð»ÑÐµÐ¼,GodotÑÐ°Ð¼Ð¾Ð¿ÑÐ¸Ð¼Ð¸Ð·Ð¸ÑÑÐµÑconfig/icon"="res://icon.svg"
+config/features=PackedStringArray("4.5", "Forward Plus")
+config/icon="res://icon.svg"
 
 [autoload]
 
