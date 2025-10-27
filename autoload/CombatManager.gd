@@ -6,9 +6,10 @@ extends Node
 
 ## @brief Инициализация класса CombatManager.
 func _ready():
-	print("CombatManager.gd загружен.")
-	if Config.COMBAT_V2_ENABLED:
-		print("CombatManager: Используется Боевая Система V2.")
+		if Config.DEBUG_LOGS:
+			print_debug("[CombatManager] Загружен.")
+		if Config.COMBAT_V2_ENABLED:
+			print_debug("[CombatManager] Используется Боевая Система V2.")
 
 ## @brief Рассчитывает урон, наносимый атакующим защитнику.
 ## @param attacker: Объект атакующего (BaseEntity или производный).
