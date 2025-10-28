@@ -1,0 +1,8 @@
+{
+  "game_version": "0.1.0",
+  "combat_v2_enabled": true,
+  "save_test_mode": true,
+  "autosave_enabled": false,
+  "debug_logs": true,
+  "language": "ru"
+}

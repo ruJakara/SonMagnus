@@ -1,0 +1,12 @@
+{
+  "potion": {
+    "name": "Зелье лечения",
+    "effect": "heal",
+    "value": 25
+  },
+  "ether": {
+    "name": "Эфир",
+    "effect": "mana_restore",
+    "value": 15
+  }
+}

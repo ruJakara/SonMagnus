@@ -1,0 +1,87 @@
+{
+  "// INFO": "Правила синтеза между навыками. Игрок может открыть новые гибридные умения.",
+  "flame_slash": {
+    "name": "Огненный клинок",
+    "description": "Комбинированная техника — соединяет силу удара и пламя магии.",
+    "requirements": {
+      "skills": [
+        "slash",
+        "ignite"
+      ],
+      "mastery": {
+        "slash": 0.5,
+        "ignite": 0.5
+      }
+    },
+    "result_skill": "flame_slash",
+    "unlocked_by_class": [
+      "warrior",
+      "mage"
+    ],
+    "tags": [
+      "hybrid",
+      "fire"
+    ],
+    "visual": {
+      "animation": "slash_fire_combo",
+      "effect": "flame_trail"
+    }
+  },
+  "frost_counter": {
+    "name": "Ледяной контрудар",
+    "description": "Контратакует после успешного парирования, нанося ледяной урон.",
+    "requirements": {
+      "skills": [
+        "parry",
+        "ice_touch"
+      ],
+      "mastery": {
+        "parry": 0.6,
+        "ice_touch": 0.4
+      }
+    },
+    "result_skill": "frost_counter",
+    "tags": [
+      "hybrid",
+      "ice"
+    ],
+    "visual": {
+      "animation": "counter_ice",
+      "effect": "frost_wave"
+    }
+  },
+  "thunder_step": {
+    "name": "Громовой рывок",
+    "description": "Молниеносное движение с электрическим уроном при проходе сквозь врагов.",
+    "requirements": {
+      "skills": [
+        "dash",
+        "lightning"
+      ],
+      "mastery": {
+        "dash": 0.7,
+        "lightning": 0.5
+      }
+    },
+    "result_skill": "thunder_step",
+    "tags": [
+      "mobility",
+      "electric"
+    ],
+    "visual": {
+      "animation": "dash_electric",
+      "effect": "lightning_trail"
+    }
+  },
+  "procedural_rules": [
+    {
+      "if_tags": [
+        "fire",
+        "physical"
+      ],
+      "result_prefix": "flame_",
+      "bonus_damage": 0.2,
+      "comment": "Процедурное правило: автоматически создаёт огненные варианты физических атак."
+    }
+  ]
+}

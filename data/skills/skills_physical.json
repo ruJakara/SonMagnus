@@ -1,0 +1,31 @@
+{
+  "// INFO": "Физические умения ближнего боя. Основа для комбо и гибридов.",
+  "slash": {
+    "name": "Резкий удар",
+    "description": "Простой, но точный удар оружием ближнего боя.",
+    "damage_multiplier": 1.0,
+    "mana_cost": 0,
+    "cooldown": 1,
+    "type": "physical",
+    "target": "enemy",
+    "animation": "slash_basic"
+  },
+  "parry": {
+    "name": "Парирование",
+    "description": "Блокирует атаку врага и подготавливает контратаку.",
+    "damage_multiplier": 0,
+    "cooldown": 2,
+    "type": "physical",
+    "target": "self",
+    "animation": "parry_pose"
+  },
+  "dash": {
+    "name": "Рывок",
+    "description": "Быстрое перемещение вперёд, позволяющее уклониться от атаки.",
+    "damage_multiplier": 0,
+    "cooldown": 3,
+    "type": "mobility",
+    "target": "self",
+    "animation": "dash_forward"
+  }
+}

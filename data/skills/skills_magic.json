@@ -1,0 +1,37 @@
+{
+  "// INFO": "Магические умения — атакующие и поддерживающие.",
+  "ignite": {
+    "name": "Поджечь оружие",
+    "description": "Окутывает оружие пламенем, добавляя огненный урон.",
+    "damage_multiplier": 0.5,
+    "mana_cost": 5,
+    "cooldown": 3,
+    "type": "magic",
+    "element": "fire",
+    "target": "self",
+    "animation": "fire_enchant"
+  },
+  "ice_touch": {
+    "name": "Ледяное касание",
+    "description": "Атакует врага ледяной энергией, замедляя его.",
+    "damage_multiplier": 1.1,
+    "mana_cost": 6,
+    "cooldown": 3,
+    "type": "magic",
+    "element": "ice",
+    "status_effect": "slow",
+    "target": "enemy",
+    "animation": "ice_cast"
+  },
+  "lightning": {
+    "name": "Молния",
+    "description": "Создаёт электрический разряд, поражающий одну цель.",
+    "damage_multiplier": 1.3,
+    "mana_cost": 7,
+    "cooldown": 4,
+    "type": "magic",
+    "element": "electric",
+    "target": "enemy",
+    "animation": "lightning_cast"
+  }
+}
