@@ -4,6 +4,7 @@
 
 extends Node
 
+
 ## @brief Инициализация класса CombatManager.
 func _ready():
 		if Config.DEBUG_LOGS:

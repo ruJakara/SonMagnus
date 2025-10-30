@@ -1,12 +1,20 @@
 {
-  "potion": {
-    "name": "Зелье лечения",
-    "effect": "heal",
-    "value": 25
+  "iron_sword": {
+	"name": "Железный меч",
+	"type": "weapon",
+	"description": "Простой, но надёжный меч.",
+	"attack_power": 10,
+	"rarity": "common",
+	"price": 25,
+	"icon": "res://assets/icons/sword_iron.png",
+	"effects": ["bleed"]
   },
-  "ether": {
-    "name": "Эфир",
-    "effect": "mana_restore",
-    "value": 15
+  "health_potion": {
+	"name": "Зелье здоровья",
+	"type": "potion",
+	"heal_amount": 30,
+	"price": 10,
+	"icon": "res://assets/icons/potion_red.png",
+	"consumable": true
   }
 }

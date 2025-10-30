@@ -1,14 +1,14 @@
 {
   "sword": {
-    "name": "Меч новичка",
-    "base_damage": 8,
-    "crit_chance": 0.05,
-    "type": "melee"
+	"name": "Меч новичка",
+	"base_damage": 8,
+	"crit_chance": 0.05,
+	"type": "melee"
   },
   "staff": {
-    "name": "Посох ученика",
-    "base_damage": 12,
-    "crit_chance": 0.1,
-    "type": "magic"
+	"name": "Посох ученика",
+	"base_damage": 12,
+	"crit_chance": 0.1,
+	"type": "magic"
   }
 }

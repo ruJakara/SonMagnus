@@ -30,4 +30,3 @@ func craft_item(recipe_id: String) -> bool:
 	return false
 
 # TODO: Добавить сигналы о начале/конце крафта
-

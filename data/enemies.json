@@ -1,14 +1,14 @@
 {
   "slime": {
-    "name": "Слизень",
-    "hp": 40,
-    "attack": 5,
-    "exp_reward": 10
+	"name": "Слизень",
+	"hp": 40,
+	"attack": 5,
+	"exp_reward": 10
   },
   "goblin": {
-    "name": "Гоблин",
-    "hp": 70,
-    "attack": 8,
-    "exp_reward": 20
+	"name": "Гоблин",
+	"hp": 70,
+	"attack": 8,
+	"exp_reward": 20
   }
 }
