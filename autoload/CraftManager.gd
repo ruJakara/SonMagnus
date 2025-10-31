@@ -11,7 +11,7 @@ func _ready():
 ## @brief Проверяет, может ли игрок создать предмет по указанному рецепту.
 ## @param recipe_id: ID рецепта (соответствует данным в res://data/recipes.json).
 ## @return: true, если крафт возможен, false иначе.
-func can_craft(recipe_id: String) -> bool:
+func can_craft(_recipe_id: String) -> bool:
 	# TODO: Загрузить рецепт из res://data/recipes.json
 	# TODO: Проверить наличие ингредиентов в инвентаре
 	return false

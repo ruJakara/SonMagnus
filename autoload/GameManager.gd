@@ -22,6 +22,7 @@ func _check_managers() -> void:
 		"SaveManager"
 	]
 
+	@warning_ignore("shadowed_variable_base_class")
 	for name in required_managers:
 		var node = get_node_or_null("/root/" + name)
 		if node:
@@ -45,14 +46,17 @@ func change_scene_to_file(path: String) -> void:
 	scene_changed.emit(path)
 
 ## Автосохранение (заглушка)
+
 func get_autosave_data() -> Dictionary:
+	@warning_ignore("incompatible_ternary")
 	return {
 		"player": {
 			"position": Vector2.ZERO, # TODO: заменить на Player.position
 			"hp": 100,                # TODO: заменить на Player.health
 			"exp": 0                  # TODO: заменить на Player.exp
 		},
+		
 		"world": {
-			"scene": get_tree().current_scene.name if get_tree().current_scene else "Unknown"
+			"scene":( get_tree().current_scene.name if get_tree().current_scene else "Unknown")
 		}
 	}

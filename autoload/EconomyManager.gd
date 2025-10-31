@@ -26,10 +26,9 @@ func modify_currency(amount: int):
 ## @brief Рассчитывает цену продажи предмета.
 ## @param item_id: ID предмета.
 ## @return: Цена продажи.
-func calculate_sell_price(item_id: String) -> int:
+func calculate_sell_price(_item_id: String) -> int:
 	# TODO: Загрузить базовую цену из res://data/items.json
 	# TODO: Применить модификаторы (например, скидка торговца)
 	return 10 # Заглушка
 
 # TODO: Добавить методы для покупки/продажи предметов
-
