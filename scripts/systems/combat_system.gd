@@ -25,4 +25,3 @@ func perform_attack(attacker: BaseEntity, defender: BaseEntity, weapon_data: Dic
 	
 # TODO: Добавить логику для очередности ходов (если пошаговая система)
 # TODO: Добавить логику для обработки критических состояний (оглушение, отравление)
-

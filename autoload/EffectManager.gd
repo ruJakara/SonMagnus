@@ -170,12 +170,13 @@ func _on_tick() -> void:
 # ============================================
 
 func _apply_stat_modifiers(target: Node, data: Dictionary) -> void:
-	if data.has("attack_bonus") and target.has("attack"):
-		target.attack += data["attack_bonus"]
-	if data.has("defense_bonus") and target.has("defense"):
-		target.defense += data["defense_bonus"]
-	if data.has("speed_modifier") and target.has("speed"):
-		target.speed += data["speed_modifier"]
+	if data.has("attack_bonus") and "attack" in target:
+		target.attack = target.get("attack") + data["attack_bonus"]
+	if data.has("defense_bonus") and "defense" in target:
+		target.defense = target.get("defense") + data["defense_bonus"]
+	if data.has("speed_modifier") and "speed" in target:
+		target.speed = target.get("speed") + data["speed_modifier"]
+
 
 
 func _find_target_by_id(tid: String) -> Node:

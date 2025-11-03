@@ -12,7 +12,7 @@ class DummyEntity extends Node:
 	func take_damage(amount: float) -> void:
 		health -= amount
 
-	func apply_status_effect(effect_id: String) -> void:
+	func apply_status_effect(_effect_id: String) -> void:
 		pass
 
 	func get_global_level() -> int:
@@ -35,16 +35,16 @@ class DummyEntity extends Node:
 
 
 func test_basic_attack_success() -> void:
-	var combat = Engine.get_singleton("CombatManager")
+	var combat = CombatManager
 	var p = DummyEntity.new()
 	var e = DummyEntity.new()
 	var wpn = {"base_damage": 10, "crit_chance": 0.0}
 	var dmg = combat.calculate_damage(p, e, wpn)
-	assert_true(dmg > 0, "Damage must be > 0")
+	assert_true(dmg.damage > 0, "Damage must be > 0")
 
 
 func test_no_stamina_fail() -> void:
-	var combat = Engine.get_singleton("CombatManager")
+	var combat = CombatManager
 	var p = DummyEntity.new()
 	p.stamina = 0
 	var ok = combat.is_combo_available(p, "basic_l")

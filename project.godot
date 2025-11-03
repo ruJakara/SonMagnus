@@ -28,6 +28,11 @@ EconomyManager="*res://autoload/EconomyManager.gd"
 ItemManager="*res://autoload/ItemManager.gd"
 EffectManager="*res://autoload/EffectManager.gd"
 ComboManager="*res://autoload/ComboManager.gd"
+Gut="*res://addons/gut/gut.gd"
+
+[debug]
+
+gdscript/warnings/exclude_addons=false
 
 [display]
 
