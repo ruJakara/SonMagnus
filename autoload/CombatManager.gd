@@ -23,6 +23,14 @@ class AttackContext:
 	var combo_data: Dictionary = {}
 	var weapon_data: Dictionary = {}
 
+# Проверки при старте: убедимся, что необходимые автолоады доступны
+func _ready() -> void:
+	# ComboManager и EffectManager являются опционально критичными для боевой логики
+	if not has_node("/root/ComboManager"):
+		push_warning("[CombatManager] ComboManager не найден в /root; некоторые функции будут недоступны")
+	if not has_node("/root/EffectManager"):
+		push_warning("[CombatManager] EffectManager не найден в /root; эффекты статусов не будут применяться")
+
 # =============================
 # === MAIN EXECUTION CHAIN ====
 # =============================
