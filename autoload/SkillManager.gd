@@ -34,6 +34,7 @@ func gain_exp(skill_id: String, amount: int):
 ## @brief Пересчитывает глобальный уровень на основе накопленного опыта.
 func _recalculate_global_level():
 	var total_exp = 0
+	@warning_ignore("shadowed_global_identifier")
 	for exp in skill_exp.values():
 		total_exp += exp
 		
@@ -54,4 +55,3 @@ func _calculate_level_from_total_exp(total_exp: int) -> int:
 
 # TODO: Добавить методы для изучения/забывания навыков
 # TODO: Загрузить данные навыков из res://data/skills.json
-

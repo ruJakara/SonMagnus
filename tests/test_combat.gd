@@ -1,25 +1,51 @@
-# tests/test_combat.gd
-# Сценарий для модульного тестирования боевой системы.
-# Используйте фреймворк GDExtension, если он будет подключен.
+@tool
+extends "res://addons/gut/test.gd"
 
-extends Node
+# Вспомогательный фейковый игрок/цель
+class DummyEntity extends Node:
+	var entity_name: String = "Dummy"
+	var health: float = 100.0
+	var stamina: float = 100.0
+	var skills = [{"id": "skill_sword", "level": 12}, {"id": "skill_parry", "level": 6}]
+	var unlocked_combos = ["basic_l", "parry_counter"]
 
-## @brief Тестирование функции calculate_damage.
-func test_damage_calculation():
-	# TODO: Создать тестовые сущности
-	# var attacker = BaseEntity.new()
-	# var defender = BaseEntity.new()
-	
-	# TODO: Вызвать CombatManager.calculate_damage с известными параметрами
-	# var damage = CombatManager.calculate_damage(attacker, defender, {"base_damage": 10})
-	
-	# TODO: Проверить, что damage соответствует ожидаемому значению
-	# assert_eq(damage, 10, "Базовый урон должен быть 10")
-	
-	pass
+	func take_damage(amount: float) -> void:
+		health -= amount
 
-## @brief Тестирование критического удара.
-func test_critical_hit():
-	# TODO: Проверить, что при crit_chance = 1.0 урон удваивается
-	pass
+	func apply_status_effect(_effect_id: String) -> void:
+		pass
 
+	func get_global_level() -> int:
+		return 5
+
+	func reduce_stamina(cost: float) -> void:
+		stamina -= cost
+
+	func get_stamina() -> float:
+		return stamina
+
+	func has_unlocked_combo(id: String) -> bool:
+		return id in unlocked_combos
+
+	func get_skill_level(skill_name: String) -> int:
+		for s in skills:
+			if s.id == skill_name:
+				return s.level
+		return 0
+
+
+func test_basic_attack_success() -> void:
+	var combat = CombatManager
+	var p = DummyEntity.new()
+	var e = DummyEntity.new()
+	var wpn = {"base_damage": 10, "crit_chance": 0.0}
+	var dmg = combat.calculate_damage(p, e, wpn)
+	assert_true(dmg.damage > 0, "Damage must be > 0")
+
+
+func test_no_stamina_fail() -> void:
+	var combat = CombatManager
+	var p = DummyEntity.new()
+	p.stamina = 0
+	var ok = combat.is_combo_available(p, "basic_l")
+	assert_false(ok, "Combo should not be available if stamina < cost")

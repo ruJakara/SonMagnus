@@ -24,4 +24,3 @@ var SAVE_TEST_MODE := false
 var AUTOSAVE_ENABLED := true
 
 # TODO: Добавить другие глобальные константы и настройки (например, VOLUME_MASTER)
-

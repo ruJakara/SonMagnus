@@ -33,6 +33,12 @@ CraftManager="*res://autoload/CraftManager.gd"
 EconomyManager="*res://autoload/EconomyManager.gd"
 ItemManager="*res://autoload/ItemManager.gd"
 EffectManager="*res://autoload/EffectManager.gd"
+ComboManager="*res://autoload/ComboManager.gd"
+Gut="*res://addons/gut/gut.gd"
+
+[debug]
+
+gdscript/warnings/exclude_addons=false
 
 [display]
 
@@ -41,6 +47,10 @@ window/size/viewport_height=720
 window/size/resizable=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 
 [rendering]
 
