@@ -1,0 +1,59 @@
+{
+	"berserker": {
+		"id": "berserker",
+		"name": "Берсерк",
+		"rank": "rare",
+		"unlock_level": 10,
+		"next_at": 20,
+		"next_choices": ["warlord", "blood_reaver"],
+		"stats": { "hp": 15, "attack": 5 },
+		"description": "Неудержимая ярость, высокий урон в ближнем бою.",
+		"skills": ["rage", "cleave"]
+	},
+	"paladin": {
+		"id": "paladin",
+		"name": "Паладин",
+		"rank": "rare",
+		"unlock_level": 10,
+		"next_at": 20,
+		"next_choices": ["templar", "justicar"],
+		"stats": { "hp": 14, "attack": 3, "spirit": 3 },
+		"description": "Священный воитель: защита и правосудие.",
+		"skills": ["holy_strike", "aegis"]
+	},
+	"sniper": {
+		"id": "sniper",
+		"name": "Снайпер",
+		"rank": "rare",
+		"unlock_level": 10,
+		"next_at": 20,
+		"next_choices": ["marksman", "shadow_stalker"],
+		"stats": { "hp": 9, "attack": 6 },
+		"description": "Высокоточный урон на большой дистанции.",
+		"skills": ["aimed_shot", "piercing_arrow"]
+	},
+	"priest": {
+		"id": "priest",
+		"name": "Жрец",
+		"rank": "rare",
+		"unlock_level": 10,
+		"next_at": 20,
+		"next_choices": ["high_priest", "oracle"],
+		"stats": { "hp": 9, "spirit": 6 },
+		"description": "Сильное лечение и благословения.",
+		"skills": ["heal_major", "blessing"]
+	},
+	"pyromancer": {
+		"id": "pyromancer",
+		"name": "Пиромант",
+		"rank": "rare",
+		"unlock_level": 10,
+		"next_at": 20,
+		"next_choices": ["inferno_mage", "ash_walker"],
+		"stats": { "hp": 8, "intellect": 7 },
+		"description": "Огонь — ответ на все вопросы.",
+		"skills": ["fireball", "flame_wall"]
+	}
+}
+
+

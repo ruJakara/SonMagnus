@@ -9,6 +9,7 @@ signal health_changed(new_health: int, max_health: int)
 signal died
 signal effect_applied(effect_id: String)
 signal effect_removed(effect_id: String)
+signal class_changed(class_id: String)
 
 @export var entity_name: String = "Безымянный"
 @export var max_health: int = 100
@@ -19,6 +20,10 @@ signal effect_removed(effect_id: String)
 
 # Внутреннее поле здоровья (явно типизировано)
 var _health: int = 100
+
+# Классовая система (минимальная интеграция)
+var global_level: int = 1
+var owned_classes: Array = []
 
 # Активные эффекты для этой сущности (ключ — effect_id, значение — true)
 var active_effects: Dictionary = {}
@@ -116,3 +121,22 @@ func clear_all_effects() -> void:
 		if _effect_manager.has_method("remove_effect"):
 			_effect_manager.call("remove_effect", self, effect_id)
 	active_effects.clear()
+
+# --- Классы: API для ClassManager ---
+func add_class(class_id: String) -> void:
+	if not (has_node("/root/Config") and Config.CLASS_SYSTEM_ENABLED):
+		return
+	if class_id in owned_classes:
+		return
+	owned_classes.append(class_id)
+	emit_signal("class_changed", class_id)
+
+func has_class(class_id: String) -> bool:
+	return class_id in owned_classes
+
+func on_global_level_up(new_level: int) -> void:
+	global_level = new_level
+	if has_node("/root/Config") and Config.CLASS_SYSTEM_ENABLED and global_level % 10 == 0:
+		var cm := get_node_or_null("/root/ClassManagerSingleton")
+		if cm and cm.has_method("check_level_for_class"):
+			cm.call("check_level_for_class", self)

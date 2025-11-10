@@ -24,11 +24,5 @@ var SAVE_TEST_MODE := false
 var AUTOSAVE_ENABLED := true
 
 # TODO: Добавить другие глобальные константы и настройки (например, VOLUME_MASTER)
+*** End Patch  />```}?>``` json error: Expecting value: line 2 column 1 (char 1) !***!*\
 
-# --- [ Классовая система ] ---
-## Фича-флаг классовой системы
-var CLASS_SYSTEM_ENABLED := true
-## Через сколько уровней повторно предлагать выбор, если игрок отложил
-var CLASS_OFFER_REMIND_LEVELS := 5
-## Максимум вариантов при предложении
-var CLASS_OFFER_MAX_OPTIONS := 4

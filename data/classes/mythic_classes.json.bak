@@ -1,0 +1,43 @@
+{
+	"fallen_guardian": {
+		"id": "fallen_guardian",
+		"name": "Падший Хранитель",
+		"rank": "mythic",
+		"hidden": true,
+		"unlock_level": 10,
+		"trigger_condition": {
+			"used_dark_skills": ">=20",
+			"alignment_score": "<0"
+		},
+		"description": "Пробуждается при нарушении духовного пути.",
+		"skills": ["dark_barrier", "soul_chain"]
+	},
+	"phoenix_scion": {
+		"id": "phoenix_scion",
+		"name": "Наследник Феникса",
+		"rank": "mythic",
+		"hidden": true,
+		"unlock_level": 10,
+		"trigger_condition": {
+			"deaths": ">=1",
+			"self_heals_used": ">=5"
+		},
+		"description": "Возрождается из пепла, усиливая огненные способности.",
+		"skills": ["rebirth", "phoenix_flare"]
+	},
+	"void_walker": {
+		"id": "void_walker",
+		"name": "Ходок Бездны",
+		"rank": "mythic",
+		"hidden": true,
+		"unlock_level": 20,
+		"trigger_condition": {
+			"skills_used": ">=100",
+			"completed_quest_ancient_ruins": "==true"
+		},
+		"description": "Скользит между мирами, искажая реальность.",
+		"skills": ["phase_shift", "void_lance"]
+	}
+}
+
+

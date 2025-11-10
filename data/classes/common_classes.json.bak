@@ -1,0 +1,48 @@
+{
+	"warrior": {
+		"id": "warrior",
+		"name": "Воин",
+		"rank": "common",
+		"unlock_level": 1,
+		"next_at": 10,
+		"next_choices": ["berserker", "paladin"],
+		"stats": { "hp": 10, "attack": 2 },
+		"description": "Базовый воин ближнего боя.",
+		"skills": ["slash_basic", "guard_stance"]
+	},
+	"ranger": {
+		"id": "ranger",
+		"name": "Следопыт",
+		"rank": "common",
+		"unlock_level": 1,
+		"next_at": 10,
+		"next_choices": ["sniper", "beastmaster"],
+		"stats": { "hp": 6, "attack": 3 },
+		"description": "Бой на расстоянии, ловушки и уклонение.",
+		"skills": ["arrow_shot", "evasion"]
+	},
+	"acolyte": {
+		"id": "acolyte",
+		"name": "Послушник",
+		"rank": "common",
+		"unlock_level": 1,
+		"next_at": 10,
+		"next_choices": ["priest", "inquisitor"],
+		"stats": { "hp": 7, "attack": 1, "spirit": 3 },
+		"description": "Поддержка, лечение и светлая магия.",
+		"skills": ["heal_minor", "holy_spark"]
+	},
+	"apprentice": {
+		"id": "apprentice",
+		"name": "Ученик",
+		"rank": "common",
+		"unlock_level": 1,
+		"next_at": 10,
+		"next_choices": ["pyromancer", "cryomancer"],
+		"stats": { "hp": 5, "attack": 1, "intellect": 4 },
+		"description": "Начинающий маг стихий.",
+		"skills": ["magic_bolt", "focus"]
+	}
+}
+
+

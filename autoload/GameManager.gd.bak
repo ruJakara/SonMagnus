@@ -12,11 +12,6 @@ signal game_paused(is_paused: bool)
 func _ready() -> void:
 	print("[GameManager] Загружен.")
 	_check_managers()
-	# Подключение к ClassManager если фича включена
-	if has_node("/root/Config") and Config.CLASS_SYSTEM_ENABLED:
-		var cm: Node = get_node_or_null("/root/ClassManagerSingleton")
-		if cm and cm.has_signal("class_offered"):
-			cm.connect("class_offered", Callable(self, "_on_class_offered"))
 
 ## Проверка, что все нужные менеджеры подключены
 func _check_managers() -> void:
@@ -58,30 +53,12 @@ func get_autosave_data() -> Dictionary:
 		"player": {
 			"position": Vector2.ZERO, # TODO: заменить на Player.position
 			"hp": 100,                # TODO: заменить на Player.health
-			"exp": 0,                 # TODO: заменить на Player.exp
-			"global_level": 1,        # Поддержка классовой системы
-			"owned_classes": []       # Поддержка классовой системы
+			"exp": 0                  # TODO: заменить на Player.exp
 		},
 		
 		"world": {
 			"scene":( get_tree().current_scene.name if get_tree().current_scene else "Unknown")
 		}
 	}
+*** End Patch ***!
 
-func _on_class_offered(player: Node, choices: Array) -> void:
-	# Открыть модальное окно выбора класса, если сцена существует
-	if not (has_node("/root/Config") and Config.CLASS_SYSTEM_ENABLED):
-		return
-	var ui_path := "res://ui/class_offer.tscn"
-	if ResourceLoader.exists(ui_path):
-		var dlg_scene: PackedScene = load(ui_path) as PackedScene
-		if dlg_scene == null:
-			push_warning("[GameManager] Не удалось загрузить class_offer.tscn")
-			return
-		var dialog: Control = dlg_scene.instantiate() as Control
-		if dialog and dialog.has_method("setup"):
-			get_tree().current_scene.add_child(dialog)
-			dialog.call("setup", player, choices)
-			get_tree().paused = true
-	else:
-		push_warning("[GameManager] class_offer.tscn не найден. Choices: %s" % str(choices))

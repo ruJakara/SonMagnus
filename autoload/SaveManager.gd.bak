@@ -25,7 +25,7 @@ const SAVE_PATH: String = "user://savegame.dat"
 # с использованием CryptoKey и безопасного хранения ключа.
 var ENCRYPTION_KEY = null
 ## Текущая версия схемы сохранения.
-const CURRENT_SAVE_VERSION: int = 2
+const CURRENT_SAVE_VERSION: int = 1
 
 # --- [ Методы сохранения/загрузки ] ---
 
@@ -103,8 +103,8 @@ func load_game():
 	var data = loaded_data.get("data", {})
 	
 	if save_version < CURRENT_SAVE_VERSION:
+		# TODO: Реализовать миграцию данных (например, _migrate_to_v1(data))
 		if Config.DEBUG_LOGS: print_debug("[SaveManager] Требуется миграция данных: V%d -> V%d" % [save_version, CURRENT_SAVE_VERSION])
-		data = _migrate_save(data, save_version, CURRENT_SAVE_VERSION)
 	
 	if Config.DEBUG_LOGS: print_debug("[SaveManager] Игра успешно загружена (Версия: %d)." % save_version)
 	game_loaded.emit()
@@ -132,22 +132,7 @@ func autosave():
 
 # TODO: Добавить таймер для периодического автосохранения
 # TODO: Добавить миграционные функции (например, _migrate_to_v2)
+*** End Patch %}
 
-func _migrate_save(data: Dictionary, from_version: int, to_version: int) -> Dictionary:
-	var migrated := data.duplicate(true)
-	var v := from_version
-	while v < to_version:
-		if v == 1:
-			migrated = _migrate_v1_to_v2(migrated)
-		v += 1
-	return migrated
+```  Invalid Patch: The patch content does not match the expected format. Please check the syntax and try again.  ***!
 
-func _migrate_v1_to_v2(data: Dictionary) -> Dictionary:
-	var out := data.duplicate(true)
-	var player: Dictionary = out.get("player", {})
-	if not player.has("global_level"):
-		player["global_level"] = 1
-	if not player.has("owned_classes"):
-		player["owned_classes"] = []
-	out["player"] = player
-	return out

@@ -1,0 +1,48 @@
+{
+	"warlord": {
+		"id": "warlord",
+		"name": "Военачальник",
+		"rank": "legendary",
+		"unlock_level": 20,
+		"next_at": 30,
+		"next_choices": [],
+		"stats": { "hp": 25, "attack": 7 },
+		"description": "Лидер, усиливающий союзников и доминирующий в бою.",
+		"skills": ["battle_cry", "command_aura"]
+	},
+	"templar": {
+		"id": "templar",
+		"name": "Тамплиер",
+		"rank": "legendary",
+		"unlock_level": 20,
+		"next_at": 30,
+		"next_choices": [],
+		"stats": { "hp": 22, "attack": 4, "spirit": 6 },
+		"description": "Непоколебимая вера и непробиваемая броня.",
+		"skills": ["divine_shield", "judgement"]
+	},
+	"marksman": {
+		"id": "marksman",
+		"name": "Стрелок",
+		"rank": "legendary",
+		"unlock_level": 20,
+		"next_at": 30,
+		"next_choices": [],
+		"stats": { "hp": 15, "attack": 10 },
+		"description": "Максимизирует критические попадания.",
+		"skills": ["rapid_fire", "headshot"]
+	},
+	"high_priest": {
+		"id": "high_priest",
+		"name": "Верховный жрец",
+		"rank": "legendary",
+		"unlock_level": 20,
+		"next_at": 30,
+		"next_choices": [],
+		"stats": { "hp": 16, "spirit": 12 },
+		"description": "Богоподобное исцеление и защита.",
+		"skills": ["mass_heal", "sanctuary"]
+	}
+}
+
+

@@ -33,7 +33,7 @@ func gain_exp(skill_id: String, amount: int):
 
 ## @brief Пересчитывает глобальный уровень на основе накопленного опыта.
 func _recalculate_global_level():
-	var total_exp: int = 0
+	var total_exp = 0
 	@warning_ignore("shadowed_global_identifier")
 	for exp in skill_exp.values():
 		total_exp += exp
@@ -55,49 +55,6 @@ func _calculate_level_from_total_exp(total_exp: int) -> int:
 
 # TODO: Добавить методы для изучения/забывания навыков
 # TODO: Загрузить данные навыков из res://data/skills.json
+*** End Patch  />``` json error: Expecting value: line 2 column 1 (char 1) !***  />
+```  Invalid Patch: The patch content does not match the expected format. Please check the syntax and try again.  !***  />``` json error: Expecting value: line 2 column 1 (char 1) !***  />``` json error: Expecting value: line 2 column 1 (char 1) !***  />``` json error: Expecting value: line 2 column 1 (char 1) !***  />``` json error: Expecting value: line 2 column 1 (char 1) !***  />
 
-## Выдача стартовых навыков по классу (заглушка; ClassManager вызывает после assign_class)
-func unlock_skills_for_class(_player_node: Node, class_id: String) -> void:
-	if not (has_node("/root/Config") and Config.CLASS_SYSTEM_ENABLED):
-		return
-	# Простой маппинг: читаем skills из описания классов через ClassManager
-	var cm: Node = get_node_or_null("/root/ClassManagerSingleton")
-	if cm and cm.has_method("_classes_by_id"):
-		# недоступно напрямую; fallback — попытаться вызвать get_available_classes_for_player для загрузки данных
-		pass
-	# Лёгкий путь: загрузим JSON одного класса напрямую
-	var skill_ids: Array = []
-	var found: bool = false
-	for path in [
-		"res://data/classes/common_classes.json",
-		"res://data/classes/rare_classes.json",
-		"res://data/classes/legendary_classes.json",
-		"res://data/classes/mythic_classes.json"
-	]:
-		if ResourceLoader.exists(path):
-			var json_text: String = FileAccess.get_file_as_string(path)
-			if json_text != "":
-				var json: JSON = JSON.new()
-				if json.parse(json_text) == OK:
-					var dict: Dictionary = json.get_data()
-					if dict.has(class_id):
-						var entry: Dictionary = dict[class_id]
-						skill_ids = entry.get("skills", [])
-						found = true
-						break
-	# Эффективного менеджера навыков пока нет — просто логируем
-	if found and Config.DEBUG_LOGS:
-		print_debug("[SkillManager] Разблокированы навыки за класс %s: %s" % [class_id, str(skill_ids)])
-
-## Опционально: профиль плейстайла для помощи в подборе классов
-func get_playstyle_profile(player_node: Node) -> Dictionary:
-	# Возвращает простые агрегаты по статистикам игрока для рекомендаций
-	var stats: Dictionary = {}
-	if player_node and player_node.has("stats"):
-		var stats_val = player_node.get("stats")
-		if stats_val is Dictionary:
-			stats = stats_val
-	return {
-		"ranged_focus": int(stats.get("arrow_hits", 0)) > int(stats.get("melee_hits", 0)),
-		"uses_magic": int(stats.get("skills_used", 0)) >= 10
-	}
