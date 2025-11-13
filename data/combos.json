@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "combos": [
+	{
+	  "id": "basic_l",
+	  "name": "ЛМ - атака левой рукой",
+	  "sequence": ["L"],
+	  "class_restriction": [],
+	  "stamina_cost": 8,
+	  "damage_mult": 1.0,
+	  "cooldown": 0.2,
+	  "unlock_condition": {},
+	  "animation": "attack_basic_left",
+	  "hitbox": {
+		"offset": [12, 0],
+		"size": [16, 12]
+	  },
+	  "effects": [],
+	  "default": true
+	},
+	{
+	  "id": "basic_r",
+	  "name": "ПМ - атака правой рукой",
+	  "sequence": ["R"],
+	  "class_restriction": [],
+	  "stamina_cost": 8,
+	  "damage_mult": 1.0,
+	  "cooldown": 0.2,
+	  "unlock_condition": {},
+	  "animation": "attack_basic_right",
+	  "hitbox": {
+		"offset": [12, 0],
+		"size": [16, 12]
+	  },
+	  "effects": [],
+	  "default": true
+	},
+	{
+	  "id": "charged_attack_L",
+	  "name": "Зажатие мышки - заряженная атака",
+	  "sequence": ["HOLD_L"] ,
+	  "class_restriction": [],
+	  "stamina_cost": 15,
+	  "damage_mult": 2.0,
+	  "cooldown": 1.0,
+	  "unlock_condition": {},
+	  "animation": "attack_charged",
+	  "hitbox": {
+		"offset": [20, 0],
+		"size": [30, 16]
+	  },
+	  "effects": [],
+	  "default": false 
+	},
+	{
+	  "id": "charged_attack_R",
+	  "name": "Зажатие мышки - заряженная атака",
+	  "sequence": ["HOLD_R"], 
+	  "class_restriction": [],
+	  "stamina_cost": 15,
+	  "damage_mult": 2.0,
+	  "cooldown": 1.0,
+	  "unlock_condition": {},
+	  "animation": "attack_charged",
+	  "hitbox": {
+		"offset": [20, 0],
+		"size": [30, 16]
+	  },
+	  "effects": [],
+	  "default": false 
+	},
+	{
+	  "id": "two_hand_strike",
+	  "name": "ЛМ + ПМ - атака двумя руками",
+	  "sequence": ["L", "R"],
+	  "class_restriction": [],
+	  "stamina_cost": 20,
+	  "damage_mult": 1.5,
+	  "cooldown": 0.8,
+	  "unlock_condition": {},
+	  "animation": "attack_two_handed",
+	  "hitbox": {
+		"offset": [25, 0],
+		"size": [40, 14]
+	  },
+	  "effects": [],
+	  "default": false
+	},
+	{
+	  "id": "kick_combo",
+	  "name": "Комбо ЛПЛ - пинок",
+	  "sequence": ["L", "R", "L"],
+	  "class_restriction": [],
+	  "stamina_cost": 12,
+	  "damage_mult": 1.2,
+	  "cooldown": 0.6,
+	  "unlock_condition": {},
+	  "animation": "kick_combo",
+	  "hitbox": {
+		"offset": [18, 10],
+		"size": [24, 20]
+	  },
+	  "effects": ["stun_short"], 
+	  "default": true
+	},
+  {
+	  "id": "bleed_combo",
+	  "name": "Комбо холд Л, ПМ - атака + эффект кровотечение",
+	  "sequence": ["HOLD_L", "R"],
+	  "class_restriction": [], 
+	  "stamina_cost": 25,
+	  "damage_mult": 1.8,
+	  "cooldown": 1.5,
+	  "unlock_condition": {
+		"skill_stealth": 5 
+	  },
+	  "animation": "bleed_attack",
+	  "hitbox": {
+		"offset": [22, 0],
+		"size": [35, 12]
+	  },
+	  "effects": ["bleed"],
+	  "default": false
+	},
+	{
+	  "id": "basic_attack",
+	  "name": "Базовая атака",
+	  "sequence": ["L"],
+	  "class_restriction": [],
+	  "stamina_cost": 8,
+	  "damage_mult": 1.0,
+	  "cooldown": 0.2,
+	  "unlock_condition": {},
+	  "animation": "attack_basic_left",
+	  "hitbox": {
+		"offset": [12, 0],
+		"size": [16, 12]
+	  },
+	  "effects": [],
+	  "default": true
+	},
+	{
+	  "id": "charged_attack",
+	  "name": "Заряженная атака",
+	  "sequence": ["HOLD_L"],
+	  "class_restriction": [],
+	  "stamina_cost": 15,
+	  "damage_mult": 2.0,
+	  "cooldown": 1.0,
+	  "unlock_condition": {},
+	  "animation": "attack_charged",
+	  "hitbox": {
+		"offset": [20, 0],
+		"size": [30, 16]
+	  },
+	  "effects": [],
+	  "default": false
+	}
+  ]
+}

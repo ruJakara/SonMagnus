@@ -142,8 +142,10 @@ func _on_attack_pressed(side: String) -> void:
 		_right_holding = true
 		_right_hold_time = 0.0
 
+	# Проверка одновременного нажатия L + R
 	if abs(_last_left_pressed_time - _last_right_pressed_time) <= DOUBLE_PRESS_WINDOW:
-		_register_input("LR")
+		_register_input("L")
+		_register_input("R")
 
 
 func _on_attack_released(side: String) -> void:
@@ -152,7 +154,7 @@ func _on_attack_released(side: String) -> void:
 		var held := _left_hold_time >= hold_threshold
 		_left_hold_time = 0.0
 		if held:
-			_register_input("L_HOLD")
+			_register_input("HOLD_L")
 			_execute_charged_attack("L")
 		else:
 			_register_input("L")
@@ -161,7 +163,7 @@ func _on_attack_released(side: String) -> void:
 		var held := _right_hold_time >= hold_threshold
 		_right_hold_time = 0.0
 		if held:
-			_register_input("R_HOLD")
+			_register_input("HOLD_R")
 			_execute_charged_attack("R")
 		else:
 			_register_input("R")
@@ -186,31 +188,31 @@ func _handle_holds(delta: float) -> void:
 func _register_input(token: String) -> void:
 	if token.is_empty():
 		return
+	
 	_sequence.append(token)
 	if _sequence.size() > max_sequence:
 		_sequence = _sequence.slice(_sequence.size() - max_sequence, max_sequence)
 	_sequence_timer = input_timeout
 
+	# Если это заряженная атака — сразу выполнить и очистить последовательность
+	if token == "HOLD_L" or token == "HOLD_R":
+		_sequence.clear()
+		return
+	
+	# Попытка найти комбо по текущей последовательности
 	var combo_id := ""
 	if Combo and Combo.has_method("find_combo_by_sequence"):
 		combo_id = Combo.find_combo_by_sequence(_sequence)
-
-	if combo_id == "" and Combo and Combo.has_method("has_combo"):
-		var last_token: String = str(_sequence.back())
-		if Combo.has_combo(last_token):
-			combo_id = last_token
-
+	
+	# Если комбо найдено — выполнить
 	if combo_id != "":
 		_execute_combo(combo_id)
 		_sequence.clear()
 		return
-
-	if token_is_basic(token):
+	
+	# Если это одиночная атака (L или R) и время истекло — выполнить базовую атаку
+	if token == "L" or token == "R":
 		_execute_basic_attack(token)
-
-
-func token_is_basic(token: String) -> bool:
-	return token == "L" or token == "R"
 
 
 func _update_sequence_timer(delta: float) -> void:
@@ -228,11 +230,16 @@ func _execute_basic_attack(side_token: String) -> void:
 	}
 	var target := get_target()
 	var result: CombatManager.AttackResult = null
-	if Combat and Combat.has_method("execute_sequence") and Combo and Combo.has_combo("basic_attack"):
-		result = Combat.execute_sequence(self, target, "basic_attack", weapon_data)
+	
+	# Используем ID комбо в зависимости от стороны
+	var combo_id := "basic_l" if side_token == "L" else "basic_r"
+	
+	if Combat and Combat.has_method("execute_sequence") and Combo and Combo.has_combo(combo_id):
+		result = Combat.execute_sequence(self, target, combo_id, weapon_data)
+		if result:
+			_do_attack_feedback(result)
+	
 	emit_signal("basic_attack", side_token)
-	if result != null:
-		_do_attack_feedback(result)
 	_play_attack_animation(side_token)
 	_attack_step("basic")
 
@@ -266,22 +273,19 @@ func _execute_charged_attack(side_token: String) -> void:
 		"crit_chance": base_crit_chance + 0.1
 	}
 	var target := get_target()
-	var combo_id := "charged_%s" % side_token.to_lower()
+	var combo_id := "charged_attack_L" if side_token == "L" else "charged_attack_R"
 	var result: CombatManager.AttackResult = null
-	var executed_combo := false
+	
 	if Combat and Combat.has_method("execute_sequence") and Combo and Combo.has_combo(combo_id):
 		result = Combat.execute_sequence(self, target, combo_id, weapon_data)
-		executed_combo = true
-	elif Combat and Combat.has_method("execute_sequence") and Combo and Combo.has_combo("charged_attack"):
-		result = Combat.execute_sequence(self, target, "charged_attack", weapon_data)
-		executed_combo = true
-
-	if result != null:
-		_do_attack_feedback(result)
+		if result:
+			_do_attack_feedback(result)
+	
 	_attack_step("charged")
 	_play_attack_animation(side_token, true)
 	emit_signal("charged_attack", side_token)
-	if executed_combo and result != null:
+	
+	if result:
 		emit_signal("combo_executed", combo_id, {
 			"success": result.success,
 			"damage": result.damage,
