@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b4scmek7uvdwb"
-path="res://.godot/imported/north.png-9336accffbf4d8f5e11121e44c3b08f6.ctex"
+uid="uid://dxnkbjl2uc0se"
+path="res://.godot/imported/environment_forest_evening.png-0227f6245d95dbc3ec3e2074528fce5e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/rotations/north.png"
-dest_files=["res://.godot/imported/north.png-9336accffbf4d8f5e11121e44c3b08f6.ctex"]
+source_file="res://assets/world/environment_forest_evening.png"
+dest_files=["res://.godot/imported/environment_forest_evening.png-0227f6245d95dbc3ec3e2074528fce5e.ctex"]
 
 [params]
 

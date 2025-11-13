@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://fe0stmhtu7k0"]
+
+[ext_resource type="Script" uid="uid://cc2q3nwvr75hj" path="res://scripts/entities/enemy.gd" id="1_8vbq5"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4gbnu"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8vbq5"]
+
+[node name="EnemyTemplate" type="Node2D"]
+script = ExtResource("1_8vbq5")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_4gbnu")
+
+[node name="detection_area" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="detection_area"]
+scale = Vector2(80, 80)
+shape = SubResource("CircleShape2D_8vbq5")

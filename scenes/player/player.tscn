@@ -1,8 +1,266 @@
-[gd_scene load_steps=1 format=3 uid="uid://g4j716n3y106g"]
+[gd_scene load_steps=54 format=3 uid="uid://c85dg4quft5fo"]
+
+[ext_resource type="Texture2D" uid="uid://c5sn1jcm52fov" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/roundhouse-kick/east/frame_000.png" id="1_2t3bg"]
+[ext_resource type="Texture2D" uid="uid://sa0ut311ykkp" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/roundhouse-kick/east/frame_001.png" id="2_jrbya"]
+[ext_resource type="Texture2D" uid="uid://dbrl066rmvejh" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/roundhouse-kick/east/frame_002.png" id="3_ahqnk"]
+[ext_resource type="Texture2D" uid="uid://ddebiwulfc6jn" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/roundhouse-kick/east/frame_003.png" id="4_vb1ce"]
+[ext_resource type="Texture2D" uid="uid://dmivy0dnkoxo2" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/roundhouse-kick/east/frame_004.png" id="5_0ncpa"]
+[ext_resource type="Texture2D" uid="uid://dio11l8dw0hwf" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/roundhouse-kick/east/frame_005.png" id="6_upxxc"]
+[ext_resource type="Texture2D" uid="uid://ml2r4hoo2hyl" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/roundhouse-kick/east/frame_006.png" id="7_ln3h3"]
+[ext_resource type="Texture2D" uid="uid://baylf80aueq5v" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/lead-jab/east/frame_000.png" id="8_uygh0"]
+[ext_resource type="Texture2D" uid="uid://c8jyljuril0qa" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/lead-jab/east/frame_001.png" id="9_t1aof"]
+[ext_resource type="Texture2D" uid="uid://6b07bx5njj8r" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/lead-jab/east/frame_002.png" id="10_w8qe1"]
+[ext_resource type="Texture2D" uid="uid://dhreejvpnog2t" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_000.png" id="11_hdvrm"]
+[ext_resource type="Texture2D" uid="uid://dtlbsdae3r6w2" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_001.png" id="12_5xbmr"]
+[ext_resource type="Texture2D" uid="uid://dms6bln2r5w4c" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_002.png" id="13_hir57"]
+[ext_resource type="Texture2D" uid="uid://b5a84cjiiml04" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_003.png" id="14_7072n"]
+[ext_resource type="Texture2D" uid="uid://bj60qphn771ta" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_004.png" id="15_gmu8b"]
+[ext_resource type="Texture2D" uid="uid://bl7qoqyvi7ges" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_005.png" id="16_a38bk"]
+[ext_resource type="Texture2D" uid="uid://qvfmjpvavtxp" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/falling-back-death/east/frame_000.png" id="17_3chqh"]
+[ext_resource type="Texture2D" uid="uid://b52wk66fta664" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/falling-back-death/east/frame_001.png" id="18_pwfqx"]
+[ext_resource type="Texture2D" uid="uid://rwmscslmnfbk" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/falling-back-death/east/frame_002.png" id="19_kssj8"]
+[ext_resource type="Texture2D" uid="uid://bcahmng11r2y8" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/falling-back-death/east/frame_003.png" id="20_8lfxt"]
+[ext_resource type="Texture2D" uid="uid://cinws7yf822gg" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/falling-back-death/east/frame_004.png" id="21_lclul"]
+[ext_resource type="Texture2D" uid="uid://dk3ejr4xyffqt" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/falling-back-death/east/frame_005.png" id="22_ej2d6"]
+[ext_resource type="Texture2D" uid="uid://de6kc2arlj0y0" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/falling-back-death/east/frame_006.png" id="23_fvjb1"]
+[ext_resource type="Texture2D" uid="uid://dj0n630nly5u" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/fight-stance-idle-8-frames/east/frame_000.png" id="24_bysbl"]
+[ext_resource type="Texture2D" uid="uid://b8yitr4naajjn" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/fight-stance-idle-8-frames/east/frame_001.png" id="25_2wy34"]
+[ext_resource type="Texture2D" uid="uid://yad262aojpb7" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/fight-stance-idle-8-frames/east/frame_002.png" id="26_ymths"]
+[ext_resource type="Texture2D" uid="uid://btdxehohli86o" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/fight-stance-idle-8-frames/east/frame_003.png" id="27_3p0jd"]
+[ext_resource type="Texture2D" uid="uid://blqrpr72l0v4q" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/fight-stance-idle-8-frames/east/frame_004.png" id="28_7nf13"]
+[ext_resource type="Texture2D" uid="uid://d21oa7rfo1kkf" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/fight-stance-idle-8-frames/east/frame_005.png" id="29_0y4ya"]
+[ext_resource type="Texture2D" uid="uid://buob4tgg652dr" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/fight-stance-idle-8-frames/east/frame_006.png" id="30_s050l"]
+[ext_resource type="Texture2D" uid="uid://boidhjko7nht2" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/fight-stance-idle-8-frames/east/frame_007.png" id="31_4sw5w"]
+[ext_resource type="Texture2D" uid="uid://wflkw5yc28r1" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_000.png" id="32_s4k4a"]
+[ext_resource type="Texture2D" uid="uid://1u6bis003hye" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_001.png" id="33_vkc6f"]
+[ext_resource type="Texture2D" uid="uid://u8tel4jb6f2w" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_002.png" id="34_21yht"]
+[ext_resource type="Texture2D" uid="uid://cpmmxj0j4w0jj" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_003.png" id="35_trum3"]
+[ext_resource type="Texture2D" uid="uid://w8hvm74ve8bo" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_004.png" id="36_4b1ex"]
+[ext_resource type="Texture2D" uid="uid://cjcjo0200eajj" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_005.png" id="37_v8cnd"]
+[ext_resource type="Texture2D" uid="uid://cua5n5nd0mkuc" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_006.png" id="38_wuxn4"]
+[ext_resource type="Texture2D" uid="uid://bq8ggmam5qc5y" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_007.png" id="39_46q5t"]
+[ext_resource type="Texture2D" uid="uid://m223wbdmm0o8" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/breathing-idle/east/frame_000.png" id="40_5miun"]
+[ext_resource type="Texture2D" uid="uid://bb4qwxbtixyg3" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/breathing-idle/east/frame_001.png" id="41_7u1tp"]
+[ext_resource type="Texture2D" uid="uid://bokfboe8dqxp" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/breathing-idle/east/frame_002.png" id="42_pq1ih"]
+[ext_resource type="Texture2D" uid="uid://d2lg15mdke4as" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/breathing-idle/east/frame_003.png" id="43_31ki0"]
+[ext_resource type="Texture2D" uid="uid://dglnmdes7yy1d" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/throw-object/east/frame_000.png" id="44_hf5gj"]
+[ext_resource type="Texture2D" uid="uid://c2w12whmbeqjy" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/throw-object/east/frame_001.png" id="45_avmva"]
+[ext_resource type="Texture2D" uid="uid://bxcanngypsmab" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/throw-object/east/frame_002.png" id="46_0ioy2"]
+[ext_resource type="Texture2D" uid="uid://ccuk8yiw74h1a" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/throw-object/east/frame_003.png" id="47_vlhku"]
+[ext_resource type="Texture2D" uid="uid://nqcxsjm6gckk" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/throw-object/east/frame_004.png" id="48_ws0t6"]
+[ext_resource type="Texture2D" uid="uid://lxwkrex1jnsi" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/throw-object/east/frame_005.png" id="49_i6ap2"]
+[ext_resource type="Texture2D" uid="uid://dsuasjjo2df1p" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/throw-object/east/frame_006.png" id="50_88c1f"]
+[ext_resource type="Script" uid="uid://br8rhdbc3wmgg" path="res://scripts/entities/player.gd" id="51_8h7gi"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hdu4s"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_0wr6q"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_2t3bg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_jrbya")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_ahqnk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_vb1ce")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_0ncpa")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_upxxc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_ln3h3")
+}],
+"loop": true,
+"name": &"Kick",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("8_uygh0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_t1aof")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_w8qe1")
+}],
+"loop": false,
+"name": &"LP",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("11_hdvrm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_5xbmr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_hir57")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_7072n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_gmu8b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_a38bk")
+}],
+"loop": false,
+"name": &"RP",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("17_3chqh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_pwfqx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_kssj8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_8lfxt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_lclul")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_ej2d6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_fvjb1")
+}],
+"loop": true,
+"name": &"die",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("24_bysbl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_2wy34")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_ymths")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_3p0jd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_7nf13")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_0y4ya")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_s050l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_4sw5w")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("32_s4k4a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_vkc6f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_21yht")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_trum3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_4b1ex")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_v8cnd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_wuxn4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_46q5t")
+}],
+"loop": true,
+"name": &"run",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("40_5miun")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_7u1tp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("42_pq1ih")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_31ki0")
+}],
+"loop": true,
+"name": &"stay",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("44_hf5gj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_avmva")
+}, {
+"duration": 1.0,
+"texture": ExtResource("46_0ioy2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("47_vlhku")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_ws0t6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_i6ap2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_88c1f")
+}],
+"loop": true,
+"name": &"throw",
+"speed": 8.0
+}]
 
 [node name="Player" type="CharacterBody2D"]
-# scenes/player/player.tscn
-# Основная сцена игрока.
-# Должна содержать BaseEntity или производный скрипт.
-# Подключите скрипт res://scripts/entities/base_entity.gd
+script = ExtResource("51_8h7gi")
+level = 10
+speed = 150.0
 
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_hdu4s")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_0wr6q")
+animation = &"throw"
+autoplay = "stay"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(2.57, 2.57)

@@ -57,4 +57,3 @@ func _on_defer() -> void:
 func _close() -> void:
 	get_tree().paused = false
 	queue_free()
-

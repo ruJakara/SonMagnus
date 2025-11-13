@@ -1,8 +1,14 @@
-[gd_scene load_steps=1 format=3 uid="uid://c6r204k2v873d"]
+[gd_scene load_steps=3 format=3 uid="uid://c6r204k2v873d"]
+
+[ext_resource type="Texture2D" uid="uid://112vbd7te6it" path="res://assets/world/environment_forestbackground1-1.png" id="1_0wfyh"]
+[ext_resource type="PackedScene" uid="uid://c85dg4quft5fo" path="res://scenes/player/player.tscn" id="1_o5qli"]
 
 [node name="Main" type="Node"]
-# scenes/main.tscn
-# Главная сцена, которая загружается первой. 
-# Используется для инициализации всех Autoload-ов и перехода в главное меню (hub.tscn).
-# Подключите сюда скрипт, который вызывает GameManager.change_scene_to_file("res://scenes/hub/hub.tscn")
 
+[node name="EnvironmentForestbackground11" type="Sprite2D" parent="."]
+position = Vector2(641, 322.5)
+scale = Vector2(1.2865498, 1.0481771)
+texture = ExtResource("1_0wfyh")
+
+[node name="Player" parent="." instance=ExtResource("1_o5qli")]
+position = Vector2(387, 344)

@@ -1,14 +1,18 @@
 {
-  "slime": {
-	"name": "Слизень",
-	"hp": 40,
-	"attack": 5,
-	"exp_reward": 10
-  },
-  "goblin": {
-	"name": "Гоблин",
-	"hp": 70,
-	"attack": 8,
-	"exp_reward": 20
-  }
+	"goblin_worker": {
+		"name": "Гоблин-шахтёр",
+		"scene": "res://scenes/enemies/BaseEnemy.tscn",
+		"max_health": 35,
+		"attack": 5,
+		"defense": 2,
+		"speed": 80.0
+	},
+	"spider_small": {
+		"name": "Пещерный паук",
+		"scene": "res://scenes/enemies/BaseEnemy.tscn",
+		"max_health": 25,
+		"attack": 3,
+		"defense": 1,
+		"speed": 100.0
+	}
 }

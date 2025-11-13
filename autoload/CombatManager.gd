@@ -82,7 +82,7 @@ func is_combo_available(entity, combo_id: String) -> bool:
 	var current_stamina := 0.0
 	if entity.has_method("get_stamina"):
 		current_stamina = entity.get_stamina()
-	elif entity.has("stamina"):
+	elif entity.get("stamina"):
 		current_stamina = float(entity.stamina)
 	if current_stamina < stamina_cost:
 		return false
