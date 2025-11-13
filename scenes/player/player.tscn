@@ -259,7 +259,7 @@ shape = SubResource("CapsuleShape2D_hdu4s")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_0wr6q")
-animation = &"throw"
+animation = &"RP"
 autoplay = "stay"
 
 [node name="Camera2D" type="Camera2D" parent="."]

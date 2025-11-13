@@ -82,35 +82,40 @@ func is_combo_available(entity, combo_id: String) -> bool:
 	var current_stamina := 0.0
 	if entity.has_method("get_stamina"):
 		current_stamina = entity.get_stamina()
-	elif entity.get("stamina"):
-		current_stamina = float(entity.stamina)
+	else:
+		var stamina_val = entity.get("stamina")
+		if stamina_val != null:
+			current_stamina = float(stamina_val)
 	if current_stamina < stamina_cost:
 		return false
 
-	# Проверка unlock-статуса (если есть)
+	# Проверка unlock-статуса
+	var unlock_cond = combo_data.get("unlock_condition", {})
+	
+	# Если нет условий разблокировки — комбо всегда доступно
+	if unlock_cond.is_empty():
+		return true
+	
+	# Если есть условия — проверяем по навыкам
 	if entity.has_method("has_unlocked_combo"):
-		if not entity.has_unlocked_combo(combo_id):
-			# если не разблокировано — проверим, можно ли по условиям
-			var unlock_cond = combo_data.get("unlock_condition", {})
-			if unlock_cond.size() == 0:
-				return false
-	else:
-		# Без метода — fallback на проверку по навыкам
-		var unlock_cond = combo_data.get("unlock_condition", {})
-		for skill in unlock_cond.keys():
-			var req = unlock_cond[skill]
-			var lvl = 0
-			if entity.has_method("get_skill_level"):
-				lvl = entity.get_skill_level(skill)
-			if lvl < req:
-				return false
+		return entity.has_unlocked_combo(combo_id)
+	
+	# Fallback: проверяем по уровню навыков
+	for skill in unlock_cond.keys():
+		var req = unlock_cond[skill]
+		var lvl = 0
+		if entity.has_method("get_skill_level"):
+			lvl = entity.get_skill_level(skill)
+		if lvl < req:
+			return false
 
 	# Проверка ограничений по классу
 	var restrictions = combo_data.get("class_restriction", [])
 	if restrictions.size() > 0:
-		if not entity.has("entity_class"):
+		var entity_class = entity.get("entity_class")
+		if entity_class == null:
 			return false
-		if not (entity.entity_class in restrictions):
+		if not (entity_class in restrictions):
 			return false
 
 	return true
@@ -160,16 +165,27 @@ func calculate_damage(_attacker, _defender, weapon_data: Dictionary, combo_id: S
 # =============================
 # === APPLY DAMAGE / EFFECTS ==
 # =============================
+# В CombatManager.gd
 func apply_damage(ctx: AttackContext, damage_result: Dictionary) -> void:
-	if not ctx.defender or not ctx.attacker:
-		push_error("[CombatManager] Контекст атаки неполный.")
-		return
+	# Проверяем, есть ли атакующий и цель
+	if not ctx.attacker:
+		push_warning("[CombatManager] Контекст атаки: attacker == null.")
+		return # Нечем атаковать - выходим
 
+	if not ctx.defender:
+		# Цель может быть null, если, например, атака была в воздух
+		push_warning("[CombatManager] Контекст атаки: defender == null. Урон не нанесён.")
+		# Вместо push_error используем push_warning - это не фатальная ошибка
+		# Можно добавить эффект атаки в воздух, если нужно
+		# spawn_attack_effect(ctx.attacker.global_position, ctx.attacker.is_facing_left())
+		return # Цели нет - выходим
+
+	# Если оба есть, выполняем основную логику
 	# Нанесение урона
 	if ctx.defender.has_method("take_damage"):
 		ctx.defender.take_damage(damage_result.damage)
 	else:
-		push_warning("[CombatManager] Defender %s не имеет take_damage()" % ctx.defender.name)
+		push_warning("[CombatManager] Цель %s не имеет метода take_damage()" % ctx.defender.name)
 
 	# Применение эффектов
 	for eff in damage_result.effects:
@@ -177,9 +193,9 @@ func apply_damage(ctx: AttackContext, damage_result: Dictionary) -> void:
 			ctx.defender.apply_status_effect(eff)
 			emit_signal("effect_applied", ctx.defender, eff)
 		else:
-			push_warning("[CombatManager] %s не имеет apply_status_effect()" % ctx.defender.name)
+			push_warning("[CombatManager] Цель %s не имеет метода apply_status_effect()" % ctx.defender.name)
 
-	# Списание стамины
+	# Списание стамины у атакующего (только если атака успешна)
 	var cost = ctx.combo_data.get("stamina_cost", 0)
 	if cost > 0:
 		if ctx.attacker.has_method("reduce_stamina"):
@@ -187,6 +203,7 @@ func apply_damage(ctx: AttackContext, damage_result: Dictionary) -> void:
 		elif ctx.attacker.has("stamina"):
 			ctx.attacker.stamina -= cost
 
-	print("[CombatManager] %s нанес %.1f урона %s" % [ctx.attacker.name, damage_result.damage, ctx.defender.name])
+	# Отладочный вывод
+	print("[CombatManager] %s нанёс %.1f урона %s" % [ctx.attacker.name, damage_result.damage, ctx.defender.name])
 	if damage_result.crit:
 		print("[CombatManager] Критический удар!")

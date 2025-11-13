@@ -11,6 +11,7 @@ signal effect_applied(effect_id: String)
 signal effect_removed(effect_id: String)
 signal class_changed(class_id: String)
 
+@export var max_stamina: float = 100.0
 @export var entity_name: String = "Безымянный"
 @export var max_health: int = 100
 @export var level: int = 1
@@ -20,6 +21,7 @@ signal class_changed(class_id: String)
 
 # Внутреннее поле здоровья (явно типизировано)
 var _health: int = 100
+var _stamina:float = 100.0
 
 # Классовая система (минимальная интеграция)
 var global_level: int = 1
@@ -42,6 +44,7 @@ var health: int:
 			_die()
 
 func _ready() -> void:
+	_stamina = max_stamina
 	# Получаем ссылку на EffectManager безопасно (если автолоад подключён)
 	_effect_manager = get_node_or_null("/root/EffectManager")
 	# Инициализация здоровья при спавне
@@ -140,3 +143,15 @@ func on_global_level_up(new_level: int) -> void:
 		var cm := get_node_or_null("/root/ClassManagerSingleton")
 		if cm and cm.has_method("check_level_for_class"):
 			cm.call("check_level_for_class", self)
+func get_stamina() -> float: # <-- Добавлено
+	return _stamina
+
+func reduce_stamina(cost: float) -> void: # <-- Добавлено
+	_stamina = clamp(_stamina - cost, 0.0, max_stamina)
+	if Config.DEBUG_LOGS:
+		print_debug("[%s] потрачено %.1f выносливости, осталось %.1f/%.1f" % [entity_name, cost, _stamina, max_stamina])
+
+func restore_stamina(amount: float) -> void: # <-- Добавлено
+	_stamina = clamp(_stamina + amount, 0.0, max_stamina)
+	if Config.DEBUG_LOGS:
+		print_debug("[%s] восстановлено %.1f выносливости, сейчас %.1f/%.1f" % [entity_name, amount, _stamina, max_stamina])

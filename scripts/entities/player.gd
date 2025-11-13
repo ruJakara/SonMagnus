@@ -229,6 +229,7 @@ func _execute_basic_attack(side_token: String) -> void:
 		"crit_chance": base_crit_chance
 	}
 	var target := get_target()
+	
 	var result: CombatManager.AttackResult = null
 	
 	# Используем ID комбо в зависимости от стороны
@@ -236,12 +237,16 @@ func _execute_basic_attack(side_token: String) -> void:
 	
 	if Combat and Combat.has_method("execute_sequence") and Combo and Combo.has_combo(combo_id):
 		result = Combat.execute_sequence(self, target, combo_id, weapon_data)
-		if result:
-			_do_attack_feedback(result)
 	
-	emit_signal("basic_attack", side_token)
-	_play_attack_animation(side_token)
-	_attack_step("basic")
+	# Только если атака успешно выполнилась — воспроизводим анимацию и рывок
+	if result and result.success:
+		_do_attack_feedback(result)
+		_play_attack_animation(side_token)
+		_attack_step("basic")
+		emit_signal("basic_attack", side_token)
+	else:
+		# Если атака не выполнилась — просто проиграть animation без рывка
+		_play_attack_animation(side_token)
 
 
 func _execute_combo(combo_id: String) -> void:
@@ -251,20 +256,21 @@ func _execute_combo(combo_id: String) -> void:
 	}
 	var target := get_target()
 	var result: CombatManager.AttackResult = null
+	
 	if Combat and Combat.has_method("execute_sequence"):
 		result = Combat.execute_sequence(self, target, combo_id, weapon_data)
-	if result != null:
+	
+	if result and result.success:
 		emit_signal("combo_executed", combo_id, {
 			"success": result.success,
 			"damage": result.damage,
 			"crit": result.crit
 		})
 		_do_attack_feedback(result)
+		_play_combo_animation(combo_id)
+		_attack_step("combo")
 	else:
 		emit_signal("combo_executed", combo_id, {})
-
-	_play_combo_animation(combo_id)
-	_attack_step("combo")
 
 
 func _execute_charged_attack(side_token: String) -> void:
@@ -278,19 +284,18 @@ func _execute_charged_attack(side_token: String) -> void:
 	
 	if Combat and Combat.has_method("execute_sequence") and Combo and Combo.has_combo(combo_id):
 		result = Combat.execute_sequence(self, target, combo_id, weapon_data)
-		if result:
-			_do_attack_feedback(result)
 	
-	_attack_step("charged")
-	_play_attack_animation(side_token, true)
-	emit_signal("charged_attack", side_token)
-	
-	if result:
+	if result and result.success:
+		_do_attack_feedback(result)
+		_attack_step("charged")
+		emit_signal("charged_attack", side_token)
 		emit_signal("combo_executed", combo_id, {
 			"success": result.success,
 			"damage": result.damage,
 			"crit": result.crit
 		})
+	
+	_play_attack_animation(side_token, true)
 
 
 func _do_attack_feedback(res) -> void:
@@ -363,6 +368,13 @@ func _play_attack_animation(side: String, charged: bool = false) -> void:
 		var charged_anim := StringName(charged_anim_name)
 		if _sprite.sprite_frames.has_animation(charged_anim):
 			anim = charged_anim
+	
+	# Обновляем flip_h на основе того, куда смотрит персонаж
+	if velocity.x < 0.0:
+		_sprite.flip_h = true
+	elif velocity.x > 0.0:
+		_sprite.flip_h = false
+	
 	_request_attack(anim)
 
 
