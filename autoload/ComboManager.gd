@@ -64,6 +64,7 @@ func load_combos() -> void:
 
 	print("[ComboManager] Загружено %d комбо. Дефолтных: %d" % [combos.size(), default_combos.size()])
 
+
 # ==========================
 # === DATA ACCESS LAYER ====
 # ==========================

@@ -12,3 +12,5 @@ texture = ExtResource("1_0wfyh")
 
 [node name="Player" parent="." instance=ExtResource("1_o5qli")]
 position = Vector2(387, 344)
+attack_step_distance = 11.97
+speed = 180.0

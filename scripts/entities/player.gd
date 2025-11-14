@@ -24,7 +24,7 @@ signal parry_triggered()
 
 const ATTACK_PRIMARY_ANIM: StringName = &"LP"
 const ATTACK_SECONDARY_ANIM: StringName = &"RP"
-const IDLE_ANIM: StringName = &"stay"
+const IDLE_ANIM: StringName = &"idle"
 const MOVE_ANIM: StringName = &"run"
 const DOUBLE_PRESS_WINDOW: float = 0.12
 
@@ -161,7 +161,7 @@ func _on_attack_released(side: String) -> void:
 			_execute_charged_attack("L")
 		else:
 			_register_input("L")
-			_try_execute_sequence()
+			
 	elif side == "R":
 		_right_holding = false
 		var held := _right_hold_time >= hold_threshold
@@ -171,7 +171,7 @@ func _on_attack_released(side: String) -> void:
 			_execute_charged_attack("R")
 		else:
 			_register_input("R")
-			_try_execute_sequence()
+			
 
 
 func _on_block_pressed() -> void:
@@ -212,7 +212,12 @@ func _try_execute_sequence() -> void:
 	
 	# Если это заряженная атака — уже выполнена, очистить последовательность
 	if _sequence.size() == 1 and (_sequence[0] == "HOLD_L" or _sequence[0] == "HOLD_R"):
-		_sequence.clear()
+		# Выполняем заряженную атаку
+		var side := "L" if _sequence[0] == "HOLD_L" else "R"
+		if Config.DEBUG_LOGS:
+			print_debug("[Player] Выполняем заряженную атаку: %s" % _sequence[0])
+		_execute_charged_attack(side) # <-- Выполняем заряженную атаку
+		_sequence.clear() # <-- Теперь сбрасываем после выполнения
 		return
 	
 	# Попытка найти комбо по текущей последовательности
@@ -234,6 +239,7 @@ func _try_execute_sequence() -> void:
 		else:
 			_execute_combo(combo_id)
 		_sequence.clear()
+		
 		return
 
 
@@ -427,18 +433,33 @@ func _play_attack_animation(side: String, charged: bool = false) -> void:
 
 
 func _play_combo_animation(combo_id: String) -> void:
+	if Config.DEBUG_LOGS:
+		print_debug("[Player] _play_combo_animation вызвана для комбо: %s" % combo_id)
+	
 	if not _sprite.sprite_frames:
 		return
+	
+	# Сначала проверяем, есть ли анимация с именем самого комбо
 	var combo_anim := StringName(combo_id)
 	if _sprite.sprite_frames.has_animation(combo_anim):
+		if Config.DEBUG_LOGS:
+			print_debug("[Player] Найдена анимация по ID комбо: %s" % combo_anim)
 		_request_attack(combo_anim)
 		return
+	
+	# Иначе ищем в данных комбо
 	if Combo:
 		var data: Dictionary = Combo.get_combo(combo_id)
 		if data.has("animation"):
 			var anim_name := StringName(data["animation"])
+			if Config.DEBUG_LOGS:
+				print_debug("[Player] Анимация из данных комбо: %s, существует: %s" % [anim_name, _sprite.sprite_frames.has_animation(anim_name)])
 			if _sprite.sprite_frames.has_animation(anim_name):
 				_request_attack(anim_name)
+				return
+	
+	if Config.DEBUG_LOGS:
+		print_debug("[Player] Анимация для комбо %s не найдена!" % combo_id)
 
 
 func _request_attack(animation_name: StringName) -> void:

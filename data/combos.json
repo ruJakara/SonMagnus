@@ -4,16 +4,26 @@
 		{
 			"id": "basic_l",
 			"name": "ЛМ - атака левой рукой",
-			"sequence": ["L"],
+			"sequence": [
+				"L"
+			],
 			"class_restriction": [],
 			"stamina_cost": 8.0,
 			"damage_mult": 1.0,
-			"cooldown": 0.2,
-			"unlock_condition": {},
+			"cooldown": 0.20000000000000001,
+			"unlock_condition": {
+
+			},
 			"animation": "LP",
 			"hitbox": {
-				"offset": [12.0, 0.0],
-				"size": [16.0, 12.0]
+				"offset": [
+					12.0,
+					0.0
+				],
+				"size": [
+					16.0,
+					12.0
+				]
 			},
 			"effects": [],
 			"default": true
@@ -21,16 +31,26 @@
 		{
 			"id": "basic_r",
 			"name": "ПМ - атака правой рукой",
-			"sequence": ["R"],
+			"sequence": [
+				"R"
+			],
 			"class_restriction": [],
 			"stamina_cost": 8.0,
 			"damage_mult": 1.0,
-			"cooldown": 0.2,
-			"unlock_condition": {},
+			"cooldown": 0.20000000000000001,
+			"unlock_condition": {
+
+			},
 			"animation": "RP",
 			"hitbox": {
-				"offset": [12.0, 0.0],
-				"size": [16.0, 12.0]
+				"offset": [
+					12.0,
+					0.0
+				],
+				"size": [
+					16.0,
+					12.0
+				]
 			},
 			"effects": [],
 			"default": true
@@ -38,16 +58,26 @@
 		{
 			"id": "charged_attack_L",
 			"name": "Зажатие ЛМ - заряженная атака",
-			"sequence": ["HOLD_L"],
+			"sequence": [
+				"HOLD_L"
+			],
 			"class_restriction": [],
 			"stamina_cost": 15.0,
 			"damage_mult": 2.0,
 			"cooldown": 1.0,
-			"unlock_condition": {},
+			"unlock_condition": {
+
+			},
 			"animation": "LP",
 			"hitbox": {
-				"offset": [20.0, 0.0],
-				"size": [30.0, 16.0]
+				"offset": [
+					20.0,
+					0.0
+				],
+				"size": [
+					30.0,
+					16.0
+				]
 			},
 			"effects": [],
 			"default": true
@@ -55,16 +85,26 @@
 		{
 			"id": "charged_attack_R",
 			"name": "Зажатие ПМ - заряженная атака",
-			"sequence": ["HOLD_R"],
+			"sequence": [
+				"HOLD_R"
+			],
 			"class_restriction": [],
 			"stamina_cost": 15.0,
 			"damage_mult": 2.0,
 			"cooldown": 1.0,
-			"unlock_condition": {},
+			"unlock_condition": {
+
+			},
 			"animation": "RP",
 			"hitbox": {
-				"offset": [20.0, 0.0],
-				"size": [30.0, 16.0]
+				"offset": [
+					20.0,
+					0.0
+				],
+				"size": [
+					30.0,
+					16.0
+				]
 			},
 			"effects": [],
 			"default": true
@@ -72,16 +112,27 @@
 		{
 			"id": "two_hand_strike",
 			"name": "ЛМ + ПМ - атака двумя руками",
-			"sequence": ["L", "R"],
+			"sequence": [
+				"L",
+				"R"
+			],
 			"class_restriction": [],
 			"stamina_cost": 20.0,
 			"damage_mult": 1.5,
-			"cooldown": 0.8,
-			"unlock_condition": {},
+			"cooldown": 0.80000000000000004,
+			"unlock_condition": {
+
+			},
 			"animation": "throw",
 			"hitbox": {
-				"offset": [25.0, 0.0],
-				"size": [40.0, 14.0]
+				"offset": [
+					25.0,
+					0.0
+				],
+				"size": [
+					40.0,
+					14.0
+				]
 			},
 			"effects": [],
 			"default": true
@@ -89,24 +140,41 @@
 		{
 			"id": "kick_combo",
 			"name": "Комбо ЛПЛ - пинок",
-			"sequence": ["L", "R", "L"],
+			"sequence": [
+				"L",
+				"R",
+				"L"
+			],
 			"class_restriction": [],
 			"stamina_cost": 12.0,
 			"damage_mult": 1.2,
-			"cooldown": 0.6,
-			"unlock_condition": {},
-			"animation": "RK",
-			"hitbox": {
-				"offset": [18.0, 10.0],
-				"size": [24.0, 20.0]
+			"cooldown": 0.59999999999999998,
+			"unlock_condition": {
+
 			},
-			"effects": ["stun_short"],
+			"animation": "Kick",
+			"hitbox": {
+				"offset": [
+					18.0,
+					10.0
+				],
+				"size": [
+					24.0,
+					20.0
+				]
+			},
+			"effects": [
+				"stun_short"
+			],
 			"default": true
 		},
 		{
 			"id": "bleed_combo",
 			"name": "Комбо холд Л, ПМ - атака + кровотечение",
-			"sequence": ["HOLD_L", "R"],
+			"sequence": [
+				"HOLD_L",
+				"R"
+			],
 			"class_restriction": [],
 			"stamina_cost": 25.0,
 			"damage_mult": 1.8,
@@ -116,10 +184,18 @@
 			},
 			"animation": "RP",
 			"hitbox": {
-				"offset": [22.0, 0.0],
-				"size": [35.0, 12.0]
+				"offset": [
+					22.0,
+					0.0
+				],
+				"size": [
+					35.0,
+					12.0
+				]
 			},
-			"effects": ["bleed"],
+			"effects": [
+				"bleed"
+			],
 			"default": false
 		}
 	]
