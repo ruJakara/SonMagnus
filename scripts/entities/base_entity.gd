@@ -6,12 +6,20 @@ class_name BaseEntity
 extends CharacterBody2D
 
 signal health_changed(new_health: int, max_health: int)
+signal stamina_changed(new_stamina: float, max_stamina: float)
+signal mana_changed(new_mana: float, max_mana: float)
+signal hunger_changed(new_hunger: float, max_hunger: float)
 signal died
 signal effect_applied(effect_id: String)
 signal effect_removed(effect_id: String)
 signal class_changed(class_id: String)
 
 @export var max_stamina: float = 100.0
+@export var stamina_regen_rate: float = 10.0  # Восстановление в секунду (100 за 10 секунд)
+@export var max_mana: float = 100.0
+@export var mana_regen_rate: float = 5.0  # Восстановление маны в секунду
+@export var max_hunger: float = 100.0
+@export var hunger_decay_rate: float = 1.0  # Уменьшение голода в секунду
 @export var entity_name: String = "Безымянный"
 @export var max_health: int = 100
 @export var level: int = 1
@@ -21,7 +29,9 @@ signal class_changed(class_id: String)
 
 # Внутреннее поле здоровья (явно типизировано)
 var _health: int = 100
-var _stamina:float = 100.0
+var _stamina: float = 100.0
+var _mana: float = 100.0
+var _hunger: float = 100.0
 
 # Классовая система (минимальная интеграция)
 var global_level: int = 1
@@ -43,14 +53,53 @@ var health: int:
 		if _health == 0:
 			_die()
 
+# Свойство stamina с геттером/сеттером
+var stamina: float:
+	get:
+		return _stamina
+	set(value):
+		_stamina = clamp(value, 0.0, max_stamina)
+		emit_signal("stamina_changed", _stamina, max_stamina)
+
+# Свойство mana с геттером/сеттером
+var mana: float:
+	get:
+		return _mana
+	set(value):
+		_mana = clamp(value, 0.0, max_mana)
+		emit_signal("mana_changed", _mana, max_mana)
+
+# Свойство hunger с геттером/сеттером
+var hunger: float:
+	get:
+		return _hunger
+	set(value):
+		_hunger = clamp(value, 0.0, max_hunger)
+		emit_signal("hunger_changed", _hunger, max_hunger)
+
 func _ready() -> void:
 	_stamina = max_stamina
+	_mana = max_mana
+	_hunger = max_hunger
 	# Получаем ссылку на EffectManager безопасно (если автолоад подключён)
 	_effect_manager = get_node_or_null("/root/EffectManager")
 	# Инициализация здоровья при спавне
 	_health = max_health
 	if Config.DEBUG_LOGS:
-		print_debug("[%s] ready — HP: %d/%d" % [entity_name, _health, max_health])
+		print_debug("[%s] ready — HP: %d/%d, Stamina: %.1f/%.1f, Mana: %.1f/%.1f, Hunger: %.1f/%.1f" % [entity_name, _health, max_health, _stamina, max_stamina, _mana, max_mana, _hunger, max_hunger])
+
+func _process(delta: float) -> void:
+	# Пассивное восстановление выносливости
+	if _stamina < max_stamina:
+		stamina += stamina_regen_rate * delta
+	
+	# Пассивное восстановление маны
+	if _mana < max_mana:
+		mana += mana_regen_rate * delta
+	
+	# Пассивное уменьшение голода
+	if _hunger > 0.0:
+		hunger -= hunger_decay_rate * delta
 
 # Инициализация вручную
 func initialize(name: String, max_hp: int, lvl: int) -> void:
@@ -143,15 +192,41 @@ func on_global_level_up(new_level: int) -> void:
 		var cm := get_node_or_null("/root/ClassManagerSingleton")
 		if cm and cm.has_method("check_level_for_class"):
 			cm.call("check_level_for_class", self)
-func get_stamina() -> float: # <-- Добавлено
+func get_stamina() -> float:
 	return _stamina
 
-func reduce_stamina(cost: float) -> void: # <-- Добавлено
-	_stamina = clamp(_stamina - cost, 0.0, max_stamina)
+func reduce_stamina(cost: float) -> void:
+	stamina -= cost
 	if Config.DEBUG_LOGS:
 		print_debug("[%s] потрачено %.1f выносливости, осталось %.1f/%.1f" % [entity_name, cost, _stamina, max_stamina])
 
-func restore_stamina(amount: float) -> void: # <-- Добавлено
-	_stamina = clamp(_stamina + amount, 0.0, max_stamina)
+func restore_stamina(amount: float) -> void:
+	stamina += amount
 	if Config.DEBUG_LOGS:
 		print_debug("[%s] восстановлено %.1f выносливости, сейчас %.1f/%.1f" % [entity_name, amount, _stamina, max_stamina])
+
+func get_mana() -> float:
+	return _mana
+
+func reduce_mana(cost: float) -> void:
+	mana -= cost
+	if Config.DEBUG_LOGS:
+		print_debug("[%s] потрачено %.1f маны, осталось %.1f/%.1f" % [entity_name, cost, _mana, max_mana])
+
+func restore_mana(amount: float) -> void:
+	mana += amount
+	if Config.DEBUG_LOGS:
+		print_debug("[%s] восстановлено %.1f маны, сейчас %.1f/%.1f" % [entity_name, amount, _mana, max_mana])
+
+func get_hunger() -> float:
+	return _hunger
+
+func reduce_hunger(amount: float) -> void:
+	hunger -= amount
+	if Config.DEBUG_LOGS:
+		print_debug("[%s] голод снизился на %.1f, осталось %.1f/%.1f" % [entity_name, amount, _hunger, max_hunger])
+
+func restore_hunger(amount: float) -> void:
+	hunger += amount
+	if Config.DEBUG_LOGS:
+		print_debug("[%s] голод восстановлен на %.1f, сейчас %.1f/%.1f" % [entity_name, amount, _hunger, max_hunger])

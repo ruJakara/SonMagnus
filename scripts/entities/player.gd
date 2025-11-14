@@ -57,7 +57,7 @@ func _ready() -> void:
 	super._ready()
 	_configure_animation_loops()
 	if not _sprite.is_playing():
-		_sprite.play("idle")
+		_sprite.play(IDLE_ANIM)
 	_sprite.animation_finished.connect(_on_animation_finished)
 	_sequence.clear()
 	_sequence_timer = 0.0
@@ -79,13 +79,21 @@ func _physics_process(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("attack_left"):
+		if Config.DEBUG_LOGS:
+			print_debug("[Player] ЛКМ pressed")
 		_on_attack_pressed("L")
 	elif event.is_action_released("attack_left"):
+		if Config.DEBUG_LOGS:
+			print_debug("[Player] ЛКМ released")
 		_on_attack_released("L")
 
 	if event.is_action_pressed("attack_right"):
+		if Config.DEBUG_LOGS:
+			print_debug("[Player] ПКМ pressed")
 		_on_attack_pressed("R")
 	elif event.is_action_released("attack_right"):
+		if Config.DEBUG_LOGS:
+			print_debug("[Player] ПКМ released")
 		_on_attack_released("R")
 
 	if event.is_action_pressed("block"):
@@ -116,10 +124,10 @@ func _update_movement_animation() -> void:
 
 	if velocity.length() > 5.0:
 		if _sprite.animation != MOVE_ANIM or not _sprite.is_playing():
-			_sprite.play("run")
+			_sprite.play(MOVE_ANIM)
 	else:
 		if _sprite.animation != IDLE_ANIM or not _sprite.is_playing():
-			_sprite.play("idle")
+			_sprite.play(IDLE_ANIM)
 
 	if velocity.x != 0.0:
 		_sprite.flip_h = velocity.x < 0.0
@@ -142,11 +150,6 @@ func _on_attack_pressed(side: String) -> void:
 		_right_holding = true
 		_right_hold_time = 0.0
 
-	# Проверка одновременного нажатия L + R
-	if abs(_last_left_pressed_time - _last_right_pressed_time) <= DOUBLE_PRESS_WINDOW:
-		_register_input("L")
-		_register_input("R")
-
 
 func _on_attack_released(side: String) -> void:
 	if side == "L":
@@ -158,6 +161,7 @@ func _on_attack_released(side: String) -> void:
 			_execute_charged_attack("L")
 		else:
 			_register_input("L")
+			_try_execute_sequence()
 	elif side == "R":
 		_right_holding = false
 		var held := _right_hold_time >= hold_threshold
@@ -167,6 +171,7 @@ func _on_attack_released(side: String) -> void:
 			_execute_charged_attack("R")
 		else:
 			_register_input("R")
+			_try_execute_sequence()
 
 
 func _on_block_pressed() -> void:
@@ -193,9 +198,20 @@ func _register_input(token: String) -> void:
 	if _sequence.size() > max_sequence:
 		_sequence = _sequence.slice(_sequence.size() - max_sequence, max_sequence)
 	_sequence_timer = input_timeout
+	
+	if Config.DEBUG_LOGS:
+		print_debug("[Player] Зарегистрирован инпут: %s, последовательность: %s" % [token, _sequence])
 
-	# Если это заряженная атака — сразу выполнить и очистить последовательность
-	if token == "HOLD_L" or token == "HOLD_R":
+
+func _try_execute_sequence() -> void:
+	if Config.DEBUG_LOGS:
+		print_debug("[Player] _try_execute_sequence вызвана, последовательность: %s" % _sequence)
+	
+	if _sequence.is_empty():
+		return
+	
+	# Если это заряженная атака — уже выполнена, очистить последовательность
+	if _sequence.size() == 1 and (_sequence[0] == "HOLD_L" or _sequence[0] == "HOLD_R"):
 		_sequence.clear()
 		return
 	
@@ -204,15 +220,22 @@ func _register_input(token: String) -> void:
 	if Combo and Combo.has_method("find_combo_by_sequence"):
 		combo_id = Combo.find_combo_by_sequence(_sequence)
 	
+	if Config.DEBUG_LOGS:
+		print_debug("[Player] Найдено комбо: %s" % combo_id)
+	
 	# Если комбо найдено — выполнить
 	if combo_id != "":
 		_execute_combo(combo_id)
 		_sequence.clear()
 		return
 	
-	# Если это одиночная атака (L или R) и время истекло — выполнить базовую атаку
-	if token == "L" or token == "R":
-		_execute_basic_attack(token)
+	# Если это одиночная атака (L или R) — выполнить базовую атаку
+	if _sequence.size() == 1 and (_sequence[0] == "L" or _sequence[0] == "R"):
+		if Config.DEBUG_LOGS:
+			print_debug("[Player] Выполняем базовую атаку: %s" % _sequence[0])
+		_execute_basic_attack(_sequence[0])
+		_sequence.clear()
+		return
 
 
 func _update_sequence_timer(delta: float) -> void:
@@ -220,33 +243,36 @@ func _update_sequence_timer(delta: float) -> void:
 		return
 	_sequence_timer -= delta
 	if _sequence_timer <= 0.0:
+		# Таймаут последовательности - выполнить то что есть
+		_try_execute_sequence()
 		_sequence.clear()
 
 
 func _execute_basic_attack(side_token: String) -> void:
+	if Config.DEBUG_LOGS:
+		print_debug("[Player] _execute_basic_attack вызвана для стороны: %s" % side_token)
+	
 	var weapon_data: Dictionary = {
 		"base_damage": attack,
 		"crit_chance": base_crit_chance
 	}
 	var target := get_target()
 	
-	var result: CombatManager.AttackResult = null
+	# Всегда проигрываем анимацию атаки, даже если нет цели
+	_play_attack_animation(side_token)
+	_attack_step("basic")
+	emit_signal("basic_attack", side_token)
 	
-	# Используем ID комбо в зависимости от стороны
-	var combo_id := "basic_l" if side_token == "L" else "basic_r"
-	
-	if Combat and Combat.has_method("execute_sequence") and Combo and Combo.has_combo(combo_id):
-		result = Combat.execute_sequence(self, target, combo_id, weapon_data)
-	
-	# Только если атака успешно выполнилась — воспроизводим анимацию и рывок
-	if result and result.success:
-		_do_attack_feedback(result)
-		_play_attack_animation(side_token)
-		_attack_step("basic")
-		emit_signal("basic_attack", side_token)
-	else:
-		# Если атака не выполнилась — просто проиграть animation без рывка
-		_play_attack_animation(side_token)
+	# Если есть цель - наносим урон через CombatManager
+	if target:
+		var result: CombatManager.AttackResult = null
+		var combo_id := "basic_l" if side_token == "L" else "basic_r"
+		
+		if Combat and Combat.has_method("execute_sequence") and Combo and Combo.has_combo(combo_id):
+			result = Combat.execute_sequence(self, target, combo_id, weapon_data)
+		
+		if result and result.success:
+			_do_attack_feedback(result)
 
 
 func _execute_combo(combo_id: String) -> void:
@@ -255,21 +281,29 @@ func _execute_combo(combo_id: String) -> void:
 		"crit_chance": base_crit_chance
 	}
 	var target := get_target()
-	var result: CombatManager.AttackResult = null
 	
-	if Combat and Combat.has_method("execute_sequence"):
-		result = Combat.execute_sequence(self, target, combo_id, weapon_data)
+	# Всегда проигрываем анимацию комбо
+	_play_combo_animation(combo_id)
+	_attack_step("combo")
 	
-	if result and result.success:
-		emit_signal("combo_executed", combo_id, {
-			"success": result.success,
-			"damage": result.damage,
-			"crit": result.crit
-		})
-		_do_attack_feedback(result)
-		_play_combo_animation(combo_id)
-		_attack_step("combo")
+	# Если есть цель - наносим урон через CombatManager
+	if target:
+		var result: CombatManager.AttackResult = null
+		
+		if Combat and Combat.has_method("execute_sequence"):
+			result = Combat.execute_sequence(self, target, combo_id, weapon_data)
+		
+		if result and result.success:
+			emit_signal("combo_executed", combo_id, {
+				"success": result.success,
+				"damage": result.damage,
+				"crit": result.crit
+			})
+			_do_attack_feedback(result)
+		else:
+			emit_signal("combo_executed", combo_id, {})
 	else:
+		# Нет цели - просто сигнал без урона
 		emit_signal("combo_executed", combo_id, {})
 
 
@@ -280,22 +314,31 @@ func _execute_charged_attack(side_token: String) -> void:
 	}
 	var target := get_target()
 	var combo_id := "charged_attack_L" if side_token == "L" else "charged_attack_R"
-	var result: CombatManager.AttackResult = null
 	
-	if Combat and Combat.has_method("execute_sequence") and Combo and Combo.has_combo(combo_id):
-		result = Combat.execute_sequence(self, target, combo_id, weapon_data)
-	
-	if result and result.success:
-		_do_attack_feedback(result)
-		_attack_step("charged")
-		emit_signal("charged_attack", side_token)
-		emit_signal("combo_executed", combo_id, {
-			"success": result.success,
-			"damage": result.damage,
-			"crit": result.crit
-		})
-	
+	# Всегда проигрываем анимацию заряженной атаки
 	_play_attack_animation(side_token, true)
+	_attack_step("charged")
+	emit_signal("charged_attack", side_token)
+	
+	# Если есть цель - наносим урон через CombatManager
+	if target:
+		var result: CombatManager.AttackResult = null
+		
+		if Combat and Combat.has_method("execute_sequence") and Combo and Combo.has_combo(combo_id):
+			result = Combat.execute_sequence(self, target, combo_id, weapon_data)
+		
+		if result and result.success:
+			_do_attack_feedback(result)
+			emit_signal("combo_executed", combo_id, {
+				"success": result.success,
+				"damage": result.damage,
+				"crit": result.crit
+			})
+		else:
+			emit_signal("combo_executed", combo_id, {})
+	else:
+		# Нет цели - просто сигнал без урона
+		emit_signal("combo_executed", combo_id, {})
 
 
 func _do_attack_feedback(res) -> void:
@@ -352,7 +395,7 @@ func _restore_time_scale(duration: float) -> void:
 
 
 func is_facing_left() -> bool:
-	return global_scale.x < 0.0
+	return _sprite.flip_h
 
 
 func force_combo(combo_id: String) -> void:
@@ -360,6 +403,9 @@ func force_combo(combo_id: String) -> void:
 
 
 func _play_attack_animation(side: String, charged: bool = false) -> void:
+	if Config.DEBUG_LOGS:
+		print_debug("[Player] _play_attack_animation side=%s, charged=%s" % [side, charged])
+	
 	var anim := ATTACK_PRIMARY_ANIM
 	if side == "R":
 		anim = ATTACK_SECONDARY_ANIM
@@ -368,6 +414,9 @@ func _play_attack_animation(side: String, charged: bool = false) -> void:
 		var charged_anim := StringName(charged_anim_name)
 		if _sprite.sprite_frames.has_animation(charged_anim):
 			anim = charged_anim
+	
+	if Config.DEBUG_LOGS:
+		print_debug("[Player] Выбрана анимация: %s" % anim)
 	
 	# Обновляем flip_h на основе того, куда смотрит персонаж
 	if velocity.x < 0.0:
