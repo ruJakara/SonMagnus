@@ -225,15 +225,14 @@ func _try_execute_sequence() -> void:
 	
 	# Если комбо найдено — выполнить
 	if combo_id != "":
-		_execute_combo(combo_id)
-		_sequence.clear()
-		return
-	
-	# Если это одиночная атака (L или R) — выполнить базовую атаку
-	if _sequence.size() == 1 and (_sequence[0] == "L" or _sequence[0] == "R"):
-		if Config.DEBUG_LOGS:
-			print_debug("[Player] Выполняем базовую атаку: %s" % _sequence[0])
-		_execute_basic_attack(_sequence[0])
+		# Для базовых одиночных атак (basic_l, basic_r) используем _execute_basic_attack
+		if combo_id == "basic_l" or combo_id == "basic_r":
+			var side := "L" if combo_id == "basic_l" else "R"
+			if Config.DEBUG_LOGS:
+				print_debug("[Player] Выполняем базовую атаку через комбо: %s" % side)
+			_execute_basic_attack(side)
+		else:
+			_execute_combo(combo_id)
 		_sequence.clear()
 		return
 
