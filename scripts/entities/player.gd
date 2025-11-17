@@ -205,7 +205,7 @@ func _register_input(token: String) -> void:
 
 func _try_execute_sequence() -> void:
 	if Config.DEBUG_LOGS:
-		print_debug("[Player] _try_execute_sequence вызвана, последовательность: %s" % _sequence)
+		print_debug("[Player] _try_execute_sequence вызвана, последовательность: %s" % _sequence[0])
 	
 	if _sequence.is_empty():
 		return
@@ -215,7 +215,7 @@ func _try_execute_sequence() -> void:
 		# Выполняем заряженную атаку
 		var side := "L" if _sequence[0] == "HOLD_L" else "R"
 		if Config.DEBUG_LOGS:
-			print_debug("[Player] Выполняем заряженную атаку: %s" % _sequence[0])
+			print_debug("[Player] Выполняем заряженную атаку: %s" % _sequence)
 		_execute_charged_attack(side) # <-- Выполняем заряженную атаку
 		_sequence.clear() # <-- Теперь сбрасываем после выполнения
 		return

@@ -36,8 +36,8 @@ gdscript/warnings/exclude_addons=false
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
+window/size/viewport_width=1920
+window/size/viewport_height=1080
 window/size/resizable=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
@@ -97,6 +97,7 @@ dash={
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 "#ÐÐ°ÑÑÑÐ¾Ð¹ÐºÐ¸ÑÐµÐ½Ð´ÐµÑÐ¸Ð½Ð³Ð°Ð¿Ð¾ÑÐ¼Ð¾Ð»ÑÐ°Ð½Ð¸ÑÐ´Ð»Ñ2D.#Godot4Ð°Ð²ÑÐ¾Ð¼Ð°ÑÐ¸ÑÐµÑÐºÐ¸Ð¾Ð¿ÑÐ¸Ð¼Ð¸Ð·Ð¸ÑÑÐµÑÑÐµÐ½Ð´ÐµÑÐ¸Ð½Ð³Ð´Ð»Ñ2D,Ð½Ð¾Ð¼Ð¾Ð¶Ð½Ð¾ÑÐ²Ð½Ð¾ÑÐºÐ°Ð·Ð°ÑÑ:#renderer/rendering_method"="forward_plus"

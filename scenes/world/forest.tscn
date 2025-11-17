@@ -1,7 +1,19 @@
-[gd_scene load_steps=1 format=3 uid="uid://e2h594l1w984e"]
+[gd_scene load_steps=3 format=3 uid="uid://63bo2osd3edm"]
+
+[ext_resource type="Texture2D" uid="uid://dg201rk3ro2vu" path="res://assets/newAssets/bg/playgroundAddil.png" id="1_k440o"]
+[ext_resource type="Texture2D" uid="uid://drgr6ent0630f" path="res://assets/newAssets/playgroundAddil.png" id="2_bpy6v"]
 
 [node name="Forest" type="Node"]
-# scenes/world/forest.tscn
-# Пример игровой сцены мира.
-# Здесь размещаются ландшафт, враги и интерактивные объекты.
 
+[node name="PlaygroundAddil" type="Sprite2D" parent="."]
+position = Vector2(640, 358)
+scale = Vector2(3.3368058, 3.3368056)
+texture = ExtResource("1_k440o")
+
+[node name="Tree" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Tree"]
+position = Vector2(879, 352)
+texture = ExtResource("2_bpy6v")
+region_enabled = true
+region_rect = Rect2(130, 0, 169, 216)
