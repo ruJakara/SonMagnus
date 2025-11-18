@@ -72,33 +72,6 @@ tracks/0/keys = {
 "values": [&"idle"]
 }
 
-[sub_resource type="Animation" id="Animation_ahqnk"]
-length = 0.20000002
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("AnimatedSprite2D:animation")
-tracks/0/interp = 0
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [&"RP"]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("AnimatedSprite2D:frame")
-tracks/1/interp = 0
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.033333335, 0.06666667, 0.10000001, 0.13333334, 0.16666667),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [0, 1, 2, 3, 4, 5]
-}
-
 [sub_resource type="Animation" id="Animation_attack1"]
 resource_name = "attack_1"
 length = 0.4
@@ -234,34 +207,31 @@ tracks/2/keys = {
 }]
 }
 
-[sub_resource type="Animation" id="Animation_block"]
-resource_name = "block"
-length = 0.3
+[sub_resource type="Animation" id="Animation_ahqnk"]
+length = 0.20000002
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/path = NodePath("AnimatedSprite2D:animation")
-tracks/0/interp = 1
+tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [&"idle"]
+"update": 0,
+"values": [&"RP"]
 }
-tracks/1/type = "method"
+tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("PlayerCombat")
-tracks/1/interp = 1
+tracks/1/path = NodePath("AnimatedSprite2D:frame")
+tracks/1/interp = 0
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0.3),
-"transitions": PackedFloat32Array(1),
-"values": [{
-"args": [],
-"method": &"_on_attack_end"
-}]
+"times": PackedFloat32Array(0, 0.033333335, 0.06666667, 0.10000001, 0.13333334, 0.16666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0, 1, 2, 3, 4, 5]
 }
 
 [sub_resource type="Animation" id="Animation_charged"]
@@ -304,6 +274,36 @@ tracks/2/keys = {
 "args": [],
 "method": &"_on_attack_frame"
 }, {
+"args": [],
+"method": &"_on_attack_end"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_block"]
+resource_name = "block"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"idle"]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("PlayerCombat")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.3),
+"transitions": PackedFloat32Array(1),
+"values": [{
 "args": [],
 "method": &"_on_attack_end"
 }]
@@ -354,14 +354,20 @@ tracks/2/keys = {
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_main"]
 _data = {
 &"RESET": SubResource("Animation_idle"),
-&"RP": SubResource("Animation_ahqnk"),
-&"attack_1": SubResource("Animation_attack1"),
-&"attack_2": SubResource("Animation_attack2"),
-&"attack_3": SubResource("Animation_attack3"),
-&"block": SubResource("Animation_block"),
-&"charged_attack": SubResource("Animation_charged"),
-&"dash": SubResource("Animation_dash"),
-&"idle": SubResource("Animation_idle")
+&"attackCombo1": SubResource("Animation_attack1"),
+&"attackCombo2": SubResource("Animation_attack2"),
+&"attackCombo3": SubResource("Animation_attack3"),
+&"attackLeft": SubResource("Animation_ahqnk"),
+&"attackRight": SubResource("Animation_ahqnk"),
+&"cast1": SubResource("Animation_idle"),
+&"cast2": SubResource("Animation_idle"),
+&"chargeLeft": SubResource("Animation_charged"),
+&"chargeRight": SubResource("Animation_charged"),
+&"death": SubResource("Animation_block"),
+&"hurt": SubResource("Animation_dash"),
+&"idle": SubResource("Animation_idle"),
+&"run": SubResource("Animation_idle"),
+&"walk": SubResource("Animation_idle")
 }
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_0wr6q"]
@@ -389,7 +395,7 @@ animations = [{
 "texture": ExtResource("7_ln3h3")
 }],
 "loop": false,
-"name": &"Kick",
+"name": &"attackCombo1",
 "speed": 20.0
 }, {
 "frames": [{
@@ -403,7 +409,7 @@ animations = [{
 "texture": ExtResource("10_w8qe1")
 }],
 "loop": false,
-"name": &"LP",
+"name": &"attackLeft",
 "speed": 20.0
 }, {
 "frames": [{
@@ -426,7 +432,7 @@ animations = [{
 "texture": ExtResource("16_a38bk")
 }],
 "loop": false,
-"name": &"RP",
+"name": &"attackRight",
 "speed": 20.0
 }, {
 "frames": [{

@@ -8,12 +8,19 @@ extends Node
 # ===== Состояния =====
 enum State {
 	IDLE,
-	ATTACK_1,
-	ATTACK_2,
-	ATTACK_3,
-	CHARGED,
-	BLOCK,
-	DASH
+	RUN,
+	WALK,
+	ATTACK_LEFT,
+	ATTACK_RIGHT,
+	ATTACK_COMBO_1,
+	ATTACK_COMBO_2,
+	ATTACK_COMBO_3,
+	CHARGE_LEFT,
+	CHARGE_RIGHT,
+	CAST_1,
+	CAST_2,
+	DEATH,
+	HURT
 }
 
 # ===== Signals =====
@@ -45,12 +52,20 @@ var combo_manager: Node = null
 var combat_profile_manager: Node = null
 
 # ===== Константы анимаций =====
-const ANIM_ATTACK_1: String = "attack_1"
-const ANIM_ATTACK_2: String = "attack_2" 
-const ANIM_ATTACK_3: String = "attack_3"
-const ANIM_CHARGED: String = "charged_attack"
-const ANIM_BLOCK: String = "block"
-const ANIM_DASH: String = "dash"
+const ANIM_IDLE: String = "idle"
+const ANIM_RUN: String = "run"
+const ANIM_WALK: String = "walk"
+const ANIM_ATTACK_LEFT: String = "attackLeft"
+const ANIM_ATTACK_RIGHT: String = "attackRight"
+const ANIM_ATTACK_COMBO_1: String = "attackCombo1"
+const ANIM_ATTACK_COMBO_2: String = "attackCombo2"
+const ANIM_ATTACK_COMBO_3: String = "attackCombo3"
+const ANIM_CHARGE_LEFT: String = "chargeLeft"
+const ANIM_CHARGE_RIGHT: String = "chargeRight"
+const ANIM_CAST_1: String = "cast1"
+const ANIM_CAST_2: String = "cast2"
+const ANIM_DEATH: String = "death"
+const ANIM_HURT: String = "hurt"
 
 
 func _ready() -> void:
@@ -97,11 +112,14 @@ func handle_attack_input(side: String) -> void:
 		print_debug("[PlayerCombat] handle_attack_input: side=%s, state=%s, combo_window=%s, chain=%d" % [side, State.keys()[current_state], combo_window_active, attack_chain_count])
 	
 	match current_state:
-		State.IDLE:
-			# Начинаем атаку с первого удара
-			_start_attack_1(side)
+		State.IDLE, State.RUN, State.WALK:
+			# Начинаем атаку
+			if side == "L":
+				_start_attack_left()
+			else:
+				_start_attack_right()
 		
-		State.ATTACK_1, State.ATTACK_2, State.ATTACK_3:
+		State.ATTACK_LEFT, State.ATTACK_RIGHT, State.ATTACK_COMBO_1, State.ATTACK_COMBO_2:
 			# Если окно комбо открыто, продолжаем цепочку
 			if combo_window_active:
 				_continue_combo(side)
@@ -114,30 +132,33 @@ func handle_charged_attack(side: String) -> void:
 	"""Обработка заряженной атаки
 	Вызывается извне при удержании кнопки атаки
 	"""
-	if current_state == State.IDLE:
-		_start_charged_attack(side)
+	if current_state in [State.IDLE, State.RUN, State.WALK]:
+		if side == "L":
+			_start_charge_left()
+		else:
+			_start_charge_right()
 
 
-func handle_block_input() -> void:
-	"""Обработка блока
-	Вызывается извне при нажатии block
-	"""
-	if current_state == State.IDLE:
-		_change_state(State.BLOCK)
-		_play_animation(ANIM_BLOCK)
-		
-		# Регистрируем попытку парирования
-		if combat_profile_manager:
-			combat_profile_manager.register_event(&"parry_attempt")
+func handle_cast_input(cast_num: int) -> void:
+	"""Обработка каста способности"""
+	if current_state in [State.IDLE, State.RUN, State.WALK]:
+		if cast_num == 1:
+			_start_cast_1()
+		else:
+			_start_cast_2()
 
 
-func handle_dash_input() -> void:
-	"""Обработка рывка
-	Вызывается извне при нажатии dash
-	"""
-	if current_state == State.IDLE:
-		_change_state(State.DASH)
-		_play_animation(ANIM_DASH)
+func handle_hurt() -> void:
+	"""Обработка получения урона"""
+	if current_state != State.DEATH:
+		_change_state(State.HURT)
+		_play_animation(ANIM_HURT)
+
+
+func handle_death() -> void:
+	"""Обработка смерти"""
+	_change_state(State.DEATH)
+	_play_animation(ANIM_DEATH)
 
 
 # ===== State Management =====
@@ -159,17 +180,22 @@ func _change_state(new_state: State) -> void:
 		_reset_attack_chain()
 
 
-func _start_attack_1(side: String) -> void:
-	"""Начать первую атаку в цепочке"""
-	_change_state(State.ATTACK_1)
-	attack_chain_count = 1
-	current_combo_id = "attack_1"
-	_play_animation(ANIM_ATTACK_1)
-	emit_signal("attack_performed", 1)
-	
-	# Регистрируем событие в CombatProfileManager
-	if combat_profile_manager:
-		combat_profile_manager.register_event(&"straight_hit")
+func _start_attack_left() -> void:
+	"""Начать атаку левой рукой"""
+	_change_state(State.ATTACK_LEFT)
+	attack_chain_count = 0
+	current_combo_id = "attackLeft"
+	_play_animation(ANIM_ATTACK_LEFT)
+	emit_signal("attack_performed", 0)
+
+
+func _start_attack_right() -> void:
+	"""Начать атаку правой рукой"""
+	_change_state(State.ATTACK_RIGHT)
+	attack_chain_count = 0
+	current_combo_id = "attackRight"
+	_play_animation(ANIM_ATTACK_RIGHT)
+	emit_signal("attack_performed", 0)
 
 
 func _continue_combo(side: String) -> void:
@@ -177,42 +203,67 @@ func _continue_combo(side: String) -> void:
 	_close_combo_window()
 	
 	match current_state:
-		State.ATTACK_1:
-			# Переход к атаке 2
-			_change_state(State.ATTACK_2)
+		State.ATTACK_LEFT, State.ATTACK_RIGHT:
+			# Переход к комбо 1
+			_change_state(State.ATTACK_COMBO_1)
+			attack_chain_count = 1
+			current_combo_id = "attackCombo1"
+			_play_animation(ANIM_ATTACK_COMBO_1)
+			emit_signal("attack_performed", 1)
+		
+		State.ATTACK_COMBO_1:
+			# Переход к комбо 2
+			_change_state(State.ATTACK_COMBO_2)
 			attack_chain_count = 2
-			current_combo_id = "attack_2"
-			_play_animation(ANIM_ATTACK_2)
+			current_combo_id = "attackCombo2"
+			_play_animation(ANIM_ATTACK_COMBO_2)
 			emit_signal("attack_performed", 2)
 		
-		State.ATTACK_2:
-			# Переход к атаке 3
-			_change_state(State.ATTACK_3)
+		State.ATTACK_COMBO_2:
+			# Переход к комбо 3 (финал)
+			_change_state(State.ATTACK_COMBO_3)
 			attack_chain_count = 3
-			current_combo_id = "attack_3"
-			_play_animation(ANIM_ATTACK_3)
+			current_combo_id = "attackCombo3"
+			_play_animation(ANIM_ATTACK_COMBO_3)
 			emit_signal("attack_performed", 3)
-			
-			# Регистрируем завершение комбо из 3 ударов
-			if combat_profile_manager:
-				combat_profile_manager.register_event(&"combo_3hit")
 		
-		State.ATTACK_3:
-			# Финальная атака - возвращаемся к первой
+		State.ATTACK_COMBO_3:
+			# Финальная атака - начинаем сначала
 			_reset_attack_chain()
-			_start_attack_1(side)
+			if side == "L":
+				_start_attack_left()
+			else:
+				_start_attack_right()
 
 
-func _start_charged_attack(side: String) -> void:
-	"""Начать заряженную атаку"""
-	_change_state(State.CHARGED)
+func _start_charge_left() -> void:
+	"""Начать заряженную атаку левой"""
+	_change_state(State.CHARGE_LEFT)
 	attack_chain_count = 0
-	current_combo_id = "charged_attack"
-	_play_animation(ANIM_CHARGED)
-	
-	# Регистрируем событие заряженной атаки
-	if combat_profile_manager:
-		combat_profile_manager.register_event(&"charged_attack")
+	current_combo_id = "chargeLeft"
+	_play_animation(ANIM_CHARGE_LEFT)
+
+
+func _start_charge_right() -> void:
+	"""Начать заряженную атаку правой"""
+	_change_state(State.CHARGE_RIGHT)
+	attack_chain_count = 0
+	current_combo_id = "chargeRight"
+	_play_animation(ANIM_CHARGE_RIGHT)
+
+
+func _start_cast_1() -> void:
+	"""Начать каст способности 1"""
+	_change_state(State.CAST_1)
+	current_combo_id = "cast1"
+	_play_animation(ANIM_CAST_1)
+
+
+func _start_cast_2() -> void:
+	"""Начать каст способности 2"""
+	_change_state(State.CAST_2)
+	current_combo_id = "cast2"
+	_play_animation(ANIM_CAST_2)
 
 
 func _reset_attack_chain() -> void:
@@ -350,7 +401,17 @@ func _on_attack_end() -> void:
 # ===== Public API =====
 func is_attacking() -> bool:
 	"""Проверка, атакует ли игрок в данный момент"""
-	return current_state in [State.ATTACK_1, State.ATTACK_2, State.ATTACK_3, State.CHARGED]
+	return current_state in [
+		State.ATTACK_LEFT, 
+		State.ATTACK_RIGHT, 
+		State.ATTACK_COMBO_1, 
+		State.ATTACK_COMBO_2, 
+		State.ATTACK_COMBO_3,
+		State.CHARGE_LEFT,
+		State.CHARGE_RIGHT,
+		State.CAST_1,
+		State.CAST_2
+	]
 
 
 func is_combo_window_active() -> bool:
