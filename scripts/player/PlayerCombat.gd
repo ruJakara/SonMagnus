@@ -42,6 +42,7 @@ var player: CharacterBody2D = null
 var animation_player: AnimationPlayer = null
 var combat_manager: Node = null
 var combo_manager: Node = null
+var combat_profile_manager: Node = null
 
 # ===== Константы анимаций =====
 const ANIM_ATTACK_1: String = "attack_1"
@@ -65,6 +66,12 @@ func _setup_references() -> void:
 	
 	combat_manager = get_node_or_null("/root/CombatManager")
 	combo_manager = get_node_or_null("/root/ComboManager")
+	combat_profile_manager = get_node_or_null("/root/CombatProfileManager")
+	
+	# Подключаемся к сигналам CombatManager для отслеживания критов
+	if combat_manager:
+		if not combat_manager.is_connected("critical_hit", _on_critical_hit):
+			combat_manager.connect("critical_hit", _on_critical_hit)
 	
 	if Config.DEBUG_LOGS:
 		print_debug("[PlayerCombat] Инициализация. Player: %s, AnimationPlayer: %s" % [player != null, animation_player != null])
@@ -118,6 +125,10 @@ func handle_block_input() -> void:
 	if current_state == State.IDLE:
 		_change_state(State.BLOCK)
 		_play_animation(ANIM_BLOCK)
+		
+		# Регистрируем попытку парирования
+		if combat_profile_manager:
+			combat_profile_manager.register_event(&"parry_attempt")
 
 
 func handle_dash_input() -> void:
@@ -155,6 +166,10 @@ func _start_attack_1(side: String) -> void:
 	current_combo_id = "attack_1"
 	_play_animation(ANIM_ATTACK_1)
 	emit_signal("attack_performed", 1)
+	
+	# Регистрируем событие в CombatProfileManager
+	if combat_profile_manager:
+		combat_profile_manager.register_event(&"straight_hit")
 
 
 func _continue_combo(side: String) -> void:
@@ -177,6 +192,10 @@ func _continue_combo(side: String) -> void:
 			current_combo_id = "attack_3"
 			_play_animation(ANIM_ATTACK_3)
 			emit_signal("attack_performed", 3)
+			
+			# Регистрируем завершение комбо из 3 ударов
+			if combat_profile_manager:
+				combat_profile_manager.register_event(&"combo_3hit")
 		
 		State.ATTACK_3:
 			# Финальная атака - возвращаемся к первой
@@ -190,6 +209,10 @@ func _start_charged_attack(side: String) -> void:
 	attack_chain_count = 0
 	current_combo_id = "charged_attack"
 	_play_animation(ANIM_CHARGED)
+	
+	# Регистрируем событие заряженной атаки
+	if combat_profile_manager:
+		combat_profile_manager.register_event(&"charged_attack")
 
 
 func _reset_attack_chain() -> void:
@@ -344,3 +367,11 @@ func reset() -> void:
 	"""Сброс состояния в IDLE"""
 	_change_state(State.IDLE)
 	_reset_attack_chain()
+
+
+# ===== Combat Profile Event Handlers =====
+func _on_critical_hit(attacker, defender, damage: float) -> void:
+	"""Обработчик критического удара от CombatManager"""
+	# Проверяем, что это именно наш игрок нанес крит
+	if attacker == player and combat_profile_manager:
+		combat_profile_manager.register_event(&"critical_hit")

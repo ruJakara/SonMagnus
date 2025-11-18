@@ -29,6 +29,7 @@ EffectManager="*res://autoload/EffectManager.gd"
 ComboManager="*res://autoload/ComboManager.gd"
 ClassManager="*res://autoload/ClassManager.gd"
 EnemyFactory="*res://autoload/EnemyFactory.gd"
+CombatProfileManager="*res://autoload/CombatProfileManager.tscn"
 
 [debug]
 
