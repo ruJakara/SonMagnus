@@ -1,4 +1,4 @@
-[gd_scene load_steps=64 format=3 uid="uid://c85dg4quft5fo"]
+[gd_scene load_steps=65 format=3 uid="uid://c85dg4quft5fo"]
 
 [ext_resource type="Texture2D" uid="uid://c5sn1jcm52fov" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/roundhouse-kick/east/frame_000.png" id="1_2t3bg"]
 [ext_resource type="Script" uid="uid://t2h0klnfmudf" path="res://scripts/player/player.gd" id="1_ahqnk"]
@@ -52,6 +52,7 @@
 [ext_resource type="Texture2D" uid="uid://lxwkrex1jnsi" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/throw-object/east/frame_005.png" id="49_i6ap2"]
 [ext_resource type="Texture2D" uid="uid://dsuasjjo2df1p" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/throw-object/east/frame_006.png" id="50_88c1f"]
 [ext_resource type="Script" uid="uid://ddmtg3sb2lrl6" path="res://scripts/player/PlayerCombat.gd" id="52_pcombat"]
+[ext_resource type="PackedScene" uid="uid://bhryskgrey6jf" path="res://scenes/ui/hud.tscn" id="53_vb1ce"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hdu4s"]
 
@@ -587,4 +588,7 @@ autoplay = "stay"
 script = ExtResource("52_pcombat")
 
 [node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(565.76575, 486.48648)
 zoom = Vector2(2.9, 2.9)
+
+[node name="HUD" parent="." instance=ExtResource("53_vb1ce")]

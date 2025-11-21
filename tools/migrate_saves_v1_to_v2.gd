@@ -9,5 +9,3 @@ func migrate(data: Dictionary) -> Dictionary:
 		player["owned_classes"] = []
 	out["player"] = player
 	return out
-
-

@@ -3,7 +3,7 @@
 # Отслеживает боевые события и обновляет скрытые характеристики
 # Автозагружается как синглтон
 
-class_name CombatProfileManager
+#class_name CombatProfileManager
 extends Node
 
 ## Сигнал об изменении профиля

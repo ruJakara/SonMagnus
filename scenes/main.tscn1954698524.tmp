@@ -13,7 +13,26 @@ script = ExtResource("1_jyhfs")
 [node name="Player" parent="." instance=ExtResource("1_o5qli")]
 texture_filter = 2
 position = Vector2(387, 344)
+acceleration = null
+deceleration = null
+input_timeout = null
+hold_threshold = null
+max_sequence = null
 attack_step_distance = 11.97
+hit_stop_time = null
+camera_shake_strength = null
+base_crit_chance = null
+max_stamina = null
+stamina_regen_rate = null
+max_mana = null
+mana_regen_rate = null
+max_hunger = null
+hunger_decay_rate = null
+entity_name = null
+max_health = null
+level = null
+attack = null
+defense = null
 speed = 180.0
 
 [node name="HUD" parent="." instance=ExtResource("3_sugp2")]

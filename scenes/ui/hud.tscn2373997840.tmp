@@ -1,0 +1,464 @@
+[gd_scene load_steps=18 format=3 uid="uid://bhryskgrey6jf"]
+
+[ext_resource type="Texture2D" uid="uid://d35vhbj0665g5" path="res://assets/newAssets/weapon/64/gemGreen.png" id="1_ahhtf"]
+[ext_resource type="Script" uid="uid://b43m4kjghy7kq" path="res://scenes/ui/hud.gd" id="1_hqnrr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HealthBG"]
+bg_color = Color(0.18, 0.05, 0.05, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_HealthFill"]
+bg_color = Color(0.85, 0.1, 0.1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ManaBG"]
+bg_color = Color(0.05, 0.05, 0.2, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ManaFill"]
+bg_color = Color(0.1, 0.4, 0.9, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StaminaBG"]
+bg_color = Color(0.15, 0.15, 0.05, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_StaminaFill"]
+bg_color = Color(0.9, 0.8, 0.1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SatietyBG"]
+bg_color = Color(0.2, 0.1, 0, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SatietyFill"]
+bg_color = Color(0.9, 0.5, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SlotItem"]
+bg_color = Color(0.15, 0.15, 0.15, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.6, 0.6, 0.6, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_SkillSlot"]
+bg_color = Color(0.1, 0.1, 0.1, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5, 0.5, 0.5, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ClockMask"]
+bg_color = Color(0, 0, 0, 0.5)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.8, 0.7, 0.5, 1)
+corner_radius_top_left = 50
+corner_radius_top_right = 50
+corner_radius_bottom_right = 50
+corner_radius_bottom_left = 50
+
+[sub_resource type="Gradient" id="Gradient_Sky"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.28, 0.72, 1)
+colors = PackedColorArray(0.05, 0.05, 0.15, 1, 0.2, 0.5, 0.8, 1, 0.4, 0.7, 0.9, 1, 0.05, 0.05, 0.15, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_Sky"]
+gradient = SubResource("Gradient_Sky")
+fill_from = Vector2(0.5, 1)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Sun"]
+bg_color = Color(1, 0.9, 0.2, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.6, 0.1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(1, 0.8, 0, 0.4)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_Moon"]
+bg_color = Color(0.9, 0.9, 0.95, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.6, 0.6, 0.7, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.7, 0.8, 1, 0.3)
+shadow_size = 4
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hqnrr")
+
+[node name="StatusBars" type="VBoxContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -616.0
+offset_top = -511.0
+offset_right = -466.0
+offset_bottom = -387.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.12, 1.12)
+theme_override_constants/separation = 8
+
+[node name="HealthBar" type="ProgressBar" parent="StatusBars"]
+custom_minimum_size = Vector2(150, 25)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_HealthBG")
+theme_override_styles/fill = SubResource("StyleBoxFlat_HealthFill")
+step = 1.0
+value = 100.0
+show_percentage = false
+
+[node name="ManaBar" type="ProgressBar" parent="StatusBars"]
+custom_minimum_size = Vector2(150, 25)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_ManaBG")
+theme_override_styles/fill = SubResource("StyleBoxFlat_ManaFill")
+step = 1.0
+value = 100.0
+show_percentage = false
+
+[node name="StaminaBar" type="ProgressBar" parent="StatusBars"]
+custom_minimum_size = Vector2(150, 25)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_StaminaBG")
+theme_override_styles/fill = SubResource("StyleBoxFlat_StaminaFill")
+step = 1.0
+value = 100.0
+show_percentage = false
+
+[node name="HungerBar" type="ProgressBar" parent="StatusBars"]
+custom_minimum_size = Vector2(150, 25)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_SatietyBG")
+theme_override_styles/fill = SubResource("StyleBoxFlat_SatietyFill")
+step = 1.0
+value = 100.0
+show_percentage = false
+
+[node name="BottomBar" type="MarginContainer" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 43.99997
+offset_top = -164.00006
+offset_right = 749.0
+offset_bottom = -90.00006
+grow_vertical = 0
+scale = Vector2(2.1, 2.1)
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="CenterContainer" type="HBoxContainer" parent="BottomBar"]
+custom_minimum_size = Vector2(31.92, 0)
+layout_mode = 2
+theme_override_constants/separation = 50
+
+[node name="LeftItems" type="HBoxContainer" parent="BottomBar/CenterContainer"]
+custom_minimum_size = Vector2(31.92, 0)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="QuickItem1" type="Panel" parent="BottomBar/CenterContainer/LeftItems"]
+custom_minimum_size = Vector2(31.92, 32)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_SlotItem")
+
+[node name="QuickItem2" type="Panel" parent="BottomBar/CenterContainer/LeftItems"]
+custom_minimum_size = Vector2(31.92, 32)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_SlotItem")
+
+[node name="LeftWeapon" type="Panel" parent="BottomBar/CenterContainer/LeftItems"]
+custom_minimum_size = Vector2(31.92, 64)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_SlotItem")
+
+[node name="Skills" type="HBoxContainer" parent="BottomBar/CenterContainer"]
+custom_minimum_size = Vector2(31.92, 0)
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_constants/separation = 5
+
+[node name="Skill_0" type="Panel" parent="BottomBar/CenterContainer/Skills"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SkillSlot")
+
+[node name="Icon" type="TextureRect" parent="BottomBar/CenterContainer/Skills/Skill_0"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_ahhtf")
+expand_mode = 1
+
+[node name="Skill_1" type="Panel" parent="BottomBar/CenterContainer/Skills"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SkillSlot")
+
+[node name="Icon" type="TextureRect" parent="BottomBar/CenterContainer/Skills/Skill_1"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_ahhtf")
+expand_mode = 1
+
+[node name="Skill_2" type="Panel" parent="BottomBar/CenterContainer/Skills"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SkillSlot")
+
+[node name="Icon" type="TextureRect" parent="BottomBar/CenterContainer/Skills/Skill_2"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_ahhtf")
+expand_mode = 1
+
+[node name="Skill_3" type="Panel" parent="BottomBar/CenterContainer/Skills"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SkillSlot")
+
+[node name="Icon" type="TextureRect" parent="BottomBar/CenterContainer/Skills/Skill_3"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -0.04760743
+offset_top = -1.2380837
+offset_right = -0.047607422
+offset_bottom = -1.2380829
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_ahhtf")
+expand_mode = 1
+
+[node name="Skill_4" type="Panel" parent="BottomBar/CenterContainer/Skills"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SkillSlot")
+
+[node name="Icon" type="TextureRect" parent="BottomBar/CenterContainer/Skills/Skill_4"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_ahhtf")
+expand_mode = 1
+
+[node name="Skill_5" type="Panel" parent="BottomBar/CenterContainer/Skills"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_SkillSlot")
+
+[node name="Icon" type="TextureRect" parent="BottomBar/CenterContainer/Skills/Skill_5"]
+custom_minimum_size = Vector2(31.92, 48)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_ahhtf")
+expand_mode = 1
+
+[node name="RightItems" type="HBoxContainer" parent="BottomBar/CenterContainer"]
+custom_minimum_size = Vector2(31.92, 0)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RightWeapon" type="Panel" parent="BottomBar/CenterContainer/RightItems"]
+custom_minimum_size = Vector2(31.92, 64)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_SlotItem")
+
+[node name="QuickItem3" type="Panel" parent="BottomBar/CenterContainer/RightItems"]
+custom_minimum_size = Vector2(31.92, 32)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_SlotItem")
+
+[node name="QuickItem4" type="Panel" parent="BottomBar/CenterContainer/RightItems"]
+custom_minimum_size = Vector2(31.92, 32)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_SlotItem")
+
+[node name="ClockContainer" type="MarginContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -110.0
+offset_top = 30.0
+offset_right = -30.0
+offset_bottom = 110.0
+grow_horizontal = 0
+
+[node name="DayNightClock" type="Panel" parent="ClockContainer"]
+clip_children = 1
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ClockMask")
+
+[node name="GradientSky" type="TextureRect" parent="ClockContainer/DayNightClock"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_Sky")
+expand_mode = 1
+
+[node name="CelestialPivot" type="Control" parent="ClockContainer/DayNightClock"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Sun" type="Panel" parent="ClockContainer/DayNightClock/CelestialPivot"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -35.0
+offset_right = 10.0
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Sun")
+
+[node name="Moon" type="Panel" parent="ClockContainer/DayNightClock/CelestialPivot"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = 19.0
+offset_right = 8.0
+offset_bottom = 35.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_Moon")
