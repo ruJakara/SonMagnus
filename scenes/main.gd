@@ -1,7 +1,7 @@
 extends Node
 
-@onready var player = $Player
-@onready var hud = $HUD
+@onready var player = $Node2D/Player
+@onready var hud = $Node2D/HUD
 
 func _ready():
 	await get_tree().process_frame

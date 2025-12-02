@@ -4,7 +4,7 @@ extends CanvasLayer
 @onready var health_bar = $StatusBars/HealthBar
 @onready var mana_bar = $StatusBars/ManaBar
 @onready var stamina_bar = $StatusBars/StaminaBar
-@onready var hunger_bar = $StatusBars/SatietyBar
+@onready var hunger_bar = $StatusBars/HungerBar
 
 # --- 2. ССЫЛКИ НА СЛОТЫ ---
 @onready var skills_container = $BottomBar/CenterContainer/Skills

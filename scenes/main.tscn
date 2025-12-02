@@ -3,17 +3,45 @@
 [ext_resource type="PackedScene" uid="uid://63bo2osd3edm" path="res://scenes/world/forest.tscn" id="1_0wfyh"]
 [ext_resource type="Script" uid="uid://db6m30kv7nay7" path="res://scenes/main.gd" id="1_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://c85dg4quft5fo" path="res://scenes/player/player.tscn" id="1_o5qli"]
-[ext_resource type="PackedScene" uid="uid://bhryskgrey6jf" path="res://scenes/ui/hud.tscn" id="3_sugp2"]
+[ext_resource type="PackedScene" uid="uid://bhryskgrey6jf" path="res://scenes/ui/hud.tscn" id="4_jyhfs"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_jyhfs")
 
 [node name="Forest" parent="." instance=ExtResource("1_0wfyh")]
 
-[node name="Player" parent="." instance=ExtResource("1_o5qli")]
-texture_filter = 2
-position = Vector2(387, 344)
-attack_step_distance = 11.97
+[node name="Node2D" type="Node2D" parent="."]
+
+[node name="Player" parent="Node2D" instance=ExtResource("1_o5qli")]
+position = Vector2(223.46, 349)
+scale = Vector2(2.425, 2.425)
 speed = 180.0
 
-[node name="HUD" parent="." instance=ExtResource("3_sugp2")]
+[node name="HUD" parent="Node2D" instance=ExtResource("4_jyhfs")]
+
+[node name="StatusBars" parent="Node2D/HUD" index="0"]
+offset_left = -614.0
+offset_top = -519.0
+offset_right = -464.0
+offset_bottom = -395.0
+scale = Vector2(1.2078891, 0.99896806)
+
+[node name="BottomBar" parent="Node2D/HUD" index="1"]
+offset_left = 93.0
+offset_top = -226.0
+offset_right = 798.0
+offset_bottom = -152.0
+scale = Vector2(2.1221201, 1.38934)
+
+[node name="ClockContainer" parent="Node2D/HUD" index="2"]
+offset_left = -150.0
+offset_top = 23.000002
+offset_right = -70.0
+offset_bottom = 103.0
+scale = Vector2(1.5583575, 1.4451575)
+
+[node name="GradientSky" parent="Node2D/HUD/ClockContainer/DayNightClock" index="0"]
+offset_left = 2.0
+offset_right = 2.0
+
+[editable path="Node2D/HUD"]
