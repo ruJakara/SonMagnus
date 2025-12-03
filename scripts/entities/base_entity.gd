@@ -1,6 +1,6 @@
 # scripts/entities/base_entity.gd
 # Базовый класс для всех игровых сущностей (игрок, NPC, монстры).
-# Совместим с Godot 4.5.1 (2D). Без варнингов и обращений к несуществующим глобалям.
+# Совместим с Godot 4.5.1 (2D).
 
 class_name BaseEntity
 extends CharacterBody2D
@@ -15,11 +15,11 @@ signal effect_removed(effect_id: String)
 signal class_changed(class_id: String)
 
 @export var max_stamina: float = 100.0
-@export var stamina_regen_rate: float = 10.0  # Восстановление в секунду (100 за 10 секунд)
+@export var stamina_regen_rate: float = 10.0
 @export var max_mana: float = 100.0
-@export var mana_regen_rate: float = 5.0  # Восстановление маны в секунду
+@export var mana_regen_rate: float = 5.0
 @export var max_hunger: float = 100.0
-@export var hunger_decay_rate: float = 1.0  # Уменьшение голода в секунду
+@export var hunger_decay_rate: float = 1.0
 @export var entity_name: String = "Безымянный"
 @export var max_health: int = 100
 @export var level: int = 1
@@ -27,23 +27,17 @@ signal class_changed(class_id: String)
 @export var defense: float = 5.0
 @export var speed: float = 100.0
 
-# Внутреннее поле здоровья (явно типизировано)
 var _health: int = 100
 var _stamina: float = 100.0
 var _mana: float = 100.0
 var _hunger: float = 100.0
 
-# Классовая система (минимальная интеграция)
 var global_level: int = 1
 var owned_classes: Array = []
-
-# Активные эффекты для этой сущности (ключ — effect_id, значение — true)
 var active_effects: Dictionary = {}
-
-# Ссылка на EffectManager (будет получена в _ready)
 var _effect_manager: Node = null
 
-# Свойство health с геттером/сеттером
+# Свойства с геттерами/сеттерами
 var health: int:
 	get:
 		return _health
@@ -53,7 +47,6 @@ var health: int:
 		if _health == 0:
 			_die()
 
-# Свойство stamina с геттером/сеттером
 var stamina: float:
 	get:
 		return _stamina
@@ -61,7 +54,6 @@ var stamina: float:
 		_stamina = clamp(value, 0.0, max_stamina)
 		emit_signal("stamina_changed", _stamina, max_stamina)
 
-# Свойство mana с геттером/сеттером
 var mana: float:
 	get:
 		return _mana
@@ -69,7 +61,6 @@ var mana: float:
 		_mana = clamp(value, 0.0, max_mana)
 		emit_signal("mana_changed", _mana, max_mana)
 
-# Свойство hunger с геттером/сеттером
 var hunger: float:
 	get:
 		return _hunger
@@ -81,107 +72,85 @@ func _ready() -> void:
 	_stamina = max_stamina
 	_mana = max_mana
 	_hunger = max_hunger
-	# Получаем ссылку на EffectManager безопасно (если автолоад подключён)
 	_effect_manager = get_node_or_null("/root/EffectManager")
-	# Инициализация здоровья при спавне
 	_health = max_health
 	if Config.DEBUG_LOGS:
 		print_debug("[%s] ready — HP: %d/%d, Stamina: %.1f/%.1f, Mana: %.1f/%.1f, Hunger: %.1f/%.1f" % [entity_name, _health, max_health, _stamina, max_stamina, _mana, max_mana, _hunger, max_hunger])
 
 func _process(delta: float) -> void:
-	# Пассивное восстановление выносливости
 	if _stamina < max_stamina:
 		stamina += stamina_regen_rate * delta
-	
-	# Пассивное восстановление маны
 	if _mana < max_mana:
 		mana += mana_regen_rate * delta
-	
-	# Пассивное уменьшение голода
 	if _hunger > 0.0:
 		hunger -= hunger_decay_rate * delta
 
-# Инициализация вручную
 func initialize(name: String, max_hp: int, lvl: int) -> void:
 	entity_name = name
 	max_health = max_hp
 	level = lvl
 	health = max_hp
 
-# Получить значение защиты (можно расширять)
 func get_defense(damage_type: String) -> int:
-	# TODO: учесть резисты по типам урона
 	return int(defense)
 
-# Получение урона
 func take_damage(amount: int) -> void:
 	var final_damage: int = max(0, amount - get_defense("physical"))
 	health -= final_damage
 	if Config.DEBUG_LOGS:
 		print_debug("[%s] получил %d урона, HP: %d/%d" % [entity_name, final_damage, health, max_health])
 
-# Лечение
 func heal(amount: int) -> void:
 	health = min(health + amount, max_health)
 	if Config.DEBUG_LOGS:
 		print_debug("[%s] восстановил %d HP, HP: %d/%d" % [entity_name, amount, health, max_health])
 
-# Вызов при смерти
 func _die() -> void:
 	if Config.DEBUG_LOGS:
 		print_debug("[%s] умер" % entity_name)
 	emit_signal("died")
 
-# --- Работа с эффектами (без прямых обращений к глобалям) ---
-
-# Применить эффект: безопасно вызывает EffectManager, если тот есть
+# --- Эффекты ---
 func apply_status_effect(effect_id: String) -> void:
 	if _effect_manager == null:
-		# Попытка получить ещё раз (на случай порядка загрузки)
 		_effect_manager = get_node_or_null("/root/EffectManager")
 		if _effect_manager == null:
 			push_warning("EffectManager не подключён — эффект %s не применён к %s" % [effect_id, entity_name])
 			return
 
-	# Ожидаем, что EffectManager имеет метод apply_effect(target, effect_id)
 	if _effect_manager.has_method("apply_effect"):
 		_effect_manager.call("apply_effect", self, effect_id)
 		active_effects[effect_id] = true
 		emit_signal("effect_applied", effect_id)
 	else:
-		push_warning("EffectManager не реализует apply_effect — эффект не применён.")
+		push_warning("EffectManager не реализует apply_effect")
 
-# Снять эффект
 func remove_status_effect(effect_id: String) -> void:
 	if _effect_manager == null:
 		_effect_manager = get_node_or_null("/root/EffectManager")
 		if _effect_manager == null:
+			active_effects.erase(effect_id)
 			return
 	if _effect_manager.has_method("remove_effect"):
 		_effect_manager.call("remove_effect", self, effect_id)
 	active_effects.erase(effect_id)
 	emit_signal("effect_removed", effect_id)
 
-# Очистить все эффекты
 func clear_all_effects() -> void:
 	if _effect_manager == null:
 		_effect_manager = get_node_or_null("/root/EffectManager")
-		if _effect_manager == null:
-			active_effects.clear()
-			return
-	for effect_id in active_effects.keys():
-		if _effect_manager.has_method("remove_effect"):
+	if _effect_manager and _effect_manager.has_method("remove_effect"):
+		for effect_id in active_effects.keys():
 			_effect_manager.call("remove_effect", self, effect_id)
 	active_effects.clear()
 
-# --- Классы: API для ClassManager ---
+# --- Классы ---
 func add_class(class_id: String) -> void:
 	if not (has_node("/root/Config") and Config.CLASS_SYSTEM_ENABLED):
 		return
-	if class_id in owned_classes:
-		return
-	owned_classes.append(class_id)
-	emit_signal("class_changed", class_id)
+	if class_id not in owned_classes:
+		owned_classes.append(class_id)
+		emit_signal("class_changed", class_id)
 
 func has_class(class_id: String) -> bool:
 	return class_id in owned_classes
@@ -189,9 +158,11 @@ func has_class(class_id: String) -> bool:
 func on_global_level_up(new_level: int) -> void:
 	global_level = new_level
 	if has_node("/root/Config") and Config.CLASS_SYSTEM_ENABLED and global_level % 10 == 0:
-		var cm := get_node_or_null("/root/ClassManagerSingleton")
+		var cm = get_node_or_null("/root/ClassManagerSingleton")
 		if cm and cm.has_method("check_level_for_class"):
 			cm.call("check_level_for_class", self)
+
+# --- Утилиты ресурсов ---
 func get_stamina() -> float:
 	return _stamina
 
@@ -202,31 +173,21 @@ func reduce_stamina(cost: float) -> void:
 
 func restore_stamina(amount: float) -> void:
 	stamina += amount
-	if Config.DEBUG_LOGS:
-		print_debug("[%s] восстановлено %.1f выносливости, сейчас %.1f/%.1f" % [entity_name, amount, _stamina, max_stamina])
 
 func get_mana() -> float:
 	return _mana
 
 func reduce_mana(cost: float) -> void:
 	mana -= cost
-	if Config.DEBUG_LOGS:
-		print_debug("[%s] потрачено %.1f маны, осталось %.1f/%.1f" % [entity_name, cost, _mana, max_mana])
 
 func restore_mana(amount: float) -> void:
 	mana += amount
-	if Config.DEBUG_LOGS:
-		print_debug("[%s] восстановлено %.1f маны, сейчас %.1f/%.1f" % [entity_name, amount, _mana, max_mana])
 
 func get_hunger() -> float:
 	return _hunger
 
 func reduce_hunger(amount: float) -> void:
 	hunger -= amount
-	if Config.DEBUG_LOGS:
-		print_debug("[%s] голод снизился на %.1f, осталось %.1f/%.1f" % [entity_name, amount, _hunger, max_hunger])
 
 func restore_hunger(amount: float) -> void:
 	hunger += amount
-	if Config.DEBUG_LOGS:
-		print_debug("[%s] голод восстановлен на %.1f, сейчас %.1f/%.1f" % [entity_name, amount, _hunger, max_hunger])

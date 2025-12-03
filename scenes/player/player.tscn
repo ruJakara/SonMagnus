@@ -681,7 +681,7 @@ tracks/2/path = NodePath("PlayerCombat")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0.1, 0.3),
+"times": PackedFloat32Array(0.1, 0.43333334),
 "transitions": PackedFloat32Array(1, 1),
 "values": [{
 "args": [],
@@ -725,7 +725,7 @@ tracks/2/path = NodePath("PlayerCombat")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0.23333333, 0.4),
+"times": PackedFloat32Array(0.23333333, 0.56666666),
 "transitions": PackedFloat32Array(1, 1),
 "values": [{
 "args": [],
@@ -1467,7 +1467,7 @@ shape = SubResource("CapsuleShape2D_hdu4s")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_v8cnd")
-animation = &"attack1"
+animation = &"attack3"
 autoplay = "idle"
 
 [node name="PlayerCombat" type="Node" parent="."]

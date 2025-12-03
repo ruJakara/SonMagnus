@@ -1,7 +1,6 @@
 # scripts/player/PlayerCombat.gd
-# Attack State Machine для игрока
-# Управляет состояниями атак и combo-цепочками
-# Использует AnimationPlayer для проигрывания анимаций
+# Гибкая система комбо на основе последовательностей
+# Поддержка неограниченных цепочек, кулдауна, отдачи
 
 extends Node
 
@@ -10,39 +9,30 @@ enum State {
 	IDLE,
 	RUN,
 	WALK,
-	ATTACK_LEFT,
-	ATTACK_RIGHT,
-	ATTACK_COMBO_1,
-	ATTACK_COMBO_2,
-	ATTACK_COMBO_3,
-	CHARGE_LEFT,
-	CHARGE_RIGHT,
-	CAST_1,
-	CAST_2,
+	ATTACKING,  # ← одно состояние для всех атак
+	CHARGING,
+	CASTING,
 	DEATH,
 	HURT
 }
 
 # ===== Signals =====
 signal state_changed(old_state: State, new_state: State)
-signal attack_performed(attack_number: int)
-signal combo_window_opened()
-signal combo_window_closed()
+signal combo_executed(combo_id: String)
+signal attack_cooldown_started(duration: float)
 
-# ===== Экспорт параметров =====
-@export var combo_window_duration: float = 0.3
-@export var attack_1_damage_multiplier: float = 1.0
-@export var attack_2_damage_multiplier: float = 1.2
-@export var attack_3_damage_multiplier: float = 1.5
+# ===== Экспорт =====
+@export var base_combo_window: float = 0.3
+@export var base_recoil_strength: float = 10.0
+@export var base_attack_cooldown: float = 0.2
 
-# ===== Внутренние переменные =====
+# ===== Внутреннее состояние =====
 var current_state: State = State.IDLE
-var previous_state: State = State.IDLE
-var combo_window_active: bool = false
-var combo_window_timer: float = 0.0
-var queued_input: String = ""
-var attack_chain_count: int = 0  # Счетчик текущей цепочки атак (0, 1, 2, 3)
-var current_combo_id: String = ""  # ID текущего комбо для CombatManager
+var input_sequence: Array = []          # ["L", "L", "R", ...]
+var current_combo_id: String = ""
+var _attack_cooldown: float = 0.0
+var _combo_window_timer: float = 0.0
+var has_weapon: bool = false            # ← заглушка для оружия
 
 # ===== References =====
 var player: CharacterBody2D = null
@@ -51,388 +41,205 @@ var combat_manager: Node = null
 var combo_manager: Node = null
 var combat_profile_manager: Node = null
 
-# ===== Константы анимаций =====
-const ANIM_IDLE: String = "idle"
-const ANIM_RUN: String = "run"
-const ANIM_WALK: String = "walk"
-const ANIM_ATTACK_LEFT: String = "attackLeft"
-const ANIM_ATTACK_RIGHT: String = "attackRight"
-const ANIM_ATTACK_COMBO_1: String = "attackCombo1"
-const ANIM_ATTACK_COMBO_2: String = "attackCombo2"
-const ANIM_ATTACK_COMBO_3: String = "attackCombo3"
-const ANIM_CHARGE_LEFT: String = "chargeLeft"
-const ANIM_CHARGE_RIGHT: String = "chargeRight"
-const ANIM_CAST_1: String = "cast1"
-const ANIM_CAST_2: String = "cast2"
-const ANIM_DEATH: String = "death"
-const ANIM_HURT: String = "hurt"
-
-
 func _ready() -> void:
 	_setup_references()
 
-
 func _setup_references() -> void:
-	# Получаем ссылки на компоненты
 	player = get_parent() as CharacterBody2D
-	
-	if player:
-		animation_player = player.get_node_or_null("AnimationPlayer")
-	
+	animation_player = player.get_node_or_null("AnimationPlayer")
 	combat_manager = get_node_or_null("/root/CombatManager")
 	combo_manager = get_node_or_null("/root/ComboManager")
 	combat_profile_manager = get_node_or_null("/root/CombatProfileManager")
 	
-	# Подключаемся к сигналам CombatManager для отслеживания критов
-	if combat_manager:
-		if not combat_manager.is_connected("critical_hit", _on_critical_hit):
-			combat_manager.connect("critical_hit", _on_critical_hit)
-	
-	if Config.DEBUG_LOGS:
-		print_debug("[PlayerCombat] Инициализация. Player: %s, AnimationPlayer: %s" % [player != null, animation_player != null])
-
-
-func _process(delta: float) -> void:
-	_update_combo_window(delta)
-
-
-func _update_combo_window(delta: float) -> void:
-	if combo_window_active:
-		combo_window_timer -= delta
-		if combo_window_timer <= 0.0:
-			_close_combo_window()
-
+	if combat_manager and not combat_manager.is_connected("critical_hit", _on_critical_hit):
+		combat_manager.connect("critical_hit", _on_critical_hit)
 
 # ===== Input Handling =====
 func handle_attack_input(side: String) -> void:
-	"""Обработка ввода атаки (L или R)
-	Вызывается извне при нажатии attack_left или attack_right
-	"""
-	if Config.DEBUG_LOGS:
-		print_debug("[PlayerCombat] handle_attack_input: side=%s, state=%s, combo_window=%s, chain=%d" % [side, State.keys()[current_state], combo_window_active, attack_chain_count])
+	if not _can_start_attack():
+		return
+
+	input_sequence.append(side)
 	
-	match current_state:
-		State.IDLE, State.RUN, State.WALK:
-			# Начинаем атаку
-			if side == "L":
-				_start_attack_left()
-			else:
-				_start_attack_right()
-		
-		State.ATTACK_LEFT, State.ATTACK_RIGHT, State.ATTACK_COMBO_1, State.ATTACK_COMBO_2:
-			# Если окно комбо открыто, продолжаем цепочку
-			if combo_window_active:
-				_continue_combo(side)
-			else:
-				# Окно комбо закрыто - запоминаем ввод для следующей атаки
-				queued_input = side
+	# Находим самую длинную подходящую комбинацию
+	var matched_combo = _find_longest_matching_combo(input_sequence)
+	
+	if matched_combo != "":
+		_execute_combo(matched_combo)
+	else:
+		# Нет совпадения — сбрасываем и делаем базовую атаку
+		_reset_combo()
+		var base_combo = "basic_l" if side == "L" else "basic_r"
+		_execute_combo(base_combo)
+		# И убираем последний ввод, чтобы не мешал
+		if input_sequence.size() > 0:
+			input_sequence.pop_back()
 
+func _can_start_attack() -> bool:
+	return current_state not in [State.DEATH, State.HURT] and _attack_cooldown <= 0.0
 
-func handle_charged_attack(side: String) -> void:
-	"""Обработка заряженной атаки
-	Вызывается извне при удержании кнопки атаки
-	"""
-	if current_state in [State.IDLE, State.RUN, State.WALK]:
-		if side == "L":
-			_start_charge_left()
-		else:
-			_start_charge_right()
+# ===== Combo Logic =====
+func _find_longest_matching_combo(sequence: Array) -> String:
+	# Ищем от самой длинной к короткой
+	for i in range(sequence.size(), 0, -1):
+		var candidate = sequence.slice(0, i)
+		var combo_id = ComboManager.find_combo_by_sequence(candidate)
+		if combo_id != "":
+			return combo_id
+	return ""
 
+func _execute_combo(combo_id: String) -> void:
+	var combo_data = ComboManager.get_combo(combo_id)
+	if combo_data.is_empty():
+		return
 
-func handle_cast_input(cast_num: int) -> void:
-	"""Обработка каста способности"""
-	if current_state in [State.IDLE, State.RUN, State.WALK]:
-		if cast_num == 1:
-			_start_cast_1()
-		else:
-			_start_cast_2()
+	# === ДВИЖЕНИЕ ВПЕРЁД (если нужно) ===
+	var move_fwd = combo_data.get("move_forward", 0.0)
+	if move_fwd > 0.0:
+		var forward_dir = Vector2.RIGHT
+		if player.is_facing_left():
+			forward_dir = Vector2.LEFT
+		player.translate(forward_dir * move_fwd)
 
+	# === Состояние ===
+	_change_state(State.ATTACKING)
+	current_combo_id = combo_id
 
-func handle_hurt() -> void:
-	"""Обработка получения урона"""
-	if current_state != State.DEATH:
-		_change_state(State.HURT)
-		_play_animation(ANIM_HURT)
+	# === Анимация ===
+	_play_combo_animation(combo_id)
 
+	# === Отдача ===
+	var recoil = combo_data.get("recoil", base_recoil_strength)
+	_apply_recoil(recoil)
 
-func handle_death() -> void:
-	"""Обработка смерти"""
-	_change_state(State.DEATH)
-	_play_animation(ANIM_DEATH)
+	# === Кулдаун ===
+	var cooldown = combo_data.get("cooldown", base_attack_cooldown)
+	_attack_cooldown = cooldown
+	emit_signal("attack_cooldown_started", cooldown)
 
+	# === Окно комбо ===
+	var window = combo_data.get("combo_window", base_combo_window)
+	_combo_window_timer = window
 
-# ===== State Management =====
+	# === Урон ===
+	_perform_attack(combo_id)
+
+	emit_signal("combo_executed", combo_id)
+
+func _perform_attack(combo_id: String) -> void:
+	if not combat_manager:
+		return
+
+	var target = _find_target_in_front(player, 80.0)
+	var weapon_data: Dictionary = { "base_damage": 10, "crit_chance": 0.1 }
+	var result = combat_manager.execute_sequence(player, target, combo_id, weapon_data)
+
+	if result and result.success and Config.DEBUG_LOGS:
+		print_debug("[PlayerCombat] Атака %s: урон=%.1f" % [combo_id, result.damage])
+
+# ===== State & Reset =====
 func _change_state(new_state: State) -> void:
-	"""Смена состояния"""
 	if current_state == new_state:
 		return
-	
-	previous_state = current_state
+	var old = current_state
 	current_state = new_state
-	
-	if Config.DEBUG_LOGS:
-		print_debug("[PlayerCombat] State changed: %s -> %s" % [State.keys()[previous_state], State.keys()[new_state]])
-	
-	emit_signal("state_changed", previous_state, new_state)
-	
-	# Обработка перехода в IDLE
-	if new_state == State.IDLE:
-		_reset_attack_chain()
+	emit_signal("state_changed", old, new_state)
 
+func _reset_combo() -> void:
+	input_sequence.clear()
+	_combo_window_timer = 0.0
 
-func _start_attack_left() -> void:
-	"""Начать атаку левой рукой"""
-	_change_state(State.ATTACK_LEFT)
-	attack_chain_count = 0
-	current_combo_id = "attackLeft"
-	_play_animation(ANIM_ATTACK_LEFT)
-	emit_signal("attack_performed", 0)
+# ===== Process =====
+func _process(delta: float) -> void:
+	# Кулдаун атаки
+	if _attack_cooldown > 0.0:
+		_attack_cooldown -= delta
 
+	# Окно комбо
+	if _combo_window_timer > 0.0:
+		_combo_window_timer -= delta
+		if _combo_window_timer <= 0.0:
+			# Окно закрылось — сбрасываем последовательность
+			# Но не очищаем полностью, на случай продолжения
+			pass
 
-func _start_attack_right() -> void:
-	"""Начать атаку правой рукой"""
-	_change_state(State.ATTACK_RIGHT)
-	attack_chain_count = 0
-	current_combo_id = "attackRight"
-	_play_animation(ANIM_ATTACK_RIGHT)
-	emit_signal("attack_performed", 0)
+	# Автоматический возврат в IDLE после атаки (если нет движения)
+	if current_state == State.ATTACKING and not _is_attacking_animation_playing():
+		if player.velocity.length() < 5.0:
+			_change_state(State.IDLE)
+		else:
+			_change_state(State.RUN)
 
+func _is_attacking_animation_playing() -> bool:
+	# Можно улучшить через AnimationPlayer
+	return animation_player and animation_player.is_playing()
 
-func _continue_combo(side: String) -> void:
-	"""Продолжить комбо-цепочку"""
-	_close_combo_window()
-	
-	match current_state:
-		State.ATTACK_LEFT, State.ATTACK_RIGHT:
-			# Переход к комбо 1
-			_change_state(State.ATTACK_COMBO_1)
-			attack_chain_count = 1
-			current_combo_id = "attackCombo1"
-			_play_animation(ANIM_ATTACK_COMBO_1)
-			emit_signal("attack_performed", 1)
-		
-		State.ATTACK_COMBO_1:
-			# Переход к комбо 2
-			_change_state(State.ATTACK_COMBO_2)
-			attack_chain_count = 2
-			current_combo_id = "attackCombo2"
-			_play_animation(ANIM_ATTACK_COMBO_2)
-			emit_signal("attack_performed", 2)
-		
-		State.ATTACK_COMBO_2:
-			# Переход к комбо 3 (финал)
-			_change_state(State.ATTACK_COMBO_3)
-			attack_chain_count = 3
-			current_combo_id = "attackCombo3"
-			_play_animation(ANIM_ATTACK_COMBO_3)
-			emit_signal("attack_performed", 3)
-		
-		State.ATTACK_COMBO_3:
-			# Финальная атака - начинаем сначала
-			_reset_attack_chain()
-			if side == "L":
-				_start_attack_left()
-			else:
-				_start_attack_right()
-
-
-func _start_charge_left() -> void:
-	"""Начать заряженную атаку левой"""
-	_change_state(State.CHARGE_LEFT)
-	attack_chain_count = 0
-	current_combo_id = "chargeLeft"
-	_play_animation(ANIM_CHARGE_LEFT)
-
-
-func _start_charge_right() -> void:
-	"""Начать заряженную атаку правой"""
-	_change_state(State.CHARGE_RIGHT)
-	attack_chain_count = 0
-	current_combo_id = "chargeRight"
-	_play_animation(ANIM_CHARGE_RIGHT)
-
-
-func _start_cast_1() -> void:
-	"""Начать каст способности 1"""
-	_change_state(State.CAST_1)
-	current_combo_id = "cast1"
-	_play_animation(ANIM_CAST_1)
-
-
-func _start_cast_2() -> void:
-	"""Начать каст способности 2"""
-	_change_state(State.CAST_2)
-	current_combo_id = "cast2"
-	_play_animation(ANIM_CAST_2)
-
-
-func _reset_attack_chain() -> void:
-	"""Сбросить цепочку атак"""
-	attack_chain_count = 0
-	current_combo_id = ""
-	_close_combo_window()
-	queued_input = ""
-
-
-# ===== Combo Window Management =====
-func _open_combo_window() -> void:
-	"""Открыть окно для combo
-	Вызывается через notify из AnimationPlayer
-	"""
-	if combo_window_active:
+# ===== Animation =====
+func _play_combo_animation(combo_id: String) -> void:
+	var combo_data = ComboManager.get_combo(combo_id)
+	if combo_data.is_empty():
 		return
-	
-	combo_window_active = true
-	combo_window_timer = combo_window_duration
-	
-	if Config.DEBUG_LOGS:
-		print_debug("[PlayerCombat] Combo window opened (duration: %.2fs)" % combo_window_duration)
-	
-	emit_signal("combo_window_opened")
 
+	# Поддержка оружия: префикс
+	var anim_key = "animation"
+	if has_weapon:
+		anim_key = "weapon_animation"
 
-func _close_combo_window() -> void:
-	"""Закрыть окно combo"""
-	if not combo_window_active:
-		return
+	var anim_name = combo_data.get(anim_key, combo_data.get("animation", "idle"))
 	
-	combo_window_active = false
-	combo_window_timer = 0.0
-	
-	if Config.DEBUG_LOGS:
-		print_debug("[PlayerCombat] Combo window closed")
-	
-	emit_signal("combo_window_closed")
+	var sprite = player.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+	if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation(anim_name):
+		sprite.stop()
+		sprite.play(anim_name)
 
+	# Тайминг через AnimationPlayer
+	var timing_anim = anim_name  # или отдельное поле в JSON
+	if animation_player and animation_player.has_animation(timing_anim):
+		animation_player.play(timing_anim)
 
-# ===== Animation Control =====
-func _play_animation(anim_name: String) -> void:
-	"""Проиграть анимацию через AnimationPlayer"""
-	if not animation_player:
-		if Config.DEBUG_LOGS:
-			print_debug("[PlayerCombat] AnimationPlayer не найден!")
-		return
-	
-	if not animation_player.has_animation(anim_name):
-		if Config.DEBUG_LOGS:
-			print_debug("[PlayerCombat] Анимация '%s' не найдена в AnimationPlayer!" % anim_name)
-		return
-	
-	animation_player.play(anim_name)
-	
-	if Config.DEBUG_LOGS:
-		print_debug("[PlayerCombat] Играю анимацию: %s" % anim_name)
+func _apply_recoil(strength: float) -> void:
+	var dir = Vector2.LEFT if player.is_facing_left() else Vector2.RIGHT
+	player.velocity -= dir * strength * 20  # scale as needed
 
-# ===== Animation Notify Callbacks =====
-# Эти методы вызываются из AnimationPlayer через notify tracks
+# ===== Target Finding =====
+func _find_target_in_front(player: Node, range: float) -> Node:
+	var direction = Vector2.RIGHT
+	if player.is_facing_left():
+		direction = Vector2.LEFT
 
-func _on_attack_frame() -> void:
-	"""Вызывается из AnimationPlayer на кадре нанесения урона
-	Вызывает CombatManager.execute_sequence для нанесения урона
-	"""
-	if Config.DEBUG_LOGS:
-		print_debug("[PlayerCombat] _on_attack_frame вызван, состояние=%s, combo_id=%s" % [State.keys()[current_state], current_combo_id])
-	
-	# Открываем окно combo на кадре атаки
-	_open_combo_window()
-	
-	# Выполняем атаку через CombatManager
-	if current_combo_id.is_empty():
-		if Config.DEBUG_LOGS:
-			print_debug("[PlayerCombat] Нет combo_id для выполнения атаки")
-		return
-	
-	# Проверяем наличие необходимых компонентов
-	if not player or not combat_manager:
-		if Config.DEBUG_LOGS:
-			print_debug("[PlayerCombat] Не все компоненты доступны (player=%s, combat_manager=%s)" % [player != null, combat_manager != null])
-		return
-	
-	# Получаем цель
-	var target = null
-	if player.has_method("get_target"):
-		target = player.get_target()
-	
-	if not target:
-		if Config.DEBUG_LOGS:
-			print_debug("[PlayerCombat] Нет цели для атаки")
-		return
-	
-	# Формируем weapon_data согласно заданию
-	var weapon_data: Dictionary = {
-		"base_damage": 10,
-		"crit_chance": 0.1
-	}
-	
-	# Вызываем CombatManager.execute_sequence
-	if Config.DEBUG_LOGS:
-		print_debug("[PlayerCombat] Вызываю CombatManager.execute_sequence(player=%s, target=%s, combo_id=%s, weapon_data=%s)" % [player.name, target.name if target.has("name") else target, current_combo_id, weapon_data])
-	
-	var result = combat_manager.execute_sequence(player, target, current_combo_id, weapon_data)
-	
-	if result and result.success:
-		if Config.DEBUG_LOGS:
-			print_debug("[PlayerCombat] Атака успешна: урон=%.1f, крит=%s" % [result.damage, result.crit])
-	else:
-		if Config.DEBUG_LOGS:
-			print_debug("[PlayerCombat] Атака не удалась или вернула пустой результат")
+	var start = player.global_position
+	var end = start + direction * range
 
+	var space_state = player.get_world_2d().direct_space_state
+	var query = PhysicsRayQueryParameters2D.new()
+	query.from = start
+	query.to = end
+	query.collision_mask = 0
+	query.exclude = [player]
 
-func _on_attack_end() -> void:
-	"""Вызывается из AnimationPlayer в конце анимации атаки
-	Используется для завершения атаки и перехода в следующее состояние
-	"""
-	if Config.DEBUG_LOGS:
-		print_debug("[PlayerCombat] _on_attack_end вызван, состояние=%s" % State.keys()[current_state])
-	
-	# Закрываем окно combo
-	_close_combo_window()
-	
-	# Проверяем, есть ли отложенный ввод
-	if queued_input != "":
-		var input := queued_input
-		queued_input = ""
-		handle_attack_input(input)
-	else:
-		# Возвращаемся в IDLE
-		_change_state(State.IDLE)
-
+	var result = space_state.intersect_ray(query)
+	if result and result.collider is BaseEntity and result.collider != player:
+		return result.collider
+	return null
 
 # ===== Public API =====
 func is_attacking() -> bool:
-	"""Проверка, атакует ли игрок в данный момент"""
-	return current_state in [
-		State.ATTACK_LEFT, 
-		State.ATTACK_RIGHT, 
-		State.ATTACK_COMBO_1, 
-		State.ATTACK_COMBO_2, 
-		State.ATTACK_COMBO_3,
-		State.CHARGE_LEFT,
-		State.CHARGE_RIGHT,
-		State.CAST_1,
-		State.CAST_2
-	]
+	return current_state == State.ATTACKING
 
-
-func is_combo_window_active() -> bool:
-	"""Проверка, активно ли окно combo"""
-	return combo_window_active
-
-
-func get_current_state() -> State:
-	"""Получить текущее состояние"""
-	return current_state
-
+func get_current_combo() -> String:
+	return current_combo_id
 
 func reset() -> void:
-	"""Сброс состояния в IDLE"""
 	_change_state(State.IDLE)
-	_reset_attack_chain()
+	_reset_combo()
+	_attack_cooldown = 0.0
 
+# ===== Weapon Toggle (заглушка) =====
+func toggle_weapon() -> void:
+	has_weapon = not has_weapon
+	print("Оружие: %s" % ("включено" if has_weapon else "выключено"))
 
-# ===== Combat Profile Event Handlers =====
+# ===== Combat Profile =====
 func _on_critical_hit(attacker, defender, damage: float) -> void:
-	"""Обработчик критического удара от CombatManager"""
-	# Проверяем, что это именно наш игрок нанес крит
 	if attacker == player and combat_profile_manager:
 		combat_profile_manager.register_event(&"critical_hit")
