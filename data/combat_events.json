@@ -1,0 +1,66 @@
+{
+	"straight_hit": {
+		"style": "berserk",
+		"amount": 1
+	},
+	"parry_attempt": {
+		"style": "fencer",
+		"amount": 2
+	},
+	"parry_success": {
+		"style": "fencer",
+		"amount": 5
+	},
+	"combo_finish": {
+		"style": "gladiator",
+		"amount": 1
+	},
+	"combo_3hit": {
+		"style": "gladiator",
+		"amount": 3
+	},
+	"headshot": {
+		"style": "sniper",
+		"amount": 3
+	},
+	"critical_hit": {
+		"style": "duelist",
+		"amount": 2
+	},
+	"trap_damage": {
+		"style": "trickster",
+		"amount": 4
+	},
+	"poison_tick": {
+		"style": "plunder",
+		"amount": 1
+	},
+	"long_range_shot": {
+		"style": "strategist",
+		"amount": 2
+	},
+	"backstab": {
+		"style": "trickster",
+		"amount": 5
+	},
+	"spell_cast": {
+		"style": "sage",
+		"amount": 2
+	},
+	"elemental_damage": {
+		"style": "arcane",
+		"amount": 3
+	},
+	"charged_attack": {
+		"style": "berserk",
+		"amount": 2
+	},
+	"counter_attack": {
+		"style": "duelist",
+		"amount": 3
+	},
+	"defensive_stance": {
+		"style": "strategist",
+		"amount": 1
+	}
+}

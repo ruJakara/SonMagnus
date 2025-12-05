@@ -1,0 +1,18 @@
+{
+  "bleed": {
+	"name": "Кровотечение",
+	"duration": 3,
+	"tick_damage": 4,
+	"attack_bonus": 0
+  },
+  "stun_target": {
+	"name": "Оглушение",
+	"duration": 2,
+	"speed_modifier": -0.5
+  },
+  "regen": {
+	"name": "Регенерация",
+	"duration": 4,
+	"heal_tick": 3
+  }
+}
