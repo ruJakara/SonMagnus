@@ -1,0 +1,121 @@
+[gd_scene load_steps=24 format=3 uid="uid://b1ym7g5lfcv6"]
+
+[ext_resource type="Script" uid="uid://d145a2iiqqgn3" path="res://scripts/entities/EnemyBase.gd" id="1_enemybase"]
+[ext_resource type="Script" uid="uid://bhva2uf52i3ok" path="res://scripts/entities/components/EnemyAI.gd" id="2_enemyai"]
+[ext_resource type="Texture2D" uid="uid://dhreejvpnog2t" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_000.png" id="2_yggtu"]
+[ext_resource type="Texture2D" uid="uid://dtlbsdae3r6w2" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_001.png" id="3_b84bd"]
+[ext_resource type="Script" uid="uid://kx38q7qhtxmn" path="res://scripts/entities/components/EnemyAttack.gd" id="3_enemyattack"]
+[ext_resource type="Texture2D" uid="uid://dms6bln2r5w4c" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_002.png" id="4_a5rva"]
+[ext_resource type="Texture2D" uid="uid://b5a84cjiiml04" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_003.png" id="5_b1axq"]
+[ext_resource type="Texture2D" uid="uid://bj60qphn771ta" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_004.png" id="6_png4c"]
+[ext_resource type="Texture2D" uid="uid://bl7qoqyvi7ges" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/cross-punch/east/frame_005.png" id="7_dkh2c"]
+[ext_resource type="Texture2D" uid="uid://m223wbdmm0o8" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/breathing-idle/east/frame_000.png" id="8_xo05o"]
+[ext_resource type="Texture2D" uid="uid://bb4qwxbtixyg3" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/breathing-idle/east/frame_001.png" id="9_4t456"]
+[ext_resource type="Texture2D" uid="uid://bokfboe8dqxp" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/breathing-idle/east/frame_002.png" id="10_rordt"]
+[ext_resource type="Texture2D" uid="uid://d2lg15mdke4as" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/breathing-idle/east/frame_003.png" id="11_85uth"]
+[ext_resource type="Texture2D" uid="uid://wflkw5yc28r1" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_000.png" id="12_8i7kq"]
+[ext_resource type="Texture2D" uid="uid://1u6bis003hye" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_001.png" id="13_qmdjv"]
+[ext_resource type="Texture2D" uid="uid://u8tel4jb6f2w" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_002.png" id="14_1cxie"]
+[ext_resource type="Texture2D" uid="uid://cpmmxj0j4w0jj" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_003.png" id="15_pgotr"]
+[ext_resource type="Texture2D" uid="uid://w8hvm74ve8bo" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_004.png" id="16_amnso"]
+[ext_resource type="Texture2D" uid="uid://cjcjo0200eajj" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_005.png" id="17_fuakt"]
+[ext_resource type="Texture2D" uid="uid://cua5n5nd0mkuc" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_006.png" id="18_lhrcx"]
+[ext_resource type="Texture2D" uid="uid://bq8ggmam5qc5y" path="res://assets/A_young_man_with_long_red_hair._He_was_wearing_bei/animations/running-8-frames/east/frame_007.png" id="19_17xvc"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 20.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ewbsk"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_yggtu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_b84bd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_a5rva")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_b1axq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_png4c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_dkh2c")
+}],
+"loop": true,
+"name": &"attack",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("8_xo05o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_4t456")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_rordt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_85uth")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("12_8i7kq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_qmdjv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_1cxie")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_pgotr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_amnso")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_fuakt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_lhrcx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_17xvc")
+}],
+"loop": true,
+"name": &"run",
+"speed": 5.0
+}]
+
+[node name="EnemyBase" type="Node2D"]
+scale = Vector2(1.88, 1.6800001)
+script = ExtResource("1_enemybase")
+enemy_id = "goblin"
+data_path = "res://data/enemies/goblin.json"
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_ewbsk")
+animation = &"idle"
+
+[node name="EnemyAI" type="Node" parent="."]
+script = ExtResource("2_enemyai")
+
+[node name="EnemyAttack" type="Node" parent="."]
+script = ExtResource("3_enemyattack")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+monitoring = true
+monitorable = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_hurtbox")

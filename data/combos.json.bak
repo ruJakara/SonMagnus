@@ -1,0 +1,158 @@
+{
+  "combos": [
+	{
+	  "id": "basic_l",
+	  "sequence": ["L"],
+	  "animation": "punchLeft",
+	  "damage_mult": 1.0,
+	  "cooldown": 0.2,
+	  "move_forward": 15.0,
+	  "recoil": 5,
+	  "combo_window": 0.4,
+	  "can_cancel": true,
+	  "default": true
+	},
+	{
+	  "id": "basic_r",
+	  "sequence": ["R"],
+	  "animation": "punchRight",
+	  "damage_mult": 1.0,
+	  "cooldown": 0.2,
+	  "move_forward": 15.0,
+	  "recoil": 5,
+	  "combo_window": 0.4,
+	  "can_cancel": true,
+	  "default": true
+	},
+	
+	{
+	  "id": "double_punch",
+	  "sequence": ["L", "R"],
+	  "animation": "punchCombo2",
+	  "damage_mult": 1.5,
+	  "cooldown": 0.3,
+	  "move_forward": 20.0,
+	  "recoil": 8,
+	  "combo_window": 0.35,
+	  "can_cancel": true
+	},
+	{
+	  "id": "triple_punch",
+	  "sequence": ["L", "L", "L"],
+	  "animation": "punchCombo3",
+	  "damage_mult": 2.0,
+	  "cooldown": 0.4,
+	  "move_forward": 25.0,
+	  "recoil": 15,
+	  "combo_window": 0.25,
+	  "can_cancel": false
+	},
+	
+	{
+	  "id": "charged_punch",
+	  "sequence": ["L", "L", "R"],
+	  "animation": "chargedPunch",
+	  "damage_mult": 2.5,
+	  "cooldown": 0.6,
+	  "move_forward": 30.0,
+	  "recoil": 20,
+	  "combo_window": 0.2,
+	  "can_cancel": false,
+	  "stamina_cost": 15,
+	  "effects": ["stagger"]
+	},
+	{
+	  "id": "kick",
+	  "sequence": ["R", "R"],
+	  "animation": "kick",
+	  "damage_mult": 1.8,
+	  "cooldown": 0.35,
+	  "move_forward": 25.0,
+	  "recoil": 10,
+	  "combo_window": 0.3,
+	  "can_cancel": true,
+	  "effects": ["knockback"]
+	},
+		{
+	  "id": "kick",
+	  "sequence": ["L", "R", "R"],
+	  "animation": "kick2",
+	  "damage_mult": 1.8,
+	  "cooldown": 0.35,
+	  "move_forward": 25.0,
+	  "recoil": 10,
+	  "combo_window": 0.3,
+	  "can_cancel": true,
+	  "effects": ["knockback"]
+	},
+	
+	{
+	  "id": "sword_basic_l",
+	  "sequence": ["L"],
+	  "animation": "punchLeft",
+	  "weapon_animation": "attack1",
+	  "damage_mult": 1.5,
+	  "cooldown": 0.25,
+	  "move_forward": 20.0,
+	  "recoil": 7,
+	  "combo_window": 0.4,
+	  "can_cancel": true,
+	  "required_weapon_type": "sword"
+	},
+	{
+	  "id": "sword_basic_r",
+	  "sequence": ["R"],
+	  "animation": "punchRight",
+	  "weapon_animation": "attack2",
+	  "damage_mult": 1.5,
+	  "cooldown": 0.25,
+	  "move_forward": 20.0,
+	  "recoil": 7,
+	  "combo_window": 0.4,
+	  "can_cancel": true,
+	  "required_weapon_type": "sword"
+	},
+	{
+	  "id": "sword_combo_3",
+	  "sequence": ["L", "L", "R"],
+	  "animation": "punchCombo3",
+	  "weapon_animation": "attack3",
+	  "damage_mult": 2.5,
+	  "cooldown": 0.5,
+	  "move_forward": 30.0,
+	  "recoil": 18,
+	  "combo_window": 0.3,
+	  "can_cancel": false,
+	  "required_weapon_type": "sword"
+	},
+	{
+	  "id": "sword_finisher",
+	  "sequence": ["L", "R", "L", "R"],
+	  "animation": "punchCombo3",
+	  "weapon_animation": "attack4",
+	  "damage_mult": 3.5,
+	  "cooldown": 0.8,
+	  "move_forward": 40.0,
+	  "recoil": 25,
+	  "combo_window": 0.2,
+	  "can_cancel": false,
+	  "stamina_cost": 20,
+	  "required_weapon_type": "sword",
+	  "effects": ["bleed"]
+	},
+	
+	{
+	  "id": "dash_strike",
+	  "sequence": ["L", "R", "L"],
+	  "animation": "dashPunch",
+	  "weapon_animation": "dashSlash",
+	  "damage_mult": 2.2,
+	  "cooldown": 0.45,
+	  "move_forward": 50.0,
+	  "recoil": -10,
+	  "combo_window": 0.25,
+	  "can_cancel": true,
+	  "stamina_cost": 10
+	}
+  ]
+}

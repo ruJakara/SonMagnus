@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid"]
+resource_name = "WeaponResource"
+script = ExtResource( 1 )
+
+[resource]
+weapon_name = "Железный меч"
+weapon_type = "weapon"
+base_damage = 15.0
+crit_chance = 0.1
+attack_speed = 1.0
+block_power = 0.5
+durability = 100.0
+max_durability = 100.0
+

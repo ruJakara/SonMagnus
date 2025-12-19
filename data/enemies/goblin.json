@@ -1,0 +1,23 @@
+{
+	"id": "goblin",
+	"name": "Гоблин",
+	"max_health": 30,
+	"speed": 90,
+	"attack": 8,
+	"defense": 1,
+	"crit_chance": 0.05,
+	"faction": "goblins",
+	"hostile_factions": ["player", "animals"],
+	"ai": {
+		"detection_range": 250,
+		"lose_range": 350,
+		"attack_range": 55
+	},
+	"attack_data": {
+		"combo_id": "enemy_basic",
+		"cooldown": 1.1,
+		"base_damage": 8.0,
+		"crit_chance": 0.05
+	}
+}
+

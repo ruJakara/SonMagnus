@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cw7xvj8y5x4p0"]
 
-[ext_resource type="Script" path="res://autoload/CombatProfileManager.gd" id="1_8u5v3"]
+[ext_resource type="Script" uid="uid://yfbjqdv85b3f" path="res://autoload/CombatProfileManager.gd" id="1_8u5v3"]
 
 [node name="CombatProfileManager" type="Node"]
 script = ExtResource("1_8u5v3")

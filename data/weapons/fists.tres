@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid"]
+resource_name = "WeaponResource"
+script = ExtResource( 1 )
+
+[resource]
+weapon_name = "Кулаки"
+weapon_type = "unarmed"
+base_damage = 8.0
+crit_chance = 0.05
+attack_speed = 1.0
+block_power = 0.1
+durability = 0.0
+max_durability = 0.0
+
