@@ -20,6 +20,7 @@ extends Node
 var _parent: EnemyBase = null
 var _combat_manager: Node = null
 var _cooldown_timer: float = 0.0
+var _is_attacking: bool = false  # Флаг: атакуем прямо сейчас (для защиты от спама)
 
 
 func _ready() -> void:
@@ -39,18 +40,34 @@ func _process(delta: float) -> void:
 
 
 func try_attack(target: Node) -> void:
+	# Базовые проверки
 	if not target or not is_instance_valid(target):
 		return
 	
 	if _cooldown_timer > 0.0:
 		return
 	
+	if _is_attacking:
+		return
+	
 	if not _combat_manager:
 		push_warning("[EnemyAttack] CombatManager недоступен")
 		return
 	
-	# Формируем weapon_data из override и данных родителя
-	var weapon_data = weapon_data_override.duplicate()
+	# Блокируем повторный вызов
+	_is_attacking = true
+	
+	# Ставим состояние атаки (для анимации)
+	_parent.state = "attack"
+	
+	# Небольшой windup перед нанесением урона
+	await get_tree().create_timer(0.12).timeout
+	if not is_instance_valid(_parent) or not is_instance_valid(target):
+		_is_attacking = false
+		return
+	
+	# Готовим weapon_data
+	var weapon_data := weapon_data_override.duplicate()
 	if not weapon_data.has("base_damage") or weapon_data.get("base_damage", 0.0) <= 0.0:
 		weapon_data["base_damage"] = float(_parent.attack)
 	if not weapon_data.has("crit_chance"):
@@ -59,9 +76,16 @@ func try_attack(target: Node) -> void:
 	# Вызываем CombatManager
 	var result = _combat_manager.execute_sequence(_parent, target, combo_id, weapon_data)
 	
-	# Сбрасываем кулдаун
+	# Кулдаун
 	_cooldown_timer = cooldown
+	
+	# Короткое окно, пока держим state = "attack"
+	await get_tree().create_timer(0.25).timeout
+	if is_instance_valid(_parent) and _parent.state == "attack":
+		_parent.state = "chase"
+	
+	# Разблокируем атаку
+	_is_attacking = false
 	
 	if result and result.success:
 		print("[EnemyAttack] %s атаковал %s (урон: %.1f)" % [_parent.enemy_name, target.name, result.damage])
-

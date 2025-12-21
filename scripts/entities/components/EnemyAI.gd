@@ -114,10 +114,10 @@ func _update_chase(delta: float) -> void:
 	if distance <= attack_range:
 		_parent.state = "attack"
 		return
-
+	
 	# Поворот к цели
 	_parent.face_target(_player)
-
+	
 	# Движение к игроку
 	var direction = (_player.global_position - _parent.global_position).normalized()
 	_parent.global_position += direction * _parent.speed * delta
@@ -156,4 +156,3 @@ func _update_attack(delta: float) -> void:
 	# Пытаемся атаковать
 	if _attack_component:
 		_attack_component.try_attack(_player)
-
