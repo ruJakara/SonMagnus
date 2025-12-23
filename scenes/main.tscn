@@ -52,6 +52,7 @@ offset_right = 2.0
 [node name="Node2D" type="Node2D" parent="Node2D"]
 
 [node name="Enemy" parent="Node2D/Node2D" instance=ExtResource("5_tefeu")]
+light_mask = 4
 
 [node name="EnemyBase" parent="Node2D/Node2D" instance=ExtResource("6_o6xl0")]
 

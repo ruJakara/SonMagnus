@@ -15,6 +15,8 @@ script = ExtResource("1_8vbq5")
 shape = SubResource("CapsuleShape2D_4gbnu")
 
 [node name="detection_area" type="Area2D" parent="."]
+collision_layer = 32
+collision_mask = 6
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="detection_area"]
 scale = Vector2(80, 80)

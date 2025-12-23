@@ -69,6 +69,7 @@ texture_scale = 2.0
 
 [node name="OptionalMoon" type="DirectionalLight2D" parent="Lights"]
 energy = 0.4
+range_layer_min = -1
 
 [node name="VFX" type="Node2D" parent="."]
 

@@ -309,7 +309,8 @@ func _find_target_in_front(player: Node, range: float) -> Node:
 	var query = PhysicsRayQueryParameters2D.new()
 	query.from = start
 	query.to = end
-	query.collision_mask = 0
+	# ВАЖНО: маска должна видеть слой врагов (3-й бит)
+	query.collision_mask = 1 << 3
 	query.exclude = [player]
 
 	var result = space_state.intersect_ray(query)
@@ -320,13 +321,14 @@ func _find_target_in_front(player: Node, range: float) -> Node:
 	if not collider or collider == player:
 		return null
 	
-	# Проверяем, есть ли у collider метод take_damage
+	# Прямо на объекте есть take_damage
 	if collider.has_method("take_damage"):
 		return collider
 	
-	# Если у collider нет take_damage, проверяем родителя
-	if collider.get_parent() and collider.get_parent().has_method("take_damage"):
-		return collider.get_parent()
+	# Или у родителя (например, если попали в Hurtbox/дочерний узел)
+	var parent : Node = collider.get_parent()
+	if parent and parent.has_method("take_damage"):
+		return parent
 	
 	return null
 

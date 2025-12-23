@@ -14,7 +14,7 @@ extends Node
 @export var lose_range: float = 350.0        # Радиус потери цели
 @export var attack_range: float = 55.0       # Радиус атаки
 
-var _parent: EnemyBase = null
+var _parent: EnemyBase = null # Ensure _parent is typed as EnemyBase
 var _attack_component: EnemyAttack = null
 var _player: Node = null
 

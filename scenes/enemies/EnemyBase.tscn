@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=3 uid="uid://b1ym7g5lfcv6"]
+[gd_scene load_steps=62 format=3 uid="uid://b1ym7g5lfcv6"]
 
 [ext_resource type="Script" uid="uid://d145a2iiqqgn3" path="res://scripts/entities/EnemyBase.gd" id="1_enemybase"]
 [ext_resource type="Texture2D" uid="uid://ci1lm6fbq3tqe" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Attack.png" id="2_auavv"]
@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://kx38q7qhtxmn" path="res://scripts/entities/components/EnemyAttack.gd" id="3_enemyattack"]
 [ext_resource type="Texture2D" uid="uid://ytkcebiad2qk" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Run.png" id="4_30sq3"]
 [ext_resource type="Texture2D" uid="uid://bpff2j342rrto" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Attack3.png" id="4_irrv1"]
+[ext_resource type="Texture2D" uid="uid://bhkrf1qcqwmkp" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Death.png" id="5_hoi1c"]
+[ext_resource type="Texture2D" uid="uid://c11k1bnxvmv86" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Take Hit.png" id="8_2swcw"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_irrv1"]
 atlas = ExtResource("2_auavv")
@@ -121,6 +123,22 @@ region = Rect2(1500, 0, 150, 150)
 atlas = ExtResource("4_irrv1")
 region = Rect2(1650, 0, 150, 150)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_8luv8"]
+atlas = ExtResource("5_hoi1c")
+region = Rect2(0, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_28v2e"]
+atlas = ExtResource("5_hoi1c")
+region = Rect2(150, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ngd0l"]
+atlas = ExtResource("5_hoi1c")
+region = Rect2(300, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_178sw"]
+atlas = ExtResource("5_hoi1c")
+region = Rect2(450, 0, 150, 150)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_sv0tc"]
 atlas = ExtResource("3_14xwe")
 region = Rect2(0, 0, 150, 150)
@@ -169,6 +187,22 @@ region = Rect2(900, 0, 150, 150)
 atlas = ExtResource("4_30sq3")
 region = Rect2(1050, 0, 150, 150)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_gfp4u"]
+atlas = ExtResource("8_2swcw")
+region = Rect2(0, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_77cbf"]
+atlas = ExtResource("8_2swcw")
+region = Rect2(150, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i15lk"]
+atlas = ExtResource("8_2swcw")
+region = Rect2(300, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_waq66"]
+atlas = ExtResource("8_2swcw")
+region = Rect2(450, 0, 150, 150)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_ewbsk"]
 animations = [{
 "frames": [{
@@ -198,7 +232,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"attack",
-"speed": 12.0
+"speed": 18.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -272,6 +306,23 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_8luv8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_28v2e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ngd0l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_178sw")
+}],
+"loop": true,
+"name": &"death",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_sv0tc")
 }, {
 "duration": 1.0,
@@ -315,21 +366,43 @@ animations = [{
 "loop": true,
 "name": &"run",
 "speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gfp4u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_77cbf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i15lk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_waq66")
+}],
+"loop": true,
+"name": &"take hit",
+"speed": 5.0
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
 radius = 20.0
 
-[node name="EnemyBase" type="Node2D"]
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hoi1c"]
+height = 29.761906
+
+[node name="EnemyBase" type="CharacterBody2D"]
 scale = Vector2(1.88, 1.6800001)
+collision_layer = 4
+collision_mask = 7
 script = ExtResource("1_enemybase")
 enemy_id = "goblin"
 data_path = "res://data/enemies/goblin.json"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ewbsk")
-animation = &"attack2"
-frame_progress = 0.95340306
+animation = &"attack"
+frame_progress = 0.33759633
 
 [node name="EnemyAI" type="Node" parent="."]
 script = ExtResource("2_enemyai")
@@ -338,6 +411,12 @@ script = ExtResource("2_enemyai")
 script = ExtResource("3_enemyattack")
 
 [node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
 shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 10.119047)
+shape = SubResource("CapsuleShape2D_hoi1c")

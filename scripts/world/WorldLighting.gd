@@ -1,4 +1,4 @@
-extends Node2D
+extends CharacterBody2D
 class_name WorldLighting
 
 # === ДЕНЬ/НОЧЬ ===
@@ -33,7 +33,7 @@ class_name WorldLighting
 
 # === УЗЛЫ СЦЕНЫ ===
 @onready var ambient: CanvasModulate = $Ambient
-@onready var lights_root: Node2D = $Lights
+@onready var lights_root: CharacterBody2D = $Lights
 @onready var player_torch: PointLight2D = $Lights/PlayerTorch
 @onready var optional_moon: Light2D = $Lights/OptionalMoon if has_node("Lights/OptionalMoon") else null
 

@@ -17,7 +17,7 @@ extends Node
 	"crit_chance": 0.05
 }
 
-var _parent: EnemyBase = null
+var _parent: EnemyBase = null # Ensure _parent is typed as EnemyBase
 var _combat_manager: Node = null
 var _cooldown_timer: float = 0.0
 var _is_attacking: bool = false  # Флаг: атакуем прямо сейчас (для защиты от спама)
@@ -80,7 +80,7 @@ func try_attack(target: Node) -> void:
 	_cooldown_timer = cooldown
 	
 	# Короткое окно, пока держим state = "attack"
-	await get_tree().create_timer(0.25).timeout
+	await get_tree().create_timer(0.12).timeout
 	if is_instance_valid(_parent) and _parent.state == "attack":
 		_parent.state = "chase"
 	

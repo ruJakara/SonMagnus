@@ -2,13 +2,13 @@
 ## Базовый класс врага: здоровье, урон, эффекты, совместимость с CombatManager.
 ## 
 ## ИСПОЛЬЗОВАНИЕ В СЦЕНЕ:
-## 1. Создайте Node2D с этим скриптом
+## 1. Создайте CharacterBody2D с этим скриптом
 ## 2. Добавьте дочерние узлы: EnemyAI (Node) и EnemyAttack (Node)
 ## 3. В Inspector укажите enemy_id и путь к JSON (data_path) или настройте параметры вручную
 ## 4. Вызовите initialize_from_data() в _ready() или через export var data_path
 
 class_name EnemyBase
-extends Node2D
+extends CharacterBody2D
 
 signal died(enemy_id: String)
 signal health_changed(current_health: int, max_health: int)
@@ -149,7 +149,13 @@ func take_damage(amount: float) -> void:
 		await get_tree().create_timer(0.08).timeout
 		if is_instance_valid(sprite):
 			sprite.modulate = Color(1, 1, 1)
-	
+	# Реакция на удар (анимация + нокбэк)
+	_play_hit_reaction(get_tree().get_first_node_in_group("player"))  # или пробросить атакующего явно
+
+	if _health <= 0:
+		die()
+
+
 	if _health <= 0:
 		die()
 
@@ -183,8 +189,17 @@ func remove_status_effect(effect_id: String) -> void:
 func die() -> void:
 	state = "dead"
 	emit_signal("died", enemy_id)
-	# TODO: можно добавить задержку перед queue_free() для анимации смерти
-	queue_free()
+
+	# Играем анимацию смерти, но тело не удаляем
+	if _sprite and _sprite.sprite_frames and _sprite.sprite_frames.has_animation("death"):
+		_sprite.play("death")
+	
+	# Можно тут же отключить AI/атаку, чтобы труп не агрился
+	if _ai_component:
+		_ai_component.set_process(false)
+	if _attack_component:
+		_attack_component.set_process(false)
+
 
 
 func has_status_effect(effect_id: String) -> bool:
@@ -215,15 +230,19 @@ func _update_anim() -> void:
 	if not _sprite:
 		return
 
-	if state == "attack":
-		if _sprite.animation != "attack":
-			_sprite.play("attack")
-	elif state == "chase":
-		if _sprite.animation != "run":
-			_sprite.play("run")
-	else:
-		if _sprite.animation != "idle":
-			_sprite.play("idle")
+	match state:
+		"dead":
+			# death анимация уже запущена в die(), не трогаем
+			pass
+		"attack":
+			if _sprite.animation != "attack":
+				_sprite.play("attack")
+		"chase":
+			if _sprite.animation != "run":
+				_sprite.play("run")
+		_:
+			if _sprite.animation != "idle":
+				_sprite.play("idle")
 
 
 func face_target(target: Node) -> void:
@@ -232,3 +251,18 @@ func face_target(target: Node) -> void:
 	
 	var direction = target.global_position.x - global_position.x
 	_sprite.flip_h = direction < 0.0
+
+func _play_hit_reaction(from: Node) -> void:
+	if not _sprite:
+		return
+	
+	# 1) анимация удара, если есть
+	if _sprite.sprite_frames and _sprite.sprite_frames.has_animation("take hit"):
+		_sprite.play("take hit")
+	
+	# 2) лёгкий нокбэк, если родитель — CharacterBody2D
+	var body := self as CharacterBody2D
+	if body and from and from is CharacterBody2D:
+		var attacker := from as CharacterBody2D
+		var dir: Vector2 = (body.global_position - attacker.global_position).normalized()
+		body.velocity += dir * 40.0  # мягкий толчок
