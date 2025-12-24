@@ -1,4 +1,4 @@
-[gd_scene load_steps=62 format=3 uid="uid://b1ym7g5lfcv6"]
+[gd_scene load_steps=64 format=3 uid="uid://b1ym7g5lfcv6"]
 
 [ext_resource type="Script" uid="uid://d145a2iiqqgn3" path="res://scripts/entities/EnemyBase.gd" id="1_enemybase"]
 [ext_resource type="Texture2D" uid="uid://ci1lm6fbq3tqe" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Attack.png" id="2_auavv"]
@@ -385,11 +385,16 @@ animations = [{
 "speed": 5.0
 }]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
-radius = 20.0
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_2swcw"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hoi1c"]
+radius = 9.042553
 height = 29.761906
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8dce0"]
+radius = 2.6595745
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_rvnl8"]
 
 [node name="EnemyBase" type="CharacterBody2D"]
 scale = Vector2(1.88, 1.6800001)
@@ -412,11 +417,28 @@ script = ExtResource("3_enemyattack")
 
 [node name="Hurtbox" type="Area2D" parent="."]
 collision_layer = 4
-collision_mask = 7
+collision_mask = 30
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
-shape = SubResource("CircleShape2D_hurtbox")
+position = Vector2(5.319149, 8.333333)
+shape = SubResource("CapsuleShape2D_2swcw")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 10.119047)
+position = Vector2(4.7683716e-07, 13.095238)
 shape = SubResource("CapsuleShape2D_hoi1c")
+
+[node name="Back" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 30
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Back"]
+position = Vector2(-7.9787235, 8.333333)
+shape = SubResource("CapsuleShape2D_8dce0")
+
+[node name="Attack" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 30
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Attack"]
+position = Vector2(17.021276, 8.333333)
+shape = SubResource("CircleShape2D_rvnl8")

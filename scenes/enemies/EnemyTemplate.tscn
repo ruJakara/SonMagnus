@@ -6,7 +6,7 @@
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8vbq5"]
 
-[node name="EnemyTemplate" type="Node2D"]
+[node name="EnemyTemplate" type="CharacterBody2D"]
 script = ExtResource("1_8vbq5")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

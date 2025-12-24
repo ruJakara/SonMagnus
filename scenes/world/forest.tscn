@@ -1,19 +1,10 @@
-[gd_scene load_steps=12 format=3 uid="uid://63bo2osd3edm"]
+[gd_scene load_steps=11 format=3 uid="uid://63bo2osd3edm"]
 
 [ext_resource type="Texture2D" uid="uid://dg201rk3ro2vu" path="res://assets/newAssets/bg/playgroundAddil.png" id="1_k440o"]
 [ext_resource type="Texture2D" uid="uid://drgr6ent0630f" path="res://assets/newAssets/playgroundAddil.png" id="2_bpy6v"]
+[ext_resource type="Texture2D" uid="uid://cqm61d52661x2" path="res://assets/world/environment_forestbackground.png" id="2_euhvq"]
 [ext_resource type="Script" uid="uid://bsqn63ch1v042" path="res://scripts/world/WorldLighting.gd" id="3_9j5mk"]
 [ext_resource type="Script" uid="uid://ckqyfy3fu361n" path="res://scripts/world/DepthZone.gd" id="4_1y7e8"]
-
-[sub_resource type="Gradient" id="Gradient_tvyim"]
-offsets = PackedFloat32Array(0, 0.54545456, 1)
-colors = PackedColorArray(0, 0, 0, 1, 0.54545456, 0.54545456, 0.54545456, 1, 1, 1, 0.2784314, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_euhvq"]
-gradient = SubResource("Gradient_tvyim")
-fill = 1
-fill_from = Vector2(0.51, 0.475)
-fill_to = Vector2(0.76, 0.205)
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_tvyim"]
 particle_flag_disable_z = true
@@ -43,12 +34,25 @@ day_color = Color(0.9019608, 0.9019608, 0.4745098, 1)
 
 [node name="World" type="Node2D" parent="."]
 
-[node name="PlaygroundAddil" type="Sprite2D" parent="World"]
-position = Vector2(640, 358)
-scale = Vector2(3.3368058, 3.3368056)
-texture = ExtResource("1_k440o")
-
 [node name="Tree" type="Node2D" parent="World"]
+
+[node name="Parallax2D2" type="Parallax2D" parent="World"]
+repeat_size = Vector2(0.1, 0)
+autoscroll = Vector2(0.025, 0.005)
+
+[node name="Sprite2D" type="Sprite2D" parent="World/Parallax2D2"]
+position = Vector2(598.5, 238.49998)
+scale = Vector2(1.1647173, 0.8580729)
+texture = ExtResource("2_euhvq")
+
+[node name="Parallax2D" type="Parallax2D" parent="World"]
+repeat_size = Vector2(0.1, 0)
+autoscroll = Vector2(0.025, 0)
+
+[node name="PlaygroundAddil" type="Sprite2D" parent="World/Parallax2D"]
+position = Vector2(603.50085, 576.00006)
+scale = Vector2(3.1462095, 3.0000002)
+texture = ExtResource("1_k440o")
 
 [node name="Tree#Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(879, 352)
@@ -61,14 +65,9 @@ color = Color(0.1, 0.1, 0.2, 1)
 
 [node name="Lights" type="Node2D" parent="."]
 
-[node name="PlayerTorch" type="PointLight2D" parent="Lights"]
-position = Vector2(640, 360)
-range_item_cull_mask = 7
-texture = SubResource("GradientTexture2D_euhvq")
-texture_scale = 2.0
-
 [node name="OptionalMoon" type="DirectionalLight2D" parent="Lights"]
-energy = 0.4
+energy = 0.0
+blend_mode = 1
 range_layer_min = -1
 
 [node name="VFX" type="Node2D" parent="."]

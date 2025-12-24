@@ -1,5 +1,8 @@
-extends CharacterBody2D
+extends Node2D
 class_name WorldLighting
+
+# === СИГНАЛЫ ===
+signal torch_properties_changed(energy: float, scale: float)
 
 # === ДЕНЬ/НОЧЬ ===
 @export var day_length_seconds: float = 300.0
@@ -33,8 +36,8 @@ class_name WorldLighting
 
 # === УЗЛЫ СЦЕНЫ ===
 @onready var ambient: CanvasModulate = $Ambient
-@onready var lights_root: CharacterBody2D = $Lights
-@onready var player_torch: PointLight2D = $Lights/PlayerTorch
+@onready var lights_root: Node2D = $Lights
+@onready var player_torch: PointLight2D = get_node_or_null("/root/Main/Node2D/Player/Torch")
 @onready var optional_moon: Light2D = $Lights/OptionalMoon if has_node("Lights/OptionalMoon") else null
 
 @onready var fog: GPUParticles2D = $VFX/Fog
@@ -57,8 +60,9 @@ func _ready() -> void:
 	_current_depth_tint = _get_depth_tint(_current_depth)
 
 	# Запоминаем базовые значения для факела и частиц
-	_base_torch_energy = player_torch.energy
-	_base_torch_scale = player_torch.texture_scale
+	# Since we're using signals now, we'll use default values
+	_base_torch_energy = 1.0
+	_base_torch_scale = 1.0
 	_base_fog_amount = fog.amount
 	_base_motes_amount = motes.amount
 
@@ -97,15 +101,16 @@ func _update_all_immediate() -> void:
 	_update_depth_dependent_params()
 
 
+
 func _update_depth_dependent_params() -> void:
 	# Факел
-	player_torch.texture_scale = _base_torch_scale * _get_depth_torch_scale(_current_depth)
-	player_torch.energy = _base_torch_energy * _get_depth_torch_energy_scale(_current_depth)
+	var torch_scale := _base_torch_scale * _get_depth_torch_scale(_current_depth)
+	var torch_energy := _base_torch_energy * _get_depth_torch_energy_scale(_current_depth)
+	emit_signal("torch_properties_changed", torch_energy, torch_scale)
 	
 	# Туман/светлячки — всегда от БАЗЫ, чтобы не было экспоненциального роста
 	fog.amount = int(max(1.0, float(_base_fog_amount) * _get_depth_fog_density(_current_depth)))
 	motes.amount = int(max(1.0, float(_base_motes_amount) * _get_depth_motes_amount(_current_depth)))
-
 
 func _get_time_of_day_color() -> Color:
 	# Плавный синус день->ночь
@@ -197,10 +202,8 @@ func set_depth(depth: int) -> void:
 
 	# Факел
 	var to_energy: float = _base_torch_energy * _get_depth_torch_energy_scale(depth)
-	tween.parallel().tween_property(player_torch, "energy", to_energy, transition_seconds)
-
 	var to_scale: float = _base_torch_scale * _get_depth_torch_scale(depth)
-	tween.parallel().tween_property(player_torch, "texture_scale", to_scale, transition_seconds)
+	emit_signal("torch_properties_changed", to_energy, to_scale)
 
 	# Туман/светлячки (считаем от базы, чтобы не улетало)
 	if fog.process_material is ParticleProcessMaterial:

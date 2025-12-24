@@ -6,6 +6,9 @@
 ## 2. Назовите узел "EnemyAI"
 ## 3. Подключите этот скрипт
 ## 4. Настройки можно задать через export или через JSON в EnemyBase
+##
+## Обновлено для использования Area2D-зон атаки:
+## - В _update_attack вызов try_attack() теперь без параметров
 
 class_name EnemyAI
 extends Node
@@ -17,6 +20,7 @@ extends Node
 var _parent: EnemyBase = null # Ensure _parent is typed as EnemyBase
 var _attack_component: EnemyAttack = null
 var _player: Node = null
+var _attack_cooldown: float = 0.0  # Кулдаун между попытками атаки
 
 
 func _ready() -> void:
@@ -34,6 +38,10 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not _parent or _parent.state == "dead":
 		return
+	
+	# Обновляем кулдаун атаки
+	if _attack_cooldown > 0.0:
+		_attack_cooldown -= delta
 	
 	# Поиск цели (если еще не найдена)
 	if not _player or not is_instance_valid(_player):
@@ -153,6 +161,10 @@ func _update_attack(delta: float) -> void:
 	# Поворот к цели
 	_parent.face_target(_player)
 	
-	# Пытаемся атаковать
-	if _attack_component:
-		_attack_component.try_attack(_player)
+	# Пытаемся атаковать, если кулдаун прошел
+	if _attack_component and _attack_cooldown <= 0.0:
+		print("[EnemyAI] %s: вызываем try_attack()" % _parent.enemy_name)
+		_attack_component.try_attack()  # Используем Area2D-зоны вместо прямого указания цели
+		_attack_cooldown = 0.5  # Устанавливаем кулдаун между попытками атаки
+	# После атаки сразу возвращаемся в chase, если цель всё ещё рядом
+		_parent.state = "chase"

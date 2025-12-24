@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://db6m30kv7nay7" path="res://scenes/main.gd" id="1_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://c85dg4quft5fo" path="res://scenes/player/player.tscn" id="1_o5qli"]
 [ext_resource type="PackedScene" uid="uid://bhryskgrey6jf" path="res://scenes/ui/hud.tscn" id="4_jyhfs"]
-[ext_resource type="PackedScene" path="res://scenes/enemies/BaseEnemy.tscn" id="5_tefeu"]
+[ext_resource type="PackedScene" uid="uid://f66oylhqtfut" path="res://scenes/enemies/BaseEnemy.tscn" id="5_tefeu"]
 [ext_resource type="PackedScene" uid="uid://b1ym7g5lfcv6" path="res://scenes/enemies/EnemyBase.tscn" id="6_o6xl0"]
 
 [node name="Main" type="Node"]
