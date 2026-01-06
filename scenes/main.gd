@@ -1,8 +1,9 @@
 extends Node
 
-@onready var player = $Node2D/Player
+@onready var player = $Player/Player
 @onready var hud = $Node2D/HUD
 @onready var forest = $Forest
+@onready var enemy = $mobs/GoblinScout
 
 func _ready():
 	await get_tree().process_frame

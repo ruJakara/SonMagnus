@@ -3,16 +3,13 @@
 [ext_resource type="PackedScene" uid="uid://63bo2osd3edm" path="res://scenes/world/forest.tscn" id="1_0wfyh"]
 [ext_resource type="Script" uid="uid://db6m30kv7nay7" path="res://scenes/main.gd" id="1_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://c85dg4quft5fo" path="res://scenes/player/player.tscn" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://c13s00q0qiy0a" path="res://scripts/debug/hitbox_visualizer.gd" id="2_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://bhryskgrey6jf" path="res://scenes/ui/hud.tscn" id="4_jyhfs"]
-[ext_resource type="Script" uid="uid://cm5as6eewpnni" path="res://scripts/debug/CollisionDebugger.gd" id="7_debug"]
 [ext_resource type="Script" uid="uid://bkmlv6ndui0am" path="res://scripts/debug/HitboxDebugDraw.gd" id="8_debug_draw"]
 [ext_resource type="PackedScene" uid="uid://cue2e03e4021n" path="res://scenes/enemies/goblin_scout.tscn" id="8_tipki"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_jyhfs")
-
-[node name="CollisionDebugger" type="Node" parent="."]
-script = ExtResource("7_debug")
 
 [node name="HitboxDebugDraw" type="Node2D" parent="."]
 script = ExtResource("8_debug_draw")
@@ -21,38 +18,47 @@ script = ExtResource("8_debug_draw")
 day_color = Color(0.9019608, 0.9019608, 0.8980392, 1)
 night_color = Color(0.101960786, 0.101960786, 0.2, 1)
 
-[node name="Node2D" type="Node2D" parent="."]
+[node name="Player" type="Node2D" parent="."]
 position = Vector2(437, 38)
 
-[node name="Player" parent="Node2D" instance=ExtResource("1_o5qli")]
-position = Vector2(223.46, 349)
-scale = Vector2(2.425, 2.425)
-speed = 180.0
+[node name="Player" parent="Player" instance=ExtResource("1_o5qli")]
+position = Vector2(0, 344)
+scale = Vector2(2.3600025, 2.1200023)
 
-[node name="HUD" parent="Node2D" instance=ExtResource("4_jyhfs")]
+[node name="AnimatedSprite2D" parent="Player/Player" index="1"]
+frame = 2
 
-[node name="StatusBars" parent="Node2D/HUD" index="0"]
+[node name="Torch" parent="Player/Player" index="5"]
+energy = 1.0
+texture_scale = 0.52
+
+[node name="CollisionDebugger" type="Node" parent="Player/Player"]
+script = ExtResource("2_o6xl0")
+
+[node name="HUD" parent="Player" instance=ExtResource("4_jyhfs")]
+
+[node name="StatusBars" parent="Player/HUD" index="0"]
 offset_left = -572.0
 offset_top = -432.0
 offset_right = -422.0
 offset_bottom = -308.0
 scale = Vector2(1.2078891, 0.99896806)
 
-[node name="BottomBar" parent="Node2D/HUD" index="1"]
+[node name="BottomBar" parent="Player/HUD" index="1"]
 offset_left = 10.000008
 offset_top = -135.0
 offset_right = 715.0
 offset_bottom = -61.0
 scale = Vector2(2.1221201, 1.38934)
 
-[node name="ClockContainer" parent="Node2D/HUD" index="2"]
+[node name="ClockContainer" parent="Player/HUD" index="2"]
 offset_left = -154.0
 offset_top = 19.000002
 offset_right = -74.0
 offset_bottom = 99.0
 scale = Vector2(1.5583575, 1.4451575)
 
-[node name="GradientSky" parent="Node2D/HUD/ClockContainer/DayNightClock" index="0"]
+[node name="GradientSky" parent="Player/HUD/ClockContainer/DayNightClock" index="0"]
 offset_left = 2.0
 offset_right = 2.0
 
@@ -60,6 +66,9 @@ offset_right = 2.0
 position = Vector2(437, 38)
 
 [node name="GoblinScout" parent="mobs" instance=ExtResource("8_tipki")]
-position = Vector2(-251, 349)
 
-[editable path="Node2D/HUD"]
+[node name="CollisionDebugger2" type="Node" parent="mobs/GoblinScout"]
+script = ExtResource("2_o6xl0")
+
+[editable path="Player/Player"]
+[editable path="Player/HUD"]

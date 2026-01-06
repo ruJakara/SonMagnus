@@ -16,3 +16,4 @@ position = Vector2(100, 0)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 
+

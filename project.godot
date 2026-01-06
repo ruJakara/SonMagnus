@@ -112,11 +112,14 @@ toggle_weapon={
 [layer_names]
 
 2d_physics/layer_1="world"
-2d_physics/layer_2="player"
-2d_physics/layer_3="enemies"
-2d_physics/layer_4="attack hitbox"
-2d_physics/layer_5="enemies hitbox"
-2d_physics/layer_6="trigger"
+2d_physics/layer_2="player_body"
+2d_physics/layer_3="player_hurtbox"
+2d_physics/layer_4="player_hitbox"
+2d_physics/layer_5="enemy_body"
+2d_physics/layer_6="enemy_hurtbox"
+2d_physics/layer_7="enemy_attack"
+2d_physics/layer_8="enemy_back"
+2d_physics/layer_9="triggers"
 
 [rendering]
 

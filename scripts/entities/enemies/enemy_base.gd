@@ -127,20 +127,26 @@ func take_damage(amount: int, attacker: Node = null, from_back: bool = false) ->
 	if Config.DEBUG_LOGS:
 		print_debug("[EnemyBase] %s получил %d урона (от спины: %s), HP: %d/%d" % [entity_name, final_damage, from_back, health, max_health])
 
-## Визуальные эффекты при получении урона (блинк, толчок)
+## Визуальные эффекты при получении урона (блинк, толчок, hitstop)
 func _play_hit_effects() -> void:
 	if not _sprite:
 		return
 	
-	# Блинк через Tween
+	# Hitstop для ощущения удара
+	Engine.time_scale = 0.0
+	get_tree().create_timer(0.04, true, false, true).timeout.connect(func(): Engine.time_scale = 1.0)
+	
+	# Красный оверлей блинк (лучше чем альфа)
 	var tween = create_tween()
-	tween.tween_property(_sprite, "modulate:a", 0.5, 0.1)
-	tween.tween_property(_sprite, "modulate:a", 1.0, 0.1)
+	tween.set_loops(2)
+	tween.tween_property(_sprite, "modulate", Color(1.5, 0.5, 0.5, 1.0), 0.075)
+	tween.tween_property(_sprite, "modulate", Color.WHITE, 0.075)
+	tween.finished.connect(func(): _sprite.modulate = Color.WHITE)
 	
 	# Толчок назад (небольшой)
 	if brain and brain.current_target:
 		var knockback_dir = (global_position - brain.current_target.global_position).normalized()
-		velocity = knockback_dir * 100.0
+		velocity = knockback_dir * 120.0
 
 ## Переопределяем _die() для спавна лута и отключения AI
 func _die() -> void:
@@ -211,11 +217,13 @@ func face_direction(direction: Vector2) -> void:
 	var dir_sign = sign(direction.x)
 	_sprite.flip_h = (dir_sign < 0)
 	
-	# Флипаем зоны через scale.x
+	# Флипаем зоны через scale.x (правильный способ для Area2D)
+	# Используем abs() чтобы избежать двойного отражения
 	if attack_area:
 		attack_area.scale.x = abs(attack_area.scale.x) * dir_sign
 	if back_area:
-		back_area.scale.x = abs(back_area.scale.x) * dir_sign
+		# Back зона должна быть ПОЗАДИ врага, поэтому инвертируем
+		back_area.scale.x = abs(back_area.scale.x) * (-dir_sign)
 	if hurtbox:
 		hurtbox.scale.x = abs(hurtbox.scale.x) * dir_sign
 

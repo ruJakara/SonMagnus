@@ -112,3 +112,4 @@ func reload_loot_tables() -> void:
 	_loot_tables.clear()
 	_load_all_loot_tables()
 
+

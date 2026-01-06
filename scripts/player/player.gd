@@ -3,6 +3,9 @@
 
 extends BaseEntity
 
+# ===== Stance enum =====
+enum Stance { RELAX, FIGHT }
+
 # ===== Movement settings =====
 @export var acceleration: float = 1200.0
 @export var deceleration: float = 1600.0
@@ -10,6 +13,7 @@ extends BaseEntity
 @export var is_camp_area: bool = false
 
 const IDLE_ANIM: StringName = &"idle"
+const IDLE_FIGHT_ANIM: StringName = &"idleFight"
 const MOVE_ANIM: StringName = &"run"
 
 # ===== References =====
@@ -17,6 +21,16 @@ const MOVE_ANIM: StringName = &"run"
 @onready var player_combat: Node = $PlayerCombat
 @onready var _animation_player: AnimationPlayer = $AnimationPlayer
 @onready var _hitbox: Area2D = $zone/Hitbox
+
+# ===== Player State =====
+var stance: Stance = Stance.RELAX
+var invulnerable: bool = false
+
+# Lock flags - when true, action is blocked
+var lock_attack: bool = false
+var lock_block: bool = false
+var lock_slide: bool = false
+var lock_stance_toggle: bool = false
 
 # ===== Internal state =====
 var forced_target: Node = null
@@ -58,26 +72,32 @@ func _physics_process(delta: float) -> void:
 	_update_movement_animation()
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("attack_left"):
-		if Config.DEBUG_LOGS:
-			print_debug("[Player] ЛКМ pressed")
-		player_combat.handle_attack_input("L")
-
-	if event.is_action_pressed("attack_right"):
-		if Config.DEBUG_LOGS:
-			print_debug("[Player] ПКМ pressed")
-		player_combat.handle_attack_input("R")
-
-	if event.is_action_pressed("block"):
-		player_combat.handle_block_input(true)
-	elif event.is_action_released("block"):
-		player_combat.handle_block_input(false)
-
-	if event.is_action_pressed("dash"):
-		_do_dash()
-	
+	# Q: Stance Toggle
 	if event.is_action_pressed("toggle_weapon"):
-		player_combat.toggle_weapon()
+		player_combat.request_toggle_stance()
+	
+	# ЛКМ: Left attack
+	if event.is_action_pressed("attack_left"):
+		player_combat.request_attack("L")
+	
+	# ПКМ: Right attack
+	if event.is_action_pressed("attack_right"):
+		player_combat.request_attack("R")
+	
+	# Space: Block (hold)
+	if event.is_action_pressed("block"):
+		player_combat.request_block(true)
+	elif event.is_action_released("block"):
+		player_combat.request_block(false)
+	
+	# Shift: Slide/Dash
+	if event.is_action_pressed("dash"):
+		player_combat.request_slide()
+	
+	# TODO: Skills 1-6 (not implemented yet)
+	# TODO: E - interact (not implemented yet)
+	# TODO: R/F - quick items (not implemented yet)
+	# TODO: X - hide (not implemented yet)
 
 func _update_movement_animation() -> void:
 	if player_combat != null and player_combat.is_attacking():
@@ -87,8 +107,10 @@ func _update_movement_animation() -> void:
 		if _sprite.animation != MOVE_ANIM or not _sprite.is_playing():
 			_sprite.play(MOVE_ANIM)
 	else:
-		if _sprite.animation != IDLE_ANIM or not _sprite.is_playing():
-			_sprite.play(IDLE_ANIM)
+		# Choose idle animation based on stance
+		var target_idle := IDLE_FIGHT_ANIM if stance == Stance.FIGHT else IDLE_ANIM
+		if _sprite.animation != target_idle or not _sprite.is_playing():
+			_sprite.play(target_idle)
 
 	if velocity.x != 0.0:
 		_set_facing_direction(1 if velocity.x > 0 else -1)
@@ -98,15 +120,12 @@ func get_target() -> Node:
 		return forced_target
 	return null
 
-func _do_dash() -> void:
-	var dash_strength := 200.0
-	var dir := Vector2.RIGHT
-	if is_facing_left():
-		dir = Vector2.LEFT
-	translate(dir * dash_strength * get_process_delta_time())
-
 func is_facing_left() -> bool:
 	return _sprite.flip_h
+
+func get_facing_direction() -> int:
+	"""Возвращает -1 для левого направления, 1 для правого."""
+	return -1 if is_facing_left() else 1
 
 func is_camp() -> bool:
 	return is_camp_area
@@ -122,12 +141,72 @@ func _configure_animation_loops() -> void:
 		if frames.has_animation(anim) and frames.get_animation_loop(anim):
 			frames.set_animation_loop(anim, false)
 
+@onready var _zone: Node2D = $zone
+
 func _set_facing_direction(dir: int) -> void:
-	"""Устанавливает направление персонажа (1 = вправо, -1 = влево) и поворачивает Hitbox"""
 	_sprite.flip_h = dir < 0
 	
-	# Поворачиваем Hitbox вместе с направлением
-	if _hitbox:
-		# Сохраняем абсолютное значение X позиции и применяем направление
-		var base_x : float = abs(_hitbox.position.x) if _hitbox.position.x != 0 else 16.0  # 16 - дефолтная позиция из сцены
-		_hitbox.position.x = base_x * dir
+	# Флипаем зоны через scale.x (НЕ через position!)
+	# Это правильный способ для Area2D чтобы коллизии работали корректно
+	if _zone:
+		_zone.scale.x = abs(_zone.scale.x) * dir
+
+# ===== Resource Management =====
+
+func consume_stamina(cost: float) -> bool:
+	"""Пытается потратить стамину. Возвращает true если хватило."""
+	if _stamina >= cost:
+		reduce_stamina(cost)
+		return true
+	return false
+
+# ===== Combat Overrides =====
+
+func take_damage(amount: int, attacker: Node = null, from_back: bool = false) -> void:
+	"""Переопределяем take_damage для проверки invulnerable и блока."""
+	
+	# Игнорируем урон если неуязвимы
+	if invulnerable:
+		if Config.DEBUG_LOGS:
+			print("[Player] Урон заблокирован (invulnerable)")
+		return
+	
+	# Проверяем парирование/блок через PlayerCombat
+	if player_combat and player_combat.is_blocking:
+		if player_combat.try_parry(attacker):
+			if Config.DEBUG_LOGS:
+				print("[Player] Парирование успешно!")
+			return
+		else:
+			if Config.DEBUG_LOGS:
+				print("[Player] Блок поглотил урон")
+			return
+	
+	# Обычный урон через BaseEntity
+	super.take_damage(amount)
+	
+	# Визуальный фидбек
+	_play_hit_feedback(attacker)
+
+
+func _play_hit_feedback(attacker: Node = null) -> void:
+	"""Визуальный фидбек при получении урона"""
+	if not _sprite:
+		return
+	
+	# Hitstop
+	Engine.time_scale = 0.0
+	await get_tree().create_timer(0.05, true, false, true).timeout
+	Engine.time_scale = 1.0
+	
+	# Блинк эффект
+	var tween = create_tween()
+	tween.set_loops(2)
+	tween.tween_property(_sprite, "modulate", Color(1.5, 0.5, 0.5, 1.0), 0.075)
+	tween.tween_property(_sprite, "modulate", Color.WHITE, 0.075)
+	tween.finished.connect(func(): _sprite.modulate = Color.WHITE)
+	
+	# Knockback
+	if attacker:
+		var knockback_dir = (global_position - attacker.global_position).normalized()
+		velocity = knockback_dir * 150.0

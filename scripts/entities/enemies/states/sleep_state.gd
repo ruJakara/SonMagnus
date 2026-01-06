@@ -21,3 +21,4 @@ func on_damage_taken(amount: int, attacker: Node = null) -> void:
 		if Config.DEBUG_LOGS:
 			print_debug("[SleepState] %s проснулся от атаки!" % brain.enemy.entity_name)
 
+

@@ -131,3 +131,4 @@ func test_loot_roll() -> void:
 	# Лут случайный, но должен быть array
 	assert_typeof(items, TYPE_ARRAY, "Лут возвращается как Array")
 
+
