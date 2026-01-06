@@ -1,15 +1,18 @@
-[gd_scene load_steps=64 format=3 uid="uid://b1ym7g5lfcv6"]
+[gd_scene load_steps=65 format=3 uid="uid://b1ym7g5lfcv6"]
 
-[ext_resource type="Script" uid="uid://d145a2iiqqgn3" path="res://scripts/entities/EnemyBase.gd" id="1_enemybase"]
+[ext_resource type="Script" uid="uid://khxgm5j3m62b" path="res://scripts/entities/enemies/enemy_base.gd" id="1_base"]
 [ext_resource type="Texture2D" uid="uid://ci1lm6fbq3tqe" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Attack.png" id="2_auavv"]
-[ext_resource type="Script" uid="uid://bhva2uf52i3ok" path="res://scripts/entities/components/EnemyAI.gd" id="2_enemyai"]
 [ext_resource type="Texture2D" uid="uid://bcpbq7p8wns32" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Idle.png" id="3_14xwe"]
 [ext_resource type="Texture2D" uid="uid://cfxc2uxn3k3ck" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Attack2.png" id="3_30sq3"]
-[ext_resource type="Script" uid="uid://kx38q7qhtxmn" path="res://scripts/entities/components/EnemyAttack.gd" id="3_enemyattack"]
 [ext_resource type="Texture2D" uid="uid://ytkcebiad2qk" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Run.png" id="4_30sq3"]
 [ext_resource type="Texture2D" uid="uid://bpff2j342rrto" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Attack3.png" id="4_irrv1"]
 [ext_resource type="Texture2D" uid="uid://bhkrf1qcqwmkp" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Death.png" id="5_hoi1c"]
 [ext_resource type="Texture2D" uid="uid://c11k1bnxvmv86" path="res://assets/Monsters_Creatures_Fantasy/Monsters_Creatures_Fantasy/Goblin/Take Hit.png" id="8_2swcw"]
+[ext_resource type="Script" uid="uid://sdnvtbbsjgql" path="res://scripts/entities/enemies/enemy_brain.gd" id="9_brain"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hoi1c"]
+radius = 9.042553
+height = 29.761906
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_irrv1"]
 atlas = ExtResource("2_auavv")
@@ -317,7 +320,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_178sw")
 }],
-"loop": true,
+"loop": false,
 "name": &"death",
 "speed": 5.0
 }, {
@@ -380,65 +383,73 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_waq66")
 }],
-"loop": true,
+"loop": false,
 "name": &"take hit",
 "speed": 5.0
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_2swcw"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hoi1c"]
-radius = 9.042553
-height = 29.761906
+[sub_resource type="CircleShape2D" id="CircleShape2D_rvnl8"]
+radius = 20.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8dce0"]
-radius = 2.6595745
+radius = 8.0
+height = 24.0
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_rvnl8"]
+[sub_resource type="Animation" id="Animation_irrv1"]
+resource_name = "attack1"
 
-[node name="EnemyBase" type="CharacterBody2D"]
-scale = Vector2(1.88, 1.6800001)
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hoi1c"]
+_data = {
+&"attack1": SubResource("Animation_irrv1")
+}
+
+[node name="EnemyBase" type="CharacterBody2D" groups=["enemies", "targetable"]]
+scale = Vector2(1.88, 1.68)
 collision_layer = 4
-collision_mask = 7
-script = ExtResource("1_enemybase")
-enemy_id = "goblin"
-data_path = "res://data/enemies/goblin.json"
+collision_mask = 3
+script = ExtResource("1_base")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 13.095238)
+shape = SubResource("CapsuleShape2D_hoi1c")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ewbsk")
-animation = &"attack"
-frame_progress = 0.33759633
-
-[node name="EnemyAI" type="Node" parent="."]
-script = ExtResource("2_enemyai")
-
-[node name="EnemyAttack" type="Node" parent="."]
-script = ExtResource("3_enemyattack")
+animation = &"idle"
+autoplay = "idle"
 
 [node name="Hurtbox" type="Area2D" parent="."]
-collision_layer = 4
-collision_mask = 30
+collision_layer = 16
+collision_mask = 8
+monitoring = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
-position = Vector2(5.319149, 8.333333)
+position = Vector2(0, 10)
 shape = SubResource("CapsuleShape2D_2swcw")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(4.7683716e-07, 13.095238)
-shape = SubResource("CapsuleShape2D_hoi1c")
-
-[node name="Back" type="Area2D" parent="."]
-collision_layer = 4
-collision_mask = 30
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Back"]
-position = Vector2(-7.9787235, 8.333333)
-shape = SubResource("CapsuleShape2D_8dce0")
-
 [node name="Attack" type="Area2D" parent="."]
-collision_layer = 4
-collision_mask = 30
+collision_layer = 8
+collision_mask = 16
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Attack"]
-position = Vector2(17.021276, 8.333333)
+position = Vector2(17, 8)
 shape = SubResource("CircleShape2D_rvnl8")
+
+[node name="Back" type="Area2D" parent="."]
+collision_layer = 32
+collision_mask = 8
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Back"]
+position = Vector2(-8, 8)
+shape = SubResource("CapsuleShape2D_8dce0")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_hoi1c")
+}
+
+[node name="EnemyBrain" type="Node" parent="."]
+script = ExtResource("9_brain")

@@ -21,7 +21,7 @@ func spawn_enemy(enemy_id: String, position: Vector2, parent: Node = null) -> No
 
 	var enemy_dict: Dictionary = enemy_data
 
-	var scene_path: String = enemy_dict.get("scene", "res://scenes/enemies/BaseEnemy.tscn")
+	var scene_path: String = enemy_dict.get("scene", "res://scenes/enemies/EnemyBase.tscn")
 	var packed_scene := _get_packed_scene(scene_path)
 	if packed_scene == null:
 		push_warning("EnemyFactory: не удалось загрузить сцену '%s' для '%s'." % [scene_path, enemy_id])

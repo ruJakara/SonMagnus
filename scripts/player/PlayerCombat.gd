@@ -27,6 +27,7 @@ var _parry_timer: float = 0.0
 var _current_sequence: Array[String] = []
 var _combo_buffer_timer: float = 0.0
 const COMBO_BUFFER_WINDOW: float = 0.5
+var _last_combo_data: Dictionary = {}
 
 # ===== Оружие =====
 var _weapon_active: bool = true
@@ -74,7 +75,7 @@ func _setup_hitbox() -> void:
 		return
 	
 	_hitbox.monitoring = false
-	_hitbox.monitorable = false
+	# НЕ трогаем monitorable — оставляем true для корректной работы get_overlapping_areas()
 
 
 # ===== Обновление =====
@@ -153,7 +154,7 @@ func _execute_combo() -> void:
 
 
 func _start_attack_animation(anim_name: String, combo_data: Dictionary) -> void:
-	"""Запускает анимацию атаки и активирует хитбокс"""
+	"""Запускает анимацию атаки (удар происходит по method track в анимации)"""
 	if not _animation_player:
 		_reset_combo()
 		return
@@ -167,15 +168,19 @@ func _start_attack_animation(anim_name: String, combo_data: Dictionary) -> void:
 			_reset_combo()
 			return
 	
+	# Сохраняем данные комбо для _on_attack_frame
+	_last_combo_data = combo_data.duplicate(true)
+	
 	_is_attacking = true
 	_combo_buffer_timer = combo_data.get("combo_window", COMBO_BUFFER_WINDOW)
 	
+	var combo_id = combo_data.get("id", "unknown")
 	if Config.DEBUG_LOGS:
-		print("[PlayerCombat] Комбо: %s | Анимация: %s | Последовательность: %s" % [
-			combo_data.get("id", "unknown"), anim_name, _current_sequence
+		print("[PlayerCombat] === START ATTACK === | Комбо: %s | Анимация: %s | Последовательность: %s" % [
+			combo_id, anim_name, _current_sequence
 		])
 	
-	# Проигрываем анимацию
+	# Проигрываем анимацию (удар произойдет через method track _on_attack_frame)
 	if _animation_player.has_animation(anim_name):
 		_animation_player.play(anim_name)
 	else:
@@ -183,45 +188,120 @@ func _start_attack_animation(anim_name: String, combo_data: Dictionary) -> void:
 		_is_attacking = false
 		_reset_combo()
 		return
-	
-	# Включаем хитбокс через windup
-	await get_tree().create_timer(windup_time).timeout
-	if _hitbox and _is_attacking:
-		_hitbox.monitoring = true
-		_execute_hit_detection(combo_data)
 
 
-func _execute_hit_detection(combo_data: Dictionary) -> void:
-	"""Проверяет попадания в текущий момент"""
-	var targets = _get_targets_in_hitbox()
-	var weapon_data = _get_weapon_data()
-	weapon_data["damage_mult"] = combo_data.get("damage_mult", 1.0)
-	
-	if targets.is_empty():
-		if Config.DEBUG_LOGS:
-			print("[PlayerCombat] Удар в воздух")
-	else:
-		for target in targets:
-			_deal_damage_to(target, combo_data.get("id", default_combo), weapon_data)
-	
-	# Выключаем хитбокс
-	if _hitbox:
-		_hitbox.monitoring = false
+# _execute_hit_detection удален - удар теперь происходит только через _on_attack_frame
 
 
 func _on_animation_finished(anim_name: StringName) -> void:
 	"""Вызывается AnimationPlayer при окончании любой анимации"""
+	if Config.DEBUG_LOGS:
+		print("[PlayerCombat] === _on_animation_finished === | Анимация: %s" % anim_name)
+	
 	if anim_name.begins_with("attack") or anim_name.begins_with("punch") or \
 	   anim_name.begins_with("kick") or anim_name.begins_with("charge") or \
 	   anim_name.begins_with("dash"):
 		_is_attacking = false
 		_cooldown_timer = attack_cooldown
 		
+		if Config.DEBUG_LOGS:
+			print("[PlayerCombat] Сброс состояния атаки | Буфер: %.2f сек" % _combo_buffer_timer)
+		
 		# Если в буфере есть нажатия — продолжаем комбо
 		if _combo_buffer_timer > 0.0 and _current_sequence.size() > 0:
+			if Config.DEBUG_LOGS:
+				print("[PlayerCombat] Продолжение комбо из буфера")
 			_execute_combo()
 		else:
 			_reset_combo()
+
+
+func _on_attack_frame() -> void:
+	"""Вызывается из AnimationPlayer method track в момент удара анимации"""
+	if Config.DEBUG_LOGS:
+		print("[PlayerCombat] === _on_attack_frame ===")
+	
+	if not _is_attacking:
+		if Config.DEBUG_LOGS:
+			print("[PlayerCombat] Предупреждение: удар без активной атаки")
+		return
+	
+	# Включаем хитбокс
+	if not _hitbox:
+		if Config.DEBUG_LOGS:
+			print("[PlayerCombat] Ошибка: хитбокс не найден")
+		return
+	
+	_hitbox.monitoring = true
+	
+	if Config.DEBUG_LOGS:
+		print("[PlayerCombat] Хитбокс активирован")
+		print("[PlayerCombat]   Hitbox layer: %d, mask: %d" % [_hitbox.collision_layer, _hitbox.collision_mask])
+		print("[PlayerCombat]   Hitbox global_pos: %s" % _hitbox.global_position)
+		print("[PlayerCombat]   Player global_pos: %s" % _player.global_position)
+		# Получаем размер хитбокса
+		var shape_node: CollisionShape2D = _hitbox.get_node_or_null("CollisionShape2D")
+		if shape_node and shape_node.shape:
+			if shape_node.shape is CircleShape2D:
+				print("[PlayerCombat]   Hitbox radius: %.1f" % shape_node.shape.radius)
+	
+	# Ждём ФИЗИЧЕСКИЙ кадр (когда обновятся коллизии)
+	await get_tree().physics_frame
+	
+	# Выполняем проверку попаданий
+	if _last_combo_data.is_empty():
+		if Config.DEBUG_LOGS:
+			print("[PlayerCombat] Ошибка: нет данных последней атаки")
+		return
+	
+	# Логируем все враги для отладки
+	if Config.DEBUG_LOGS:
+		var enemies = get_tree().get_nodes_in_group("enemies")
+		print("[PlayerCombat] Враги в сцене: %d" % enemies.size())
+		for enemy in enemies:
+			if is_instance_valid(enemy) and enemy is CharacterBody2D:
+				var dist: float = _hitbox.global_position.distance_to(enemy.global_position)
+				print("[PlayerCombat]   - %s: pos=%s, layer=%d, dist=%.1f, has_take_damage=%s" % [
+					enemy.name, 
+					enemy.global_position,
+					enemy.collision_layer,
+					dist,
+					enemy.has_method("take_damage")
+				])
+	
+	var targets = _get_targets_in_hitbox()
+	if Config.DEBUG_LOGS:
+		print("[PlayerCombat] Найдено целей: %d" % targets.size())
+		for t in targets:
+			print("[PlayerCombat] Цель: %s (группа enemies: %s)" % [t.name, t.is_in_group("enemies")])
+	
+	var weapon_data = _get_weapon_data()
+	weapon_data["damage_mult"] = _last_combo_data.get("damage_mult", 1.0)
+	
+	if targets.is_empty():
+		if Config.DEBUG_LOGS:
+			print("[PlayerCombat] Удар в воздух")
+	else:
+		for target in targets:
+			_deal_damage_to(target, _last_combo_data.get("id", default_combo), weapon_data)
+
+
+func _on_attack_end() -> void:
+	"""Вызывается из AnimationPlayer method track в конце атаки"""
+	if Config.DEBUG_LOGS:
+		print("[PlayerCombat] === _on_attack_end ===")
+	
+	# Выключаем хитбокс
+	if _hitbox:
+		_hitbox.monitoring = false
+		if Config.DEBUG_LOGS:
+			print("[PlayerCombat] Хитбокс деактивирован")
+	else:
+		if Config.DEBUG_LOGS:
+			print("[PlayerCombat] Ошибка: хитбокс не найден")
+	
+	# Очищаем данные комбо (но НЕ меняем _is_attacking - это делает _on_animation_finished)
+	_last_combo_data.clear()
 
 
 func _reset_combo() -> void:
@@ -341,36 +421,55 @@ func _get_targets_in_hitbox() -> Array[Node]:
 		return []
 	
 	var targets: Array[Node] = []
-	for body in _hitbox.get_overlapping_bodies():
+	
+	# Ищем CharacterBody2D врагов напрямую (обходим Hurtbox)
+	var overlapping_bodies: Array[Node2D] = _hitbox.get_overlapping_bodies()
+	
+	if Config.DEBUG_LOGS:
+		print("[PlayerCombat] get_overlapping_bodies() вернул: %d" % overlapping_bodies.size())
+		for body in overlapping_bodies:
+			if is_instance_valid(body):
+				print("[PlayerCombat]   Body: %s (groups: %s, has_take_damage: %s)" % [
+					body.name,
+					body.get_groups(),
+					body.has_method("take_damage")
+				])
+	
+	for body in overlapping_bodies:
 		if not is_instance_valid(body) or body == _player:
 			continue
 		
-		var defender = _resolve_target(body)
-		if defender and _is_hostile(defender):
-			targets.append(defender)
+		if body.is_in_group("enemies") and body.has_method("take_damage"):
+			targets.append(body)
+			if Config.DEBUG_LOGS:
+				var dist: float = _hitbox.global_position.distance_to(body.global_position)
+				print("[PlayerCombat] ✅ Найден враг (body): %s | dist: %.1f" % [
+					body.name,
+					dist
+				])
 	
 	return targets
 
 
-func _resolve_target(body: Node) -> Node:
-	if body.has_method("take_damage"):
-		return body
-	if body.get_parent() and body.get_parent().has_method("take_damage"):
-		return body.get_parent()
-	return null
+# УДАЛЕНО: больше не используется после перехода на get_overlapping_bodies()
+# func _resolve_target(node: Node) -> Node:
+# 	"""Находит сущность с методом take_damage, поднимаясь по иерархии"""
+# 	if node.has_method("take_damage"):
+# 		return node
+# 	
+# 	var p: Node = node.get_parent()
+# 	while p:
+# 		if p.has_method("take_damage"):
+# 			return p
+# 		p = p.get_parent()
+# 	
+# 	return null
 
 
-func _is_hostile(target: Node) -> bool:
-	if not target.has_method("get_faction"):
-		return false
-	
-	var target_faction = target.get_faction()
-	if _player.has_method("get_faction"):
-		var player_faction = _player.get_faction()
-		if target.has_method("is_hostile_to"):
-			return target.is_hostile_to(player_faction)
-	
-	return target_faction != &"player"
+# УДАЛЕНО: проверка is_in_group("enemies") теперь в _get_targets_in_hitbox()
+# func _is_hostile(target: Node) -> bool:
+# 	"""Проверяет, является ли цель врагом (через группу enemies)"""
+# 	return target.is_in_group("enemies")
 
 
 func _get_weapon_data() -> Dictionary:
@@ -381,17 +480,54 @@ func _get_weapon_data() -> Dictionary:
 
 
 func _deal_damage_to(defender: Node, combo_id: String, weapon_data: Dictionary) -> void:
-	if not _combat_manager:
+	"""Наносит урон цели через CombatManager или fallback"""
+	if not defender or not is_instance_valid(defender):
 		return
 	
-	var result = _combat_manager.execute_sequence(_player, defender, combo_id, weapon_data)
+	# Пытаемся использовать CombatManager
+	if _combat_manager and _combat_manager.has_method("execute_sequence"):
+		var result = _combat_manager.execute_sequence(_player, defender, combo_id, weapon_data)
+		
+		if result and result.success:
+			if Config.DEBUG_LOGS:
+				print("[PlayerCombat] [CombatManager] %s → %s | %.1f урона%s" % [
+					combo_id,
+					defender.name,
+					result.damage,
+					" [КРИТ]" if result.crit else ""
+				])
+			return
 	
-	if result and result.success and Config.DEBUG_LOGS:
-		print("[PlayerCombat] %s → %s | %.1f урона%s" % [
+	# Fallback: прямой урон без CombatManager
+	if not defender.has_method("take_damage"):
+		if Config.DEBUG_LOGS:
+			print("[PlayerCombat] [Fallback] Цель %s не имеет метода take_damage()" % defender.name)
+		return
+	
+	# Получаем данные комбо для damage_mult
+	var damage_mult = 1.0
+	if _last_combo_data.has("damage_mult"):
+		damage_mult = _last_combo_data.get("damage_mult", 1.0)
+	else:
+		# Пытаемся получить из ComboManager
+		if _combo_manager and _combo_manager.has_method("get_combo"):
+			var combo_data = _combo_manager.get_combo(combo_id)
+			if not combo_data.is_empty():
+				damage_mult = combo_data.get("damage_mult", 1.0)
+	
+	var base_damage = weapon_data.get("base_damage", weapon_damage)
+	var damage = base_damage * damage_mult
+	
+	# Применяем урон
+	defender.take_damage(int(round(damage)))
+	
+	if Config.DEBUG_LOGS:
+		print("[PlayerCombat] [Fallback] %s → %s | %.1f урона (base: %.1f × mult: %.2f)" % [
 			combo_id,
 			defender.name,
-			result.damage,
-			" [КРИТ]" if result.crit else ""
+			damage,
+			base_damage,
+			damage_mult
 		])
 
 

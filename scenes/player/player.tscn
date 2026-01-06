@@ -1,4 +1,4 @@
-[gd_scene load_steps=150 format=3 uid="uid://c85dg4quft5fo"]
+[gd_scene load_steps=151 format=3 uid="uid://c85dg4quft5fo"]
 
 [ext_resource type="Script" uid="uid://br8rhdbc3wmgg" path="res://scripts/player/player.gd" id="1_ahqnk"]
 [ext_resource type="Texture2D" uid="uid://041hsaim6qo2" path="res://assets/characters/main/advent/Adventurer-1.5/Individual Sprites/adventurer-attack1-00.png" id="2_genst"]
@@ -658,6 +658,21 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="Animation" id="Animation_1vi86"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("zone/Hitbox/CollisionShape2D:disabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
 [sub_resource type="Animation" id="Animation_tmafg"]
 length = 0.6
 tracks/0/type = "value"
@@ -700,6 +715,18 @@ tracks/2/keys = {
 "args": [],
 "method": &"_on_attack_end"
 }]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("zone/Hitbox/CollisionShape2D:disabled")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.2628518, 0.3362058, 0.48902664, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [true, false, true, true]
 }
 
 [sub_resource type="Animation" id="Animation_2enr6"]
@@ -1484,6 +1511,7 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_1vi86"]
 _data = {
+&"RESET": SubResource("Animation_1vi86"),
 &"attack1": SubResource("Animation_tmafg"),
 &"attack2": SubResource("Animation_2enr6"),
 &"attack3": SubResource("Animation_qxlpa"),
@@ -1509,12 +1537,12 @@ _data = {
 &"walk": SubResource("Animation_s27sh")
 }
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_3r8w6"]
-radius = 6.0
-
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3r8w6"]
 radius = 5.0
 height = 20.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_i816j"]
+radius = 8.0
 
 [node name="Player" type="CharacterBody2D" groups=["player"]]
 texture_filter = 1
@@ -1531,6 +1559,7 @@ shape = SubResource("CapsuleShape2D_hdu4s")
 sprite_frames = SubResource("SpriteFrames_v8cnd")
 animation = &"attack1"
 autoplay = "idle"
+frame = 4
 
 [node name="PlayerCombat" type="Node" parent="."]
 script = ExtResource("52_pcombat")
@@ -1549,19 +1578,24 @@ libraries = {
 energy = 1.46
 texture = ExtResource("116_3r8w6")
 
-[node name="Hitbox" type="Area2D" parent="."]
-collision_layer = 2
-collision_mask = 28
+[node name="Node" type="Node" parent="."]
+script = ExtResource("52_pcombat")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
-position = Vector2(16, 0)
-shape = SubResource("CircleShape2D_3r8w6")
+[node name="zone" type="Node2D" parent="."]
 
-[node name="Hurtbox" type="Area2D" parent="."]
+[node name="Hurtbox" type="Area2D" parent="zone"]
+collision_layer = 16
+collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="zone/Hurtbox"]
 position = Vector2(4, 6)
 shape = SubResource("CapsuleShape2D_3r8w6")
 
-[node name="Node" type="Node" parent="."]
-script = ExtResource("52_pcombat")
+[node name="Hitbox" type="Area2D" parent="zone"]
+collision_layer = 0
+collision_mask = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="zone/Hitbox"]
+position = Vector2(18, 4)
+shape = SubResource("CircleShape2D_i816j")
+disabled = true

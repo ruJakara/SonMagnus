@@ -1,0 +1,24 @@
+{
+  "id": "goblin_common",
+  "items": [
+    {
+      "item_id": "gold_coin",
+      "min_amount": 1,
+      "max_amount": 5,
+      "drop_chance": 1.0
+    },
+    {
+      "item_id": "goblin_dagger",
+      "min_amount": 1,
+      "max_amount": 1,
+      "drop_chance": 0.15
+    },
+    {
+      "item_id": "health_potion_small",
+      "min_amount": 1,
+      "max_amount": 2,
+      "drop_chance": 0.3
+    }
+  ]
+}
+

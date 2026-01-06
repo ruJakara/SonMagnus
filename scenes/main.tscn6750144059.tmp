@@ -1,21 +1,13 @@
-[gd_scene load_steps=8 format=3 uid="uid://c6r204k2v873d"]
+[gd_scene load_steps=6 format=3 uid="uid://c6r204k2v873d"]
 
 [ext_resource type="PackedScene" uid="uid://63bo2osd3edm" path="res://scenes/world/forest.tscn" id="1_0wfyh"]
 [ext_resource type="Script" uid="uid://db6m30kv7nay7" path="res://scenes/main.gd" id="1_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://c85dg4quft5fo" path="res://scenes/player/player.tscn" id="1_o5qli"]
 [ext_resource type="PackedScene" uid="uid://bhryskgrey6jf" path="res://scenes/ui/hud.tscn" id="4_jyhfs"]
-[ext_resource type="Script" uid="uid://cm5as6eewpnni" path="res://scripts/debug/CollisionDebugger.gd" id="7_debug"]
-[ext_resource type="Script" uid="uid://bkmlv6ndui0am" path="res://scripts/debug/HitboxDebugDraw.gd" id="8_debug_draw"]
-[ext_resource type="PackedScene" uid="uid://cue2e03e4021n" path="res://scenes/enemies/goblin_scout.tscn" id="8_tipki"]
+[ext_resource type="PackedScene" uid="uid://b1ym7g5lfcv6" path="res://scenes/enemies/EnemyBase.tscn" id="6_o6xl0"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_jyhfs")
-
-[node name="CollisionDebugger" type="Node" parent="."]
-script = ExtResource("7_debug")
-
-[node name="HitboxDebugDraw" type="Node2D" parent="."]
-script = ExtResource("8_debug_draw")
 
 [node name="Forest" parent="." instance=ExtResource("1_0wfyh")]
 day_color = Color(0.9019608, 0.9019608, 0.8980392, 1)
@@ -56,10 +48,8 @@ scale = Vector2(1.5583575, 1.4451575)
 offset_left = 2.0
 offset_right = 2.0
 
-[node name="mobs" type="Node2D" parent="."]
-position = Vector2(437, 38)
+[node name="Node2D" type="Node2D" parent="Node2D"]
 
-[node name="GoblinScout" parent="mobs" instance=ExtResource("8_tipki")]
-position = Vector2(-251, 349)
+[node name="EnemyBase" parent="Node2D/Node2D" instance=ExtResource("6_o6xl0")]
 
 [editable path="Node2D/HUD"]

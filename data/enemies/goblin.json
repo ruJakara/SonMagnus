@@ -1,23 +1,69 @@
 {
-	"id": "goblin",
-	"name": "Гоблин",
-	"max_health": 30,
-	"speed": 90,
-	"attack": 8,
-	"defense": 1,
-	"crit_chance": 0.05,
-	"faction": "goblins",
-	"hostile_factions": ["player", "animals"],
-	"ai": {
-		"detection_range": 250,
-		"lose_range": 350,
-		"attack_range": 55
-	},
-	"attack_data": {
-		"combo_id": "enemy_basic",
-		"cooldown": 1.1,
-		"base_damage": 8.0,
-		"crit_chance": 0.05
-	}
+  "id": "goblin_scout",
+  "name": "Гоблин-разведчик",
+  "max_health": 50,
+  "stamina": 80,
+  "attack": 8.0,
+  "defense": 3.0,
+  "speed": 120.0,
+  "crit_chance": 0.05,
+  
+  "behavior": {
+	"ai_type": "patrol",
+	"patrol_pause_min": 1.0,
+	"patrol_pause_max": 3.0,
+	"patrol_walk_distance_min": 80.0,
+	"patrol_walk_distance_max": 200.0,
+	
+	"vision_cone_angle": 120.0,
+	"vision_range": 180.0,
+	"lose_range": 300.0,
+	"attack_range": 50.0,
+	
+	"call_help_threshold": 0.3,
+	"call_help_radius": 350.0,
+	"call_help_cooldown": 10.0
+  },
+  
+  "combat": {
+	"combo_id": "enemy_basic",
+	"attack_cooldown": 1.5,
+	"windup_time": 0.15,
+	
+	"backstab_damage_mult": 2.0,
+	"backstab_stun_duration": 1.5,
+	"sleeping_damage_mult": 2.5,
+	"sleeping_stun_duration": 2.0
+  },
+  
+  "hostility": {
+	"hostile_tags": ["player", "animal"],
+	"hostile_groups": ["player", "animals"],
+	"faction": "goblin"
+  },
+  
+  "loot": {
+	"loot_table_id": "goblin_common",
+	"can_be_looted": true,
+	"loot_despawn_time": 60.0
+  },
+  
+  "tags": ["goblin", "humanoid", "patrol"],
+  
+  "animations": {
+	"idle": "idle",
+	"patrol": "run",
+	"chase": "run",
+	"attack": "attack",
+	"call_help": "attack2",
+	"sleep": "idle",
+	"death": "death",
+	"take_hit": "take hit"
+  },
+  
+  "sounds": {
+	"call_help": "res://sounds/enemies/goblin_call.ogg",
+	"death": "res://sounds/enemies/goblin_death.ogg",
+	"hit": "res://sounds/enemies/goblin_hit.ogg"
+  }
 }
-

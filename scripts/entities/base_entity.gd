@@ -26,6 +26,7 @@ signal class_changed(class_id: String)
 @export var attack: float = 10.0
 @export var defense: float = 5.0
 @export var speed: float = 100.0
+@export var tags: Array = []
 
 var _health: int = 100
 var _stamina: float = 100.0
@@ -97,6 +98,7 @@ func get_defense(damage_type: String) -> int:
 func take_damage(amount: int) -> void:
 	var final_damage: int = max(0, amount - get_defense("physical"))
 	health -= final_damage
+	health = max(0, health)  # Гарантируем, что HP не уйдёт в минус
 	if Config.DEBUG_LOGS:
 		print_debug("[%s] получил %d урона, HP: %d/%d" % [entity_name, final_damage, health, max_health])
 
@@ -191,3 +193,7 @@ func reduce_hunger(amount: float) -> void:
 
 func restore_hunger(amount: float) -> void:
 	hunger += amount
+
+
+func has_tag(tag: String) -> bool:
+	return tag in tags

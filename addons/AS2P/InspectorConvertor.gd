@@ -14,7 +14,6 @@ signal animation_updated(animation_player: AnimationPlayer)
 func _can_handle(object):
 	if object is AnimationPlayer:
 		anim_player = object
-
 		return true
 	return false
 
@@ -31,16 +30,18 @@ func _parse_end(object: Object):
 		CONNECT_DEFERRED
 		)
 
-
 	# Import button
 	var button := Button.new()
 	button.text = "Import"
-	button.get_minimum_size().y = 26
-	button.button_down.connect(node_selector.convert_sprites)
-
+	button.custom_minimum_size.y = 26
+	
+	# ИСПРАВЛЕНИЕ: используем add_theme_stylebox_override вместо set()
 	var buttonstyle = StyleBoxFlat.new()
-	buttonstyle.bg_color = Color8(32, 37, 49)
-	button.set("custom_styles/normal", buttonstyle)
+	buttonstyle.bg_color = Color(0.125, 0.145, 0.192)  # Color8(32, 37, 49) в float
+	button.add_theme_stylebox_override("normal", buttonstyle)
+	
+	# ИСПРАВЛЕНИЕ: используем pressed вместо button_down (более надёжно)
+	button.pressed.connect(node_selector.convert_sprites)
 
 	var container = VBoxContainer.new()
 	container.add_spacer(true)

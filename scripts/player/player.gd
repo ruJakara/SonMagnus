@@ -16,6 +16,7 @@ const MOVE_ANIM: StringName = &"run"
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var player_combat: Node = $PlayerCombat
 @onready var _animation_player: AnimationPlayer = $AnimationPlayer
+@onready var _hitbox: Area2D = $zone/Hitbox
 
 # ===== Internal state =====
 var forced_target: Node = null
@@ -28,6 +29,8 @@ func _ready() -> void:
 	if not _sprite.is_playing():
 		_sprite.play(IDLE_ANIM)
 	_sprite.animation_finished.connect(_on_animation_finished)
+	# Инициализируем позицию Hitbox при старте
+	_set_facing_direction(1)  # По умолчанию смотрим вправо
 
 func _physics_process(delta: float) -> void:
 	# ИСПРАВЛЕНО: проверка блока ПЕРЕД расчётом движения
@@ -88,7 +91,7 @@ func _update_movement_animation() -> void:
 			_sprite.play(IDLE_ANIM)
 
 	if velocity.x != 0.0:
-		_sprite.flip_h = velocity.x < 0.0
+		_set_facing_direction(1 if velocity.x > 0 else -1)
 
 func get_target() -> Node:
 	if forced_target and is_instance_valid(forced_target):
@@ -119,6 +122,12 @@ func _configure_animation_loops() -> void:
 		if frames.has_animation(anim) and frames.get_animation_loop(anim):
 			frames.set_animation_loop(anim, false)
 
-
-func get_faction() -> StringName:
-	return &"player"
+func _set_facing_direction(dir: int) -> void:
+	"""Устанавливает направление персонажа (1 = вправо, -1 = влево) и поворачивает Hitbox"""
+	_sprite.flip_h = dir < 0
+	
+	# Поворачиваем Hitbox вместе с направлением
+	if _hitbox:
+		# Сохраняем абсолютное значение X позиции и применяем направление
+		var base_x : float = abs(_hitbox.position.x) if _hitbox.position.x != 0 else 16.0  # 16 - дефолтная позиция из сцены
+		_hitbox.position.x = base_x * dir

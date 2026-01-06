@@ -30,6 +30,7 @@ ComboManager="*res://autoload/ComboManager.gd"
 ClassManager="*res://autoload/ClassManager.gd"
 EnemyFactory="*res://autoload/EnemyFactory.gd"
 CombatProfileManager="*res://autoload/CombatProfileManager.tscn"
+LootManager="*res://autoload/LootManager.gd"
 
 [debug]
 
@@ -53,6 +54,8 @@ enabled=PackedStringArray("res://addons/AS2P/plugin.cfg")
 [global_group]
 
 player=""
+enemies=""
+targetable=""
 
 [input]
 

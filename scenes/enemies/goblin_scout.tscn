@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://cue2e03e4021n"]
+
+[ext_resource type="PackedScene" uid="uid://b1ym7g5lfcv6" path="res://scenes/enemies/EnemyBase.tscn" id="1_base"]
+[ext_resource type="Script" uid="uid://bx6a2km2a48ti" path="res://scenes/enemies/goblin_scout.gd" id="2_script"]
+
+[node name="GoblinScout" instance=ExtResource("1_base")]
+script = ExtResource("2_script")

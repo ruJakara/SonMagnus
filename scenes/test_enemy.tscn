@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://test_enemy_scene"]
+
+[ext_resource type="PackedScene" path="res://scenes/enemies/goblin_scout.tscn" id="1_goblin"]
+
+[node name="TestEnemyScene" type="Node2D"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = -500.0
+offset_top = -300.0
+offset_right = 500.0
+offset_bottom = 300.0
+color = Color(0.2, 0.2, 0.2, 1)
+
+[node name="GoblinScout" parent="." instance=ExtResource("1_goblin")]
+position = Vector2(100, 0)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
