@@ -20,8 +20,20 @@ class AttackResult:
 class AttackContext:
 	var attacker
 	var defender
+	var combo_id: String = ""
 	var combo_data: Dictionary = {}
 	var weapon_data: Dictionary = {}
+	var flags: Dictionary = {}
+	var meta: Dictionary = {}
+
+class AttackRequest:
+	var attacker
+	var defender
+	var combo_id: String = ""
+	var combo_data: Dictionary = {}
+	var weapon_data: Dictionary = {}
+	var flags: Dictionary = {}
+	var meta: Dictionary = {}
 
 func _ready() -> void:
 	if not has_node("/root/ComboManager"):
@@ -29,65 +41,122 @@ func _ready() -> void:
 	if not has_node("/root/EffectManager"):
 		push_warning("[CombatManager] EffectManager не найден в /root")
 
+
+func build_attack_request(attacker, combo_id: String, weapon_data: Dictionary, flags: Dictionary = {}, meta: Dictionary = {}) -> AttackRequest:
+	if attacker == null:
+		return null
+	if not ComboManager.has_combo(combo_id):
+		push_warning("[CombatManager] Комбо %s не найдено" % combo_id)
+		return null
+	
+	var request := AttackRequest.new()
+	request.attacker = attacker
+	request.combo_id = combo_id
+	request.combo_data = ComboManager.get_combo(combo_id).duplicate(true)
+	request.weapon_data = weapon_data.duplicate(true)
+	request.flags = flags.duplicate(true)
+	request.meta = meta.duplicate(true)
+	return request
+
+
+func clone_attack_request(request: AttackRequest) -> AttackRequest:
+	if request == null:
+		return null
+	var clone := AttackRequest.new()
+	clone.attacker = request.attacker
+	clone.defender = request.defender
+	clone.combo_id = request.combo_id
+	clone.combo_data = request.combo_data.duplicate(true)
+	clone.weapon_data = request.weapon_data.duplicate(true)
+	clone.flags = request.flags.duplicate(true)
+	clone.meta = request.meta.duplicate(true)
+	return clone
+
+
+func validate_attack_request(request: AttackRequest, ignore_cost_override: bool = false) -> bool:
+	if request == null or request.attacker == null:
+		return false
+	if request.combo_id.is_empty():
+		return false
+	if request.combo_data.is_empty():
+		if not ComboManager.has_combo(request.combo_id):
+			return false
+		request.combo_data = ComboManager.get_combo(request.combo_id).duplicate(true)
+	
+	var skip_cost = ignore_cost_override or request.flags.get("ignore_cost", false)
+	return is_combo_available(request.attacker, request.combo_id, skip_cost)
+
+
+func execute_request(request: AttackRequest) -> AttackResult:
+	var result := AttackResult.new()
+	if request == null:
+		return result
+	
+	if not request.flags.get("skip_validation", false):
+		if not validate_attack_request(request):
+			if Config.DEBUG_LOGS:
+				print("[CombatManager] Request for %s отклонён" % request.combo_id)
+			return result
+	
+	var ctx := AttackContext.new()
+	ctx.attacker = request.attacker
+	ctx.defender = request.defender
+	ctx.combo_id = request.combo_id
+	ctx.combo_data = request.combo_data
+	if ctx.combo_data.is_empty() and ComboManager.has_combo(request.combo_id):
+		ctx.combo_data = ComboManager.get_combo(request.combo_id).duplicate(true)
+	ctx.weapon_data = request.weapon_data
+	ctx.flags = request.flags
+	ctx.meta = request.meta
+	
+	var damage_result = calculate_damage(ctx)
+	apply_damage(ctx, damage_result)
+	
+	result.success = ctx.defender != null and damage_result.damage > 0.0
+	result.damage = damage_result.damage
+	result.effects = damage_result.effects
+	result.combo_id = ctx.combo_id
+	result.crit = damage_result.crit
+	
+	if result.success:
+		emit_signal("attack_executed", ctx.attacker, ctx.defender, ctx.combo_id, damage_result)
+		if result.crit:
+			emit_signal("critical_hit", ctx.attacker, ctx.defender, result.damage)
+	
+	return result
+
 # =============================
 # === MAIN EXECUTION CHAIN ====
 # =============================
 func execute_sequence(attacker, defender, combo_id: String, weapon_data: Dictionary) -> AttackResult:
-	var result := AttackResult.new()
-
-	if not ComboManager.has_combo(combo_id):
-		push_warning("[CombatManager] Комбо %s не найдено" % combo_id)
-		return result
-
-	var _combo_data = ComboManager.get_combo(combo_id)
-
-	# Проверка доступности
-	if not is_combo_available(attacker, combo_id):
-		push_warning("[CombatManager] Комбо %s недоступно для %s" % [combo_id, attacker.name])
-		return result
-
-	# Инициализация атаки
-	var ctx = init_attack(attacker, defender, combo_id, weapon_data)
-
-	# Расчет урона
-	var damage_result = calculate_damage(attacker, defender, weapon_data, combo_id)
-
-	# Применение урона
-	apply_damage(ctx, damage_result)
-
-	result.success = true
-	result.damage = damage_result.damage
-	result.effects = damage_result.effects
-	result.combo_id = combo_id
-	result.crit = damage_result.crit
-
-	emit_signal("attack_executed", attacker, defender, combo_id, damage_result)
-	if result.crit:
-		emit_signal("critical_hit", attacker, defender, result.damage)
-
-	return result
+	var request = build_attack_request(attacker, combo_id, weapon_data)
+	if request == null:
+		return AttackResult.new()
+	request.defender = defender
+	return execute_request(request)
 
 
 # =============================
 # === COMBO AVAILABILITY ====
 # =============================
-func is_combo_available(entity, combo_id: String) -> bool:
+func is_combo_available(entity, combo_id: String, ignore_cost: bool = false) -> bool:
 	if not ComboManager.has_combo(combo_id):
 		return false
 
 	var combo_data = ComboManager.get_combo(combo_id)
 
 	# Проверка стамины
-	var stamina_cost = combo_data.get("stamina_cost", 0)
-	var current_stamina := 0.0
-	if entity.has_method("get_stamina"):
-		current_stamina = entity.get_stamina()
-	else:
-		var stamina_val = entity.get("stamina")
-		if stamina_val != null:
-			current_stamina = float(stamina_val)
-	if current_stamina < stamina_cost:
-		return false
+	if not ignore_cost:
+		var stamina_cost = combo_data.get("stamina_cost", 0)
+		var current_stamina := 0.0
+		if entity.has_method("get_stamina"):
+			current_stamina = entity.get_stamina()
+		else:
+			var stamina_val = entity.get("stamina")
+			if stamina_val != null:
+				current_stamina = float(stamina_val)
+		if current_stamina < stamina_cost:
+			return false
 
 	# Проверка unlock-статуса
 	var unlock_cond = combo_data.get("unlock_condition", {})
@@ -128,28 +197,34 @@ func init_attack(attacker, defender, combo_id: String, weapon_data: Dictionary) 
 	var ctx := AttackContext.new()
 	ctx.attacker = attacker
 	ctx.defender = defender
+	ctx.combo_id = combo_id
 	ctx.combo_data = ComboManager.get_combo(combo_id)
 	ctx.weapon_data = weapon_data
+	ctx.flags = {}
+	ctx.meta = {}
 	return ctx
 
 
-func calculate_damage(_attacker, _defender, weapon_data: Dictionary, combo_id: String = "") -> Dictionary:
+func calculate_damage(ctx: AttackContext) -> Dictionary:
 	var result := {
 		"damage": 0.0,
 		"effects": [],
 		"crit": false
 	}
 
+	var weapon_data = ctx.weapon_data if ctx.weapon_data else {}
+	var combo_data = ctx.combo_data if ctx.combo_data else {}
 	var base_damage = weapon_data.get("base_damage", 10.0)
-	var damage_mult = 1.0
+	var damage_mult = ctx.meta.get("damage_mult_override", combo_data.get("damage_mult", 1.0))
 	var crit_chance = weapon_data.get("crit_chance", 0.0)
 
 	# Если используется комбо — учитываем множитель
-	if combo_id != "":
-		var combo_data = ComboManager.get_combo(combo_id)
-		damage_mult = combo_data.get("damage_mult", 1.0)
+	if not ctx.combo_id.is_empty():
 		result.effects = combo_data.get("effects", []).duplicate()
 
+	if ctx.flags.get("is_backstab", false):
+		damage_mult *= combo_data.get("backstab_damage_mult", 1.0)
+	
 	# Итоговый урон
 	var final_damage = base_damage * damage_mult
 
@@ -183,7 +258,15 @@ func apply_damage(ctx: AttackContext, damage_result: Dictionary) -> void:
 	# Если оба есть, выполняем основную логику
 	# Нанесение урона
 	if ctx.defender.has_method("take_damage"):
-		ctx.defender.take_damage(damage_result.damage)
+		var method_argc = ctx.defender.get_method_argument_count("take_damage")
+		var args: Array = []
+		if method_argc >= 1:
+			args.append(int(round(damage_result.damage)))
+		if method_argc >= 2:
+			args.append(ctx.attacker)
+		if method_argc >= 3:
+			args.append(ctx.flags.get("is_backstab", false))
+		ctx.defender.callv("take_damage", args)
 	else:
 		push_warning("[CombatManager] Цель %s не имеет метода take_damage()" % ctx.defender.name)
 
@@ -197,13 +280,19 @@ func apply_damage(ctx: AttackContext, damage_result: Dictionary) -> void:
 
 	# Списание стамины у атакующего (только если атака успешна)
 	var cost = ctx.combo_data.get("stamina_cost", 0)
-	if cost > 0:
+	if cost > 0 and not ctx.flags.get("skip_cost", false):
 		if ctx.attacker.has_method("reduce_stamina"):
 			ctx.attacker.reduce_stamina(cost)
 		elif ctx.attacker.has("stamina"):
 			ctx.attacker.stamina -= cost
 
 	# Отладочный вывод
-	print("[CombatManager] %s нанёс %.1f урона %s" % [ctx.attacker.name, damage_result.damage, ctx.defender.name])
-	if damage_result.crit:
-		print("[CombatManager] Критический удар!")
+	if Config.DEBUG_LOGS:
+		var attacker_name = ctx.attacker.name if ctx.attacker is Node else str(ctx.attacker)
+		var defender_name = ctx.defender.name if ctx.defender is Node else str(ctx.defender)
+		print("[CombatManager] %s → %s | %.1f dmg%s" % [
+			attacker_name,
+			defender_name,
+			damage_result.damage,
+			" [CRIT]" if damage_result.crit else ""
+		])

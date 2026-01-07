@@ -20,6 +20,8 @@ var _slide_timer: float = 0.0
 var _current_sequence: Array[String] = []
 var _combo_buffer_timer: float = 0.0
 var _last_combo_data: Dictionary = {}
+var _active_attack_request: Node = null  # хранит ссылку на CombatManager.AttackRequest
+var _active_attack_anim: StringName = &""
 
 # ===== Hit Detection =====
 var _hit_targets: Array[Node] = []
@@ -86,6 +88,9 @@ func is_on_cooldown() -> bool:
 func reset_combo() -> void:
 	_current_sequence.clear()
 	_combo_buffer_timer = 0.0
+	_active_attack_request = null
+	_active_attack_anim = &""
+	_last_combo_data.clear()
 
 
 func add_to_sequence(button: String) -> void:

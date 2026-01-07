@@ -49,7 +49,9 @@ func _setup_hitbox() -> void:
 		push_warning("[AttackController] Area2D 'Hitbox' не найдена у игрока")
 		return
 	
-	_hitbox.monitoring = false
+	# Держим monitoring включённым постоянно, окно удара контролируем логикой
+	_hitbox.monitoring = true
+	_hitbox.monitorable = true
 	_hitbox.collision_mask = 176  # 16 + 32 + 128 (enemy_body + hurtbox + back)
 	
 	# Подключаем сигналы для событийной обработки попаданий
@@ -62,17 +64,17 @@ func _setup_hitbox() -> void:
 
 func request_attack(button: String) -> void:
 	"""ЛКМ/ПКМ: Запрос атаки."""
-	if not _state.can_attack():
-		if Config.DEBUG_LOGS:
-			print("[AttackController] Атака заблокирована")
-		return
-	
 	# Если атакуем — буферизуем нажатие
 	if _state._is_attacking:
 		_state.add_to_sequence(button)
 		_state.set_combo_buffer(COMBO_BUFFER_WINDOW)
 		if Config.DEBUG_LOGS:
 			print("[AttackController] Буферизация: %s → %s" % [button, _state.get_sequence()])
+		return
+	
+	if not _state.can_attack():
+		if Config.DEBUG_LOGS:
+			print("[AttackController] Атака заблокирована")
 		return
 	
 	# Иначе добавляем в последовательность и ищем комбо
@@ -127,23 +129,39 @@ func _start_attack_animation(anim_name: String, combo_data: Dictionary) -> void:
 		_state.reset_combo()
 		return
 	
-	# Проверяем стоимость стамины
-	var stamina_cost = combo_data.get("stamina_cost", 0.0)
-	if stamina_cost > 0.0 and _player.has_method("consume_stamina"):
-		if not _player.consume_stamina(stamina_cost):
+	var combo_id: String = combo_data.get("id", default_combo)
+	var weapon_data := _get_weapon_data()
+	
+	if not _combat_manager or not _combat_manager.has_method("build_attack_request"):
+		push_warning("[AttackController] CombatManager не готов, урон будет рассчитан напрямую")
+		_state._active_attack_request = null
+	else:
+		var request = _combat_manager.build_attack_request(_player, combo_id, weapon_data)
+		if request == null:
 			if Config.DEBUG_LOGS:
-				print("[AttackController] Недостаточно стамины")
+				print("[AttackController] Не удалось создать запрос атаки для %s" % combo_id)
 			_state.reset_combo()
 			return
+		
+		if not _combat_manager.validate_attack_request(request):
+			if Config.DEBUG_LOGS:
+				print("[AttackController] Комбо %s недоступно" % combo_id)
+			_state.reset_combo()
+			return
+		
+		request.meta["input_sequence"] = _state.get_sequence().duplicate()
+		request.meta["started_at"] = Time.get_ticks_msec()
+		_state._active_attack_request = request
 	
 	# Сохраняем данные комбо для _on_attack_frame
 	_state._last_combo_data = combo_data.duplicate(true)
+	_state._active_attack_anim = anim_name
 	
 	_state._is_attacking = true
 	_state.set_combo_buffer(combo_data.get("combo_window", COMBO_BUFFER_WINDOW))
 	
 	if Config.DEBUG_LOGS:
-		print("[AttackController] Атака: %s (%s)" % [combo_data.get("id", "unknown"), _state.get_sequence()])
+		print("[AttackController] Атака: %s (%s)" % [combo_id, _state.get_sequence()])
 	
 	# Проигрываем анимацию (удар произойдет через method track _on_attack_frame)
 	if _animation_player.has_animation(anim_name):
@@ -152,27 +170,34 @@ func _start_attack_animation(anim_name: String, combo_data: Dictionary) -> void:
 		push_warning("[AttackController] Анимация '%s' не найдена!" % anim_name)
 		_state._is_attacking = false
 		_state.reset_combo()
+		_state._active_attack_request = null
 		return
 
 
 func _on_animation_finished(anim_name: StringName) -> void:
 	"""Вызывается AnimationPlayer при окончании анимации атаки"""
-	# Обработка атак
-	if anim_name.begins_with("attack") or anim_name.begins_with("punch") or \
-	   anim_name.begins_with("kick") or anim_name.begins_with("charge"):
-		_state._is_attacking = false
-		_state._cooldown_timer = attack_cooldown
-		
+	if _state._active_attack_anim != StringName() and anim_name == _state._active_attack_anim:
+		_finalize_attack_cycle()
+
+
+func _finalize_attack_cycle() -> void:
+	if not _state._is_attacking:
+		return
+	
+	_state._is_attacking = false
+	_state._cooldown_timer = attack_cooldown
+	_state._active_attack_anim = StringName()
+	_state._active_attack_request = null
+	
+	if Config.DEBUG_LOGS:
+		print("[AttackController] Атака завершена | Буфер: %.2f сек" % _state._combo_buffer_timer)
+	
+	if _state.has_combo_buffer() and _state.get_sequence().size() > 0:
 		if Config.DEBUG_LOGS:
-			print("[AttackController] Атака завершена | Буфер: %.2f сек" % _state._combo_buffer_timer)
-		
-		# Если в буфере есть нажатия — продолжаем комбо
-		if _state.has_combo_buffer() and _state.get_sequence().size() > 0:
-			if Config.DEBUG_LOGS:
-				print("[AttackController] Продолжение комбо из буфера")
-			_execute_combo()
-		else:
-			_state.reset_combo()
+			print("[AttackController] Продолжение комбо из буфера")
+		_execute_combo()
+	else:
+		_state.reset_combo()
 
 
 # ===== Hit Detection (Event-based, NO await) =====
@@ -189,7 +214,9 @@ func _on_attack_frame() -> void:
 	# Открываем окно удара
 	_state._hit_targets.clear()
 	_state._hit_window_open = true
-	_hitbox.monitoring = true
+	
+	if _state._active_attack_request:
+		_state._active_attack_request.meta["hit_frame_time"] = Time.get_ticks_msec()
 	
 	if Config.DEBUG_LOGS:
 		print("[AttackController] Окно удара открыто")
@@ -199,9 +226,6 @@ func _on_attack_end() -> void:
 	"""Вызывается из AnimationPlayer method track в конце окна удара"""
 	_state._hit_window_open = false
 	
-	if _hitbox:
-		_hitbox.monitoring = false
-	
 	if Config.DEBUG_LOGS:
 		if _state._hit_targets.is_empty():
 			print("[AttackController] Промах")
@@ -209,6 +233,7 @@ func _on_attack_end() -> void:
 			print("[AttackController] Окно удара закрыто")
 	
 	_state._hit_targets.clear()
+	_finalize_attack_cycle()
 
 
 func _on_hitbox_body_entered(body: Node2D) -> void:
@@ -228,21 +253,7 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 	# Добавляем в список целей
 	_state._hit_targets.append(body)
 	
-	# Подготавливаем данные оружия
-	var weapon_data = _get_weapon_data()
-	weapon_data["damage_mult"] = _state._last_combo_data.get("damage_mult", 1.0)
-	
-	# Проверяем бэкстаб
-	var is_backstab: bool = false
-	var back_area = body.get_node_or_null("Back")
-	if back_area and back_area is Area2D:
-		is_backstab = _hitbox.overlaps_area(back_area)
-	
-	# Наносим урон
-	_deal_damage_to(body, _state._last_combo_data.get("id", default_combo), weapon_data, is_backstab)
-	
-	if Config.DEBUG_LOGS:
-		print("[AttackController] Попадание: %s%s" % [body.name, " [BACKSTAB]" if is_backstab else ""])
+	_apply_hit_to_target(body)
 
 
 func _on_hitbox_area_entered(area: Area2D) -> void:
@@ -264,24 +275,53 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 	# Добавляем в список целей
 	_state._hit_targets.append(enemy)
 	
-	# Подготавливаем данные оружия
-	var weapon_data = _get_weapon_data()
-	weapon_data["damage_mult"] = _state._last_combo_data.get("damage_mult", 1.0)
-	
-	# Проверяем бэкстаб
-	var is_backstab: bool = false
-	var back_area = enemy.get_node_or_null("Back")
-	if back_area and back_area is Area2D:
-		is_backstab = _hitbox.overlaps_area(back_area)
-	
-	# Наносим урон
-	_deal_damage_to(enemy, _state._last_combo_data.get("id", default_combo), weapon_data, is_backstab)
-	
-	if Config.DEBUG_LOGS:
-		print("[AttackController] Попадание: %s%s" % [enemy.name, " [BACKSTAB]" if is_backstab else ""])
+	_apply_hit_to_target(enemy)
 
 
 # ===== Вспомогательные методы =====
+
+func _apply_hit_to_target(target: Node) -> void:
+	if not is_instance_valid(target):
+		return
+	
+	var combo_id: String = _state._last_combo_data.get("id", default_combo)
+	var weapon_data := _get_weapon_data()
+	weapon_data["damage_mult"] = _state._last_combo_data.get("damage_mult", 1.0)
+	
+	var is_backstab := _is_backstab_target(target)
+	
+	if _combat_manager and _state._active_attack_request and _combat_manager.has_method("execute_request"):
+		var request = _combat_manager.clone_attack_request(_state._active_attack_request)
+		if request:
+			request.defender = target
+			request.weapon_data = weapon_data
+			request.flags["is_backstab"] = is_backstab
+			request.meta["hit_position"] = target.global_position
+			request.meta["hit_time"] = Time.get_ticks_msec()
+			request.meta["hit_index"] = _state._hit_targets.size()
+			
+			var result = _combat_manager.execute_request(request)
+			if result and result.success:
+				if Config.DEBUG_LOGS:
+					print("[AttackController] %s → %s | %.1f dmg%s" % [
+						request.combo_id,
+						target.name,
+						result.damage,
+						" [BACKSTAB]" if is_backstab else ""
+					])
+				return
+	
+	_deal_damage_to(target, combo_id, weapon_data, is_backstab)
+
+
+func _is_backstab_target(target: Node) -> bool:
+	if not _hitbox:
+		return false
+	var back_area = target.get_node_or_null("Back")
+	if back_area and back_area is Area2D:
+		return _hitbox.overlaps_area(back_area)
+	return false
+
 
 func _get_weapon_data() -> Dictionary:
 	return {
@@ -291,24 +331,10 @@ func _get_weapon_data() -> Dictionary:
 
 
 func _deal_damage_to(defender: Node, combo_id: String, weapon_data: Dictionary, is_backstab: bool = false) -> void:
-	"""Наносит урон цели через CombatManager или fallback"""
+	"""Фолбэк: прямой урон, если CombatManager недоступен"""
 	if not defender or not is_instance_valid(defender):
 		return
 	
-	# Пытаемся использовать CombatManager
-	if _combat_manager and _combat_manager.has_method("execute_sequence"):
-		var result = _combat_manager.execute_sequence(_player, defender, combo_id, weapon_data)
-		
-		if result and result.success:
-			if Config.DEBUG_LOGS:
-				print("[AttackController] %s → %s | %.1f урона%s%s" % [
-					combo_id, defender.name, result.damage,
-					" [КРИТ]" if result.crit else "",
-					" [BACKSTAB]" if is_backstab else ""
-				])
-			return
-	
-	# Fallback: прямой урон без CombatManager
 	if not defender.has_method("take_damage"):
 		return
 	
