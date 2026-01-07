@@ -1,10 +1,13 @@
-[gd_scene load_steps=11 format=3 uid="uid://63bo2osd3edm"]
+[gd_scene load_steps=14 format=3 uid="uid://63bo2osd3edm"]
 
 [ext_resource type="Texture2D" uid="uid://dg201rk3ro2vu" path="res://assets/newAssets/bg/playgroundAddil.png" id="1_k440o"]
 [ext_resource type="Texture2D" uid="uid://drgr6ent0630f" path="res://assets/newAssets/playgroundAddil.png" id="2_bpy6v"]
 [ext_resource type="Texture2D" uid="uid://cqm61d52661x2" path="res://assets/world/environment_forestbackground.png" id="2_euhvq"]
 [ext_resource type="Script" uid="uid://bsqn63ch1v042" path="res://scripts/world/WorldLighting.gd" id="3_9j5mk"]
 [ext_resource type="Script" uid="uid://ckqyfy3fu361n" path="res://scripts/world/DepthZone.gd" id="4_1y7e8"]
+[ext_resource type="PackedScene" uid="uid://c85dg4quft5fo" path="res://scenes/player/player.tscn" id="6_bowih"]
+[ext_resource type="PackedScene" uid="uid://bhryskgrey6jf" path="res://scenes/ui/hud.tscn" id="7_vcop0"]
+[ext_resource type="PackedScene" uid="uid://cue2e03e4021n" path="res://scenes/enemies/goblin_scout.tscn" id="8_8abk8"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_tvyim"]
 particle_flag_disable_z = true
@@ -114,3 +117,17 @@ layout_mode = 3
 anchors_preset = 0
 
 [node name="Cursor" type="Node2D" parent="UILayer"]
+
+[node name="player" type="Node2D" parent="."]
+position = Vector2(559, 719)
+
+[node name="Player" parent="player" instance=ExtResource("6_bowih")]
+position = Vector2(0, 3)
+
+[node name="HUD" parent="player" instance=ExtResource("7_vcop0")]
+
+[node name="mobs" type="Node2D" parent="."]
+position = Vector2(-6, 25)
+
+[node name="GoblinScout" parent="mobs" instance=ExtResource("8_8abk8")]
+position = Vector2(245, 474)

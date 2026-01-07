@@ -6,7 +6,7 @@ extends CanvasLayer
 @onready var count_input: SpinBox = $Panel/VBox/QueueControls/CountSpin
 @onready var queue_container: VBoxContainer = $Panel/VBox/QueueList
 
-func _ready():
+func _ready() -> void:
 	hide()
 	var storage_callable := Callable(self, "_on_storage_changed")
 	if not CampStorageManager.storage_changed.is_connected(storage_callable):
@@ -20,17 +20,24 @@ func _ready():
 func _on_storage_changed(snapshot: Dictionary) -> void:
 	if not storage_label:
 		return
-	var text := ""
-	var capacity := snapshot.get("capacity", {})
-	if capacity is Dictionary and not capacity.is_empty():
+	var text: String = ""
+	var capacity_variant: Variant = snapshot.get("capacity", {})
+	if capacity_variant is Dictionary:
+		var capacity: Dictionary = capacity_variant
 		text += "Capacity: %d / %d\n" % [
 			capacity.get("used", 0),
 			capacity.get("limit", 0)
 		]
-	for item_id in snapshot.get("total", {}).keys():
-		var total := snapshot["total"][item_id]
-		var reserved := snapshot.get("reserved", {}).get(item_id, 0)
-		var free := snapshot.get("free", {}).get(item_id, 0)
+	var total_variant: Variant = snapshot.get("total", {})
+	var reserved_variant: Variant = snapshot.get("reserved", {})
+	var free_variant: Variant = snapshot.get("free", {})
+	var total_map: Dictionary = total_variant if total_variant is Dictionary else {}
+	var reserved_map: Dictionary = reserved_variant if reserved_variant is Dictionary else {}
+	var free_map: Dictionary = free_variant if free_variant is Dictionary else {}
+	for item_id in total_map.keys():
+		var total: int = total_map.get(item_id, 0)
+		var reserved: int = reserved_map.get(item_id, 0)
+		var free: int = free_map.get(item_id, 0)
 		text += "%s: total %d | reserved %d | free %d\n" % [item_id, total, reserved, free]
 	if text == "":
 		text = "Склад пуст"
@@ -39,7 +46,10 @@ func _on_storage_changed(snapshot: Dictionary) -> void:
 func _on_queue_updated(queue: Array) -> void:
 	for child in queue_container.get_children():
 		child.queue_free()
-	for order in queue:
+	for order_variant in queue:
+		if not order_variant is Dictionary:
+			continue
+		var order: Dictionary = order_variant
 		var label := Label.new()
 		label.text = "%s - %s (%s)" % [order["id"], order["recipe_id"], order["status"]]
 		queue_container.add_child(label)
@@ -49,7 +59,7 @@ func _on_AddStarter_pressed() -> void:
 	message_label.text = "Добавлены базовые ресурсы"
 
 func _on_QueueButton_pressed() -> void:
-	var recipe_id := recipe_input.text.strip_edges()
+	var recipe_id: String = recipe_input.text.strip_edges()
 	var count := int(count_input.value)
 	if recipe_id == "":
 		message_label.text = "Укажите рецепт"

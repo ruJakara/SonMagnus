@@ -30,18 +30,18 @@ func enqueue(recipe_id: String, count: int = 1) -> Dictionary:
 	if queue.size() >= _get_queue_limit():
 		result["message"] = "Очередь автокрафта заполнена"
 		return result
-	var recipe := CraftManager.get_recipe(recipe_id)
+	var recipe: Dictionary = CraftManager.get_recipe(recipe_id)
 	if recipe.is_empty():
 		result["message"] = "Рецепт не найден"
 		return result
-	var required := CraftManager.get_recipe_ingredients(recipe, count)
-	var reservation_id := "autocraft_%s" % Time.get_ticks_msec()
-	var reserve_result := CampStorageManager.reserve(required, reservation_id)
+	var required: Dictionary = CraftManager.get_recipe_ingredients(recipe, count)
+	var reservation_id: String = "autocraft_%s" % Time.get_ticks_msec()
+	var reserve_result: Dictionary = CampStorageManager.reserve(required, reservation_id)
 	if not reserve_result["success"]:
 		return reserve_result
-	var order_id := reserve_result.get("reservation_id", reservation_id)
-	var base_time := float(recipe.get("craft_time_sec", 1.0)) * count
-	var final_time := base_time * _get_speed_multiplier()
+	var order_id: String = reserve_result.get("reservation_id", reservation_id)
+	var base_time: float = float(recipe.get("craft_time_sec", 1.0)) * count
+	var final_time: float = base_time * _get_speed_multiplier()
 	var order: Dictionary = {
 		"id": order_id,
 		"recipe_id": recipe_id,
@@ -80,7 +80,7 @@ func _process(delta: float) -> void:
 	if not _station_busy:
 		_try_start_next()
 		return
-	var order := _get_current_order()
+	var order: Dictionary = _get_current_order()
 	if order.is_empty():
 		_station_busy = false
 		emit_signal("station_busy_changed", _station_busy)
@@ -100,7 +100,7 @@ func _try_start_next() -> void:
 			order["status"] = "paused_no_resources"
 			continue
 		order["status"] = "in_progress"
-		var base_time := order.get("base_time_sec", order["craft_time_sec"])
+		var base_time: float = float(order.get("base_time_sec", order["craft_time_sec"]))
 		order["craft_time_sec"] = base_time * _get_speed_multiplier()
 		order["time_left"] = order["craft_time_sec"]
 		_current_order_id = order["id"]
@@ -144,14 +144,17 @@ func _on_storage_changed(_snapshot: Dictionary) -> void:
 	for order in queue:
 		match order.get("status", ""):
 			"paused_no_resources":
-				var reserve_again := CampStorageManager.reserve(order["required_items"], order["id"])
+				var reserve_again: Dictionary = CampStorageManager.reserve(order["required_items"], order["id"])
 				if reserve_again["success"]:
 					order["status"] = "reserved"
 					order["reserved_items"] = reserve_again["reserved_items"]
 					updated = true
 			"waiting_storage":
-				var payload := order.get("pending_output", order.get("result_items", {}))
-				if CampStorageManager.add(payload):
+				var payload_variant: Variant = order.get("pending_output", order.get("result_items", {}))
+				var payload: Dictionary = {}
+				if payload_variant is Dictionary:
+					payload = payload_variant
+				if not payload.is_empty() and CampStorageManager.add(payload):
 					order["status"] = "completed"
 					order.erase("pending_output")
 					updated = true

@@ -27,10 +27,12 @@ func _load_legacy_items() -> void:
 		push_warning("ItemManager: ошибка разбора %s" % LEGACY_ITEMS_PATH)
 		return
 	if json.data is Dictionary:
-		for id in json.data.keys():
-			if not json.data[id] is Dictionary:
+		var legacy_data: Dictionary = json.data
+		for legacy_id in legacy_data.keys():
+			if not legacy_data[legacy_id] is Dictionary:
 				continue
-			items_data[id] = json.data[id].duplicate(true)
+			var entry: Dictionary = legacy_data[legacy_id]
+			items_data[legacy_id] = entry.duplicate(true)
 
 func _load_items_from_dir(dir_path: String) -> void:
 	if not DirAccess.dir_exists_absolute(dir_path):
@@ -45,8 +47,9 @@ func _load_items_from_dir(dir_path: String) -> void:
 			push_warning("ItemManager: ошибка разбора %s" % full_path)
 			continue
 		if json.data is Dictionary:
-			var item_dict: Dictionary = json.data.duplicate(true)
-			var item_id := item_dict.get("id", file_name.get_basename())
+			var item_source: Dictionary = json.data
+			var item_dict: Dictionary = item_source.duplicate(true)
+			var item_id: String = str(item_dict.get("id", file_name.get_basename()))
 			if item_id == "":
 				push_warning("ItemManager: пропущен id в %s" % full_path)
 				continue

@@ -20,7 +20,7 @@ var _slide_timer: float = 0.0
 var _current_sequence: Array[String] = []
 var _combo_buffer_timer: float = 0.0
 var _last_combo_data: Dictionary = {}
-var _active_attack_request: Node = null  # хранит ссылку на CombatManager.AttackRequest
+var _active_attack_request: Variant = null  # хранит ссылку на CombatManager.AttackRequest
 var _active_attack_anim: StringName = &""
 
 # ===== Hit Detection =====

@@ -28,17 +28,20 @@ func _load_definitions() -> void:
 		if json.parse(FileAccess.get_file_as_string(full_path)) != OK:
 			push_warning("[CampUpgradeManager] Не удалось загрузить %s" % full_path)
 			continue
-		if json.data is Dictionary:
-			var def: Dictionary = json.data.duplicate(true)
-			var upgrade_id := def.get("upgrade_id", file_name.get_basename())
-			if upgrade_id == "":
-				push_warning("[CampUpgradeManager] upgrade_id отсутствует в %s" % full_path)
-				continue
-			def["levels"] = _sorted_levels(def.get("levels", []))
-			def["max_level"] = int(def.get("max_level", def["levels"].size()))
-			upgrade_definitions[upgrade_id] = def
-			if upgrade_states.has(upgrade_id):
-				upgrade_states[upgrade_id] = clamp(upgrade_states[upgrade_id], 0, def["max_level"])
+		var data: Variant = json.data
+		if not (data is Dictionary):
+			continue
+		var definition_source: Dictionary = data
+		var def: Dictionary = definition_source.duplicate(true)
+		var upgrade_id: String = def.get("upgrade_id", file_name.get_basename())
+		if upgrade_id == "":
+			push_warning("[CampUpgradeManager] upgrade_id отсутствует в %s" % full_path)
+			continue
+		def["levels"] = _sorted_levels(def.get("levels", []))
+		def["max_level"] = int(def.get("max_level", def["levels"].size()))
+		upgrade_definitions[upgrade_id] = def
+		if upgrade_states.has(upgrade_id):
+			upgrade_states[upgrade_id] = clamp(upgrade_states[upgrade_id], 0, def["max_level"])
 
 func _sorted_levels(levels: Array) -> Array:
 	var copy: Array = []
@@ -57,11 +60,14 @@ func get_upgrade_state(upgrade_id: String) -> int:
 	return upgrade_states.get(upgrade_id, 0)
 
 func get_upgrade_status(upgrade_id: String) -> Dictionary:
-	var definition := upgrade_definitions.get(upgrade_id, {})
+	var definition_variant: Variant = upgrade_definitions.get(upgrade_id, {})
+	if not (definition_variant is Dictionary):
+		return {}
+	var definition: Dictionary = definition_variant
 	if definition.is_empty():
 		return {}
 	var current_level := get_upgrade_state(upgrade_id)
-	var next_level_data := _get_level_data(definition, current_level + 1)
+	var next_level_data: Dictionary = _get_level_data(definition, current_level + 1)
 	return {
 		"upgrade_id": upgrade_id,
 		"definition": definition,
@@ -77,7 +83,7 @@ func _get_level_data(definition: Dictionary, level: int) -> Dictionary:
 	return {}
 
 func can_upgrade(upgrade_id: String) -> Dictionary:
-	var status := get_upgrade_status(upgrade_id)
+	var status: Dictionary = get_upgrade_status(upgrade_id)
 	if status.is_empty():
 		return {"success": false, "reason": "Неизвестное улучшение"}
 	if status["current_level"] >= status["max_level"]:
@@ -85,11 +91,13 @@ func can_upgrade(upgrade_id: String) -> Dictionary:
 	var next_level: Dictionary = status["next_level_data"]
 	if next_level.is_empty():
 		return {"success": false, "reason": "Нет данных по следующему уровню"}
-	var requirements := next_level.get("requirements", {})
-	var req_check := _check_requirements(requirements)
+	var requirements_variant: Variant = next_level.get("requirements", {})
+	var requirements: Dictionary = requirements_variant if requirements_variant is Dictionary else {}
+	var req_check: Dictionary = _check_requirements(requirements)
 	if not req_check["success"]:
 		return req_check
-	var cost: Dictionary = next_level.get("cost", {})
+	var cost_variant: Variant = next_level.get("cost", {})
+	var cost: Dictionary = cost_variant if cost_variant is Dictionary else {}
 	if not CampStorageManager.has_free(cost):
 		return {
 			"success": false,
@@ -141,10 +149,14 @@ func _recalculate_modifiers() -> void:
 		var current_level := get_upgrade_state(upgrade_id)
 		if current_level <= 0:
 			continue
-		var definition := upgrade_definitions[upgrade_id]
-		for level_data in definition.get("levels", []):
+		var definition: Dictionary = upgrade_definitions[upgrade_id]
+		for level_data_variant in definition.get("levels", []):
+			if not level_data_variant is Dictionary:
+				continue
+			var level_data: Dictionary = level_data_variant
 			if int(level_data.get("level", 0)) <= current_level:
-				_merge_effects(level_data.get("effects", {}))
+				var level_effects: Dictionary = level_data.get("effects", {})
+				_merge_effects(level_effects)
 	if not modifiers.has("autocraft_speed_multiplier"):
 		modifiers["autocraft_speed_multiplier"] = 1.0
 	if not modifiers.has("unlock_station_types"):
@@ -155,7 +167,7 @@ func _recalculate_modifiers() -> void:
 
 func _merge_effects(effects: Dictionary) -> void:
 	for key in effects.keys():
-		var value = effects[key]
+		var value: Variant = effects[key]
 		match key:
 			"unlock_station_type":
 				var arr: Array = modifiers.get("unlock_station_types", []).duplicate()
@@ -171,7 +183,7 @@ func _merge_effects(effects: Dictionary) -> void:
 				else:
 					modifiers["station_level_bonus"] = modifiers.get("station_level_bonus", 0) + int(value)
 			"autocraft_speed_multiplier":
-				var current := modifiers.get("autocraft_speed_multiplier", 1.0)
+				var current: float = float(modifiers.get("autocraft_speed_multiplier", 1.0))
 				modifiers["autocraft_speed_multiplier"] = current * float(value)
 			_:
 				if value is bool:

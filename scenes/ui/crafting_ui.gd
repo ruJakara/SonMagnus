@@ -11,7 +11,7 @@ extends CanvasLayer
 var camp_mode_enabled := false
 var pending_result: Dictionary = {}
 
-func _ready():
+func _ready() -> void:
 	hide()
 	slot1_input.text = "wood"
 	slot2_input.text = "stone"
@@ -26,7 +26,7 @@ func set_camp_mode(active: bool) -> void:
 		hide()
 		_set_result("Крафт доступен только в лагере")
 
-func _input(event):
+func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("craftmenu"):
 		if not camp_mode_enabled:
 			_set_result("Нужен лагерь, чтобы открыть кузницу")
@@ -41,13 +41,13 @@ func _on_CraftButton_pressed() -> void:
 	if not camp_mode_enabled:
 		_set_result("Вы не в лагере")
 		return
-	var slot1 := slot1_input.text.strip_edges()
-	var slot2 := slot2_input.text.strip_edges()
-	var slot3 := slot3_input.text.strip_edges()
+	var slot1: String = slot1_input.text.strip_edges()
+	var slot2: String = slot2_input.text.strip_edges()
+	var slot3: String = slot3_input.text.strip_edges()
 	if slot1 == "" or slot2 == "":
 		_set_result("Нужно задать Slot1 и Slot2")
 		return
-	var craft_result := CraftManager.try_manual(slot1, slot2, slot3)
+	var craft_result: Dictionary = CraftManager.try_manual(slot1, slot2, slot3)
 	if not craft_result["success"]:
 		_set_result(craft_result.get("message", "Крафт не удался"))
 		return
@@ -64,7 +64,7 @@ func on_craft_phase_complete() -> void:
 	var produced: Dictionary = pending_result.get("produced_items", {})
 	if not produced.is_empty():
 		CampStorageManager.add(produced)
-	var message := pending_result.get("message", "Крафт завершён")
+	var message: String = pending_result.get("message", "Крафт завершён")
 	message += " => %s" % _format_items(produced)
 	if pending_result.get("used_fallback_ether", false):
 		message += " (fallback ether)"
@@ -73,9 +73,10 @@ func on_craft_phase_complete() -> void:
 	_on_storage_changed(CampStorageManager.get_snapshot())
 
 func _on_storage_changed(snapshot: Dictionary) -> void:
-	var text := ""
-	for item_id in snapshot.get("free", {}).keys():
-		text += "%s: %d free\n" % [item_id, snapshot["free"][item_id]]
+	var text: String = ""
+	var free_map: Dictionary = snapshot.get("free", {})
+	for item_id in free_map.keys():
+		text += "%s: %d free\n" % [item_id, free_map.get(item_id, 0)]
 	if text == "":
 		text = "В лагере нет ресурсов"
 	storage_label.text = text

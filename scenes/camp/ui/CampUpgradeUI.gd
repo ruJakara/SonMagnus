@@ -60,7 +60,7 @@ func _build_row(upgrade_id: String, definition: Dictionary) -> Control:
 	name_label.text = "%s (%s)" % [definition.get("name_key", upgrade_id), definition.get("category", "other")]
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var level_label := Label.new()
-	var status := _manager != null ? _manager.get_upgrade_status(upgrade_id) : {}
+	var status: Dictionary = _manager.get_upgrade_status(upgrade_id) if _manager else {}
 	var current_level := int(status.get("current_level", 0))
 	var max_level := int(status.get("max_level", 0))
 	level_label.text = "Уровень %d / %d" % [current_level, max_level]
@@ -89,7 +89,7 @@ func _build_row(upgrade_id: String, definition: Dictionary) -> Control:
 		container.add_child(cost_label)
 
 		var requirements_label := Label.new()
-		var can_result := _manager != null ? _manager.can_upgrade(upgrade_id) : {"success": false, "reason": "Менеджер недоступен"}
+		var can_result: Dictionary = _manager.can_upgrade(upgrade_id) if _manager else {"success": false, "reason": "Менеджер недоступен"}
 		var upgrade_button := Button.new()
 		upgrade_button.text = "Upgrade"
 		upgrade_button.disabled = not can_result["success"]
@@ -146,7 +146,7 @@ func _on_upgrade_pressed(upgrade_id: String) -> void:
 	if not _manager:
 		status_label.text = "Менеджер улучшений недоступен"
 		return
-	var result := _manager.apply_upgrade(upgrade_id)
+	var result: Dictionary = _manager.apply_upgrade(upgrade_id)
 	status_label.text = result.get("message", result.get("reason", ""))
 	refresh()
 
