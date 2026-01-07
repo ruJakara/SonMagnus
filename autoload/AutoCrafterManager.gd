@@ -6,12 +6,12 @@ signal station_busy_changed(is_busy: bool)
 
 const BASE_QUEUE_SLOTS := 2
 
-var queue: Array = []
+var queue: Array[Dictionary] = []
 var _current_order_id: String = ""
 var _station_busy := false
 var _upgrade_manager: Node = null
 
-func _ready():
+func _ready() -> void:
 	set_process(true)
 	_upgrade_manager = get_node_or_null("/root/CampUpgradeManager")
 	var storage_callable := Callable(self, "_on_storage_changed")
@@ -19,7 +19,7 @@ func _ready():
 		CampStorageManager.storage_changed.connect(storage_callable)
 
 func enqueue(recipe_id: String, count: int = 1) -> Dictionary:
-	var result := {
+	var result: Dictionary = {
 		"success": false,
 		"reserved_items": {},
 		"message": ""
@@ -42,7 +42,7 @@ func enqueue(recipe_id: String, count: int = 1) -> Dictionary:
 	var order_id := reserve_result.get("reservation_id", reservation_id)
 	var base_time := float(recipe.get("craft_time_sec", 1.0)) * count
 	var final_time := base_time * _get_speed_multiplier()
-	var order := {
+	var order: Dictionary = {
 		"id": order_id,
 		"recipe_id": recipe_id,
 		"count": count,
@@ -136,7 +136,7 @@ func _get_current_order() -> Dictionary:
 			return order
 	return {}
 
-func get_orders() -> Array:
+func get_orders() -> Array[Dictionary]:
 	return queue.duplicate(true)
 
 func _on_storage_changed(_snapshot: Dictionary) -> void:

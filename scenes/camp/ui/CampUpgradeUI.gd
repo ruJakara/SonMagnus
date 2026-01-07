@@ -8,7 +8,7 @@ extends Control
 
 var _manager: Node = null
 
-func _ready():
+func _ready() -> void:
 	hide()
 	_manager = get_node_or_null("/root/CampUpgradeManager")
 	if close_button:
@@ -41,10 +41,10 @@ func refresh() -> void:
 		return
 	for child in upgrade_list.get_children():
 		child.queue_free()
-	var definitions := {}
+	var definitions: Dictionary = {}
 	if _manager:
 		definitions = _manager.get_upgrade_definitions()
-	var upgrade_ids := definitions.keys()
+	var upgrade_ids: Array = definitions.keys()
 	upgrade_ids.sort()
 	for upgrade_id in upgrade_ids:
 		var row := _build_row(upgrade_id, definitions[upgrade_id])

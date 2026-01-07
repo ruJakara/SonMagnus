@@ -41,7 +41,7 @@ func _load_definitions() -> void:
 				upgrade_states[upgrade_id] = clamp(upgrade_states[upgrade_id], 0, def["max_level"])
 
 func _sorted_levels(levels: Array) -> Array:
-	var copy := []
+	var copy: Array = []
 	for level_data in levels:
 		if level_data is Dictionary:
 			copy.append(level_data.duplicate(true))
@@ -104,7 +104,7 @@ func can_upgrade(upgrade_id: String) -> Dictionary:
 	}
 
 func _check_requirements(requirements: Dictionary) -> Dictionary:
-	var result := {"success": true, "reason": ""}
+	var result: Dictionary = {"success": true, "reason": ""}
 	var min_camp_level := int(requirements.get("min_camp_level", 0))
 	if min_camp_level > camp_level:
 		result["success"] = false
@@ -186,7 +186,7 @@ func get_effective_modifiers() -> Dictionary:
 		_recalculate_modifiers()
 	return modifiers.duplicate(true)
 
-func get_modifier(key: String, default_value):
+func get_modifier(key: String, default_value) -> Variant:
 	if modifiers.is_empty():
 		_recalculate_modifiers()
 	return modifiers.get(key, default_value)
