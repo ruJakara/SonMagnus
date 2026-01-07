@@ -1,0 +1,10 @@
+{
+	"id": "ether",
+	"name": "Эфир",
+	"type": "catalyst",
+	"rarity": "rare",
+	"stack_size": 50,
+	"description": "Концентрированная субстанция, стабилизирующая экспериментальные рецепты.",
+	"tags": ["resource", "catalyst", "ether"]
+}
+

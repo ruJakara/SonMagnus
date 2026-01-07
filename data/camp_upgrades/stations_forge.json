@@ -1,0 +1,53 @@
+{
+	"upgrade_id": "stations_forge",
+	"name_key": "Forge Improvements",
+	"description_key": "Разблокирует и усиливает походную кузню.",
+	"category": "stations",
+	"max_level": 3,
+	"levels": [
+		{
+			"level": 1,
+			"cost": {
+				"wood": 15,
+				"stone": 10
+			},
+			"effects": {
+				"unlock_station_type": "forge"
+			}
+		},
+		{
+			"level": 2,
+			"cost": {
+				"wood": 30,
+				"stone": 15
+			},
+			"effects": {
+				"station_level_bonus": 1,
+				"autocraft_speed_multiplier": 0.95
+			},
+			"requirements": {
+				"requires_upgrades": {
+					"storage_warehouse": 1
+				}
+			}
+		},
+		{
+			"level": 3,
+			"cost": {
+				"wood": 50,
+				"stone": 30
+			},
+			"effects": {
+				"station_level_bonus": 1,
+				"autocraft_speed_multiplier": 0.9,
+				"autocraft_queue_slots_bonus": 1
+			},
+			"requirements": {
+				"requires_upgrades": {
+					"storage_warehouse": 2
+				}
+			}
+		}
+	]
+}
+

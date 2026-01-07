@@ -116,3 +116,5 @@ func is_stunned() -> bool:
 	"""Находится ли в состоянии hitstop"""
 	return _is_hit_stunned
 
+
+

@@ -1,0 +1,114 @@
+[gd_scene load_steps=7 format=3 uid="uid://bkrtp2s4iemwn"]
+
+[ext_resource type="Script" uid="uid://coop1vtadsx81" path="res://scenes/camp/CampScene.gd" id="1_5f7yv"]
+[ext_resource type="Script" uid="uid://depq6uw6eerif" path="res://scenes/camp/CampStorageDebugUI.gd" id="2_3h5ra"]
+[ext_resource type="PackedScene" path="res://scenes/camp/ui/CampUpgradeUI.tscn" id="3_h4sf3"]
+
+[sub_resource type="CircleShape2D" id="1_f8p1h"]
+radius = 32.0
+
+[sub_resource type="CircleShape2D" id="2_h4p6g"]
+radius = 24.0
+
+[sub_resource type="RectangleShape2D" id="3_g7c5f"]
+size = Vector2(64, 32)
+
+[node name="CampScene" type="Node2D"]
+script = ExtResource("1_5f7yv")
+
+[node name="CampSpawn" type="Marker2D" parent="."]
+position = Vector2(128, 128)
+
+[node name="Station" type="Area2D" parent="."]
+position = Vector2(64, 64)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Station"]
+shape = SubResource("1_f8p1h")
+
+[node name="AutoCrafterNPC" type="Area2D" parent="."]
+position = Vector2(224, 64)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AutoCrafterNPC"]
+shape = SubResource("2_h4p6g")
+
+[node name="UpgradeBoard" type="Area2D" parent="."]
+position = Vector2(320, 96)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="UpgradeBoard"]
+shape = SubResource("3_g7c5f")
+
+[node name="Label" type="Label" parent="UpgradeBoard"]
+offset_left = -50.0
+offset_top = -40.0
+text = "Upgrade Board (U)"
+
+[node name="CampStorageDebugUI" type="CanvasLayer" parent="."]
+script = ExtResource("2_3h5ra")
+
+[node name="Panel" type="Panel" parent="CampStorageDebugUI"]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 384.0
+offset_bottom = 420.0
+
+[node name="VBox" type="VBoxContainer" parent="CampStorageDebugUI/Panel"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+theme_override_constants/separation = 8
+
+[node name="StorageLabel" type="Label" parent="CampStorageDebugUI/Panel/VBox"]
+layout_mode = 2
+text = "Склад пуст"
+
+[node name="MessageLabel" type="Label" parent="CampStorageDebugUI/Panel/VBox"]
+layout_mode = 2
+text = "Лагерь неактивен"
+
+[node name="AddStarter" type="Button" parent="CampStorageDebugUI/Panel/VBox"]
+layout_mode = 2
+text = "Добавить wood+stone"
+
+[node name="QueueControls" type="HBoxContainer" parent="CampStorageDebugUI/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RecipeId" type="LineEdit" parent="CampStorageDebugUI/Panel/VBox/QueueControls"]
+layout_mode = 2
+text = "recipe_sword_basic"
+placeholder_text = "recipe id"
+
+[node name="CountSpin" type="SpinBox" parent="CampStorageDebugUI/Panel/VBox/QueueControls"]
+layout_mode = 2
+min_value = 1.0
+max_value = 10.0
+value = 1.0
+
+[node name="QueueButton" type="Button" parent="CampStorageDebugUI/Panel/VBox/QueueControls"]
+layout_mode = 2
+text = "В очередь"
+
+[node name="ClearQueue" type="Button" parent="CampStorageDebugUI/Panel/VBox"]
+layout_mode = 2
+text = "Очистить очередь"
+
+[node name="QueueTitle" type="Label" parent="CampStorageDebugUI/Panel/VBox"]
+layout_mode = 2
+text = "Очередь NPC"
+
+[node name="QueueList" type="VBoxContainer" parent="CampStorageDebugUI/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CampUpgradeLayer" type="CanvasLayer" parent="."]
+
+[node name="CampUpgradeUI" parent="CampUpgradeLayer" instance=ExtResource("3_h4sf3")]
+visible = true
+
+[connection signal="pressed" from="CampStorageDebugUI/Panel/VBox/AddStarter" to="CampStorageDebugUI" method="_on_AddStarter_pressed"]
+[connection signal="pressed" from="CampStorageDebugUI/Panel/VBox/QueueControls/QueueButton" to="CampStorageDebugUI" method="_on_QueueButton_pressed"]
+[connection signal="pressed" from="CampStorageDebugUI/Panel/VBox/ClearQueue" to="CampStorageDebugUI" method="_on_ClearQueue_pressed"]

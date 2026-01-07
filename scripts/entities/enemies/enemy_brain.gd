@@ -93,7 +93,7 @@ func _add_state(state_name: String, state: EnemyState) -> void:
 	states[state_name] = state
 
 ## Переключение состояния
-func change_state(new_state_name: String, context: Dictionary = {}) -> void:
+func change_state(new_state_name: String, _context: Dictionary = {}) -> void:
 	if not states.has(new_state_name):
 		push_warning("[EnemyBrain] Состояние не найдено: %s" % new_state_name)
 		return
@@ -235,6 +235,7 @@ func can_attack() -> bool:
 
 ## Начать атаку (запускает кулдаун)
 func start_attack() -> void:
+	
 	_attack_cooldown_timer = combat_data.get("attack_cooldown", 1.5)
 
 ## Вызывается из EnemyBase._on_attack_frame() (который вызывается из AnimationPlayer)

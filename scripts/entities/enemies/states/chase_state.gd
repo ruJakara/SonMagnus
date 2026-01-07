@@ -7,7 +7,7 @@ extends EnemyState
 func enter() -> void:
 	brain.enemy.play_animation("chase")
 
-func update(delta: float) -> void:
+func update(_delta: float) -> void:
 	# Проверяем наличие цели
 	if not brain.current_target or not is_instance_valid(brain.current_target):
 		brain.change_state("idle")
@@ -42,7 +42,7 @@ func update(delta: float) -> void:
 			brain.change_state("call_help")
 			return
 
-func physics_update(delta: float) -> void:
+func physics_update(_delta: float) -> void:
 	if not brain.current_target or not is_instance_valid(brain.current_target):
 		return
 	

@@ -98,4 +98,3 @@ func _draw_area2d(area: Area2D, color: Color, label: String) -> void:
 	var info_pos = label_pos + Vector2(0, 15)
 	draw_string(font, info_pos + Vector2(1, 1), layer_info, HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color.BLACK)
 	draw_string(font, info_pos, layer_info, HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color.YELLOW)
-

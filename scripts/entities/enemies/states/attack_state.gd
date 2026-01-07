@@ -20,7 +20,7 @@ func exit() -> void:
 	if brain.attack_area:
 		brain.attack_area.monitoring = false
 
-func update(delta: float) -> void:
+func update(_delta: float) -> void:
 	# Проверяем завершилась ли анимация
 	if not _is_attacking:
 		# Проверяем нужно ли продолжить преследование
@@ -80,8 +80,7 @@ func _on_attack_frame() -> void:
 func _on_attack_end() -> void:
 	_is_attacking = false
 
-func on_damage_taken(amount: int, attacker: Node = null) -> void:
+func on_damage_taken(_amount: int, attacker: Node = null) -> void:
 	# Можем прервать атаку если получили сильный урон
 	if attacker and brain.is_hostile_target(attacker):
 		brain.current_target = attacker
-

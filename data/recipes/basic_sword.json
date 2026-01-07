@@ -1,0 +1,13 @@
+{
+	"id": "recipe_sword_basic",
+	"label": "Лагерный меч",
+	"slot1_id": "wood",
+	"slot2_id": "stone",
+	"output": {
+		"sword": 1
+	},
+	"craft_time_sec": 5.0,
+	"workshop_type": "forge",
+	"description": "Комбинация дерева и камня для базового оружия."
+}
+

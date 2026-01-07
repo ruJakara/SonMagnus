@@ -58,7 +58,7 @@
 	"call_help": "attack2",
 	"sleep": "idle",
 	"death": "death",
-	"take_hit": "take hit"
+	"take_hit": "hurt"
   },
   
   "sounds": {

@@ -1,0 +1,24 @@
+{
+	"id": "exp_wood_stone",
+	"core_pair": ["wood", "stone"],
+	"outcome_pool": [
+		{
+			"item_id": "sword",
+			"min_amount": 1,
+			"max_amount": 1,
+			"weight": 3
+		},
+		{
+			"item_id": "ether",
+			"min_amount": 2,
+			"max_amount": 3,
+			"weight": 1
+		}
+	],
+	"fallback": {
+		"item_id": "ether",
+		"amount": 1
+	},
+	"ether_bonus_per_slot3": 0
+}
+

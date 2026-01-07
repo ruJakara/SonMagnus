@@ -1,0 +1,10 @@
+{
+	"id": "sword",
+	"name": "Лагерный меч",
+	"type": "weapon",
+	"rarity": "uncommon",
+	"stack_size": 1,
+	"description": "Грубый, но рабочий меч, выкованный в походной кузнице.",
+	"tags": ["weapon", "melee", "craftable"]
+}
+

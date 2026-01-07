@@ -106,4 +106,3 @@ func _on_block_hit(attacker: Node) -> void:
 
 func get_combat_profile() -> CombatProfile:
 	return _combat_profile
-

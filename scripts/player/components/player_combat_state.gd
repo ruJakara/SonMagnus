@@ -102,4 +102,3 @@ func set_combo_buffer(duration: float) -> void:
 
 func has_combo_buffer() -> bool:
 	return _combo_buffer_timer > 0.0
-

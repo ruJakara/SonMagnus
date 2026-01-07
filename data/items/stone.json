@@ -1,0 +1,10 @@
+{
+	"id": "stone",
+	"name": "Речной камень",
+	"type": "material",
+	"rarity": "common",
+	"stack_size": 99,
+	"description": "Гладкий камень, подходящий для формирования лезвия или рукояти.",
+	"tags": ["resource", "mineral", "stone"]
+}
+

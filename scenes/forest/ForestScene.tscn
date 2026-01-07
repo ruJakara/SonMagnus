@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" uid="uid://63bo2osd3edm" path="res://scenes/world/forest.tscn" id="1_tsq5b"]
+[ext_resource type="Script" path="res://scenes/forest/ForestScene.gd" id="1_y1fnr"]
+[ext_resource type="PackedScene" uid="uid://cue2e03e4021n" path="res://scenes/enemies/goblin_scout.tscn" id="2_fs6p3"]
+
+[node name="ForestScene" type="Node2D"]
+script = ExtResource("1_y1fnr")
+
+[node name="LevelRoot" parent="." instance=ExtResource("1_tsq5b")]
+day_color = Color(0.9019608, 0.9019608, 0.8980392, 1)
+night_color = Color(0.101960786, 0.101960786, 0.2, 1)
+
+[node name="ForestSpawn" type="Marker2D" parent="."]
+position = Vector2(437, 38)
+
+[node name="mobs" type="Node2D" parent="."]
+
+[node name="GoblinScout" parent="mobs" instance=ExtResource("2_fs6p3")]
+

@@ -31,9 +31,8 @@ func update(delta: float) -> void:
 func _on_animation_finished() -> void:
 	_animation_finished = true
 
-func on_damage_taken(amount: int, attacker: Node = null) -> void:
+func on_damage_taken(_amount: int, attacker: Node = null) -> void:
 	# Можем прервать зов помощи и перейти в chase
 	if attacker and brain.is_hostile_target(attacker):
 		brain.current_target = attacker
 		brain.change_state("chase")
-

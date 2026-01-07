@@ -1,0 +1,10 @@
+{
+	"id": "wood",
+	"name": "Сосновая древесина",
+	"type": "material",
+	"rarity": "common",
+	"stack_size": 99,
+	"description": "Базовый ресурс для построек лагеря и простых рецептов.",
+	"tags": ["resource", "organic", "wood"]
+}
+

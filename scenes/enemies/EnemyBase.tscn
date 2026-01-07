@@ -424,6 +424,26 @@ tracks/1/keys = {
 "update": 1,
 "values": ["attack"]
 }
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("EnemyBrain")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.06666667, 0.2, 0.36666667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"values": [{
+"args": [],
+"method": &"start_attack"
+}, {
+"args": [],
+"method": &"_on_attack_frame"
+}, {
+"args": [],
+"method": &"_on_attack_end"
+}]
+}
 
 [sub_resource type="Animation" id="Animation_irrv1"]
 resource_name = "attack1"
@@ -617,7 +637,7 @@ shape = SubResource("CapsuleShape2D_hoi1c")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ewbsk")
-animation = &"idle"
+animation = &"attack"
 autoplay = "idle"
 
 [node name="Hurtbox" type="Area2D" parent="."]
@@ -628,6 +648,7 @@ monitoring = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
 position = Vector2(0, 10)
 shape = SubResource("CapsuleShape2D_2swcw")
+debug_color = Color(0, 0.5563796, 0.9021006, 0.41960785)
 
 [node name="Attack" type="Area2D" parent="."]
 collision_layer = 64
@@ -636,6 +657,7 @@ collision_mask = 4
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Attack"]
 position = Vector2(17, 8)
 shape = SubResource("CircleShape2D_rvnl8")
+debug_color = Color(0.9291944, 0, 0.26979136, 0.41960785)
 
 [node name="Back" type="Area2D" parent="."]
 collision_layer = 128
