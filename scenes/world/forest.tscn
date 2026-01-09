@@ -31,9 +31,11 @@ size = Vector2(800, 200)
 size = Vector2(800, 200)
 
 [node name="LevelRoot" type="Node2D"]
+position = Vector2(17, 68)
 script = ExtResource("3_9j5mk")
 day_length_seconds = 30.0
 day_color = Color(0.9019608, 0.9019608, 0.4745098, 1)
+metadata/_edit_vertical_guides_ = [-837.0]
 
 [node name="World" type="Node2D" parent="."]
 
@@ -44,8 +46,8 @@ repeat_size = Vector2(0.1, 0)
 autoscroll = Vector2(0.025, 0.005)
 
 [node name="Sprite2D" type="Sprite2D" parent="World/Parallax2D2"]
-position = Vector2(598.5, 238.49998)
-scale = Vector2(1.1647173, 0.8580729)
+position = Vector2(573, 151.00002)
+scale = Vector2(1.3247324, 1.8463565)
 texture = ExtResource("2_euhvq")
 
 [node name="Parallax2D" type="Parallax2D" parent="World"]
@@ -53,8 +55,9 @@ repeat_size = Vector2(0.1, 0)
 autoscroll = Vector2(0.025, 0)
 
 [node name="PlaygroundAddil" type="Sprite2D" parent="World/Parallax2D"]
-position = Vector2(603.50085, 576.00006)
-scale = Vector2(3.1462095, 3.0000002)
+visible = false
+position = Vector2(594.49994, 507.00006)
+scale = Vector2(4.5143604, 3.0000002)
 texture = ExtResource("1_k440o")
 
 [node name="Tree#Sprite2D" type="Sprite2D" parent="."]
@@ -115,19 +118,43 @@ shape = SubResource("3_c3c3x")
 [node name="UI" type="Control" parent="UILayer"]
 layout_mode = 3
 anchors_preset = 0
+metadata/_edit_use_anchors_ = true
 
 [node name="Cursor" type="Node2D" parent="UILayer"]
 
-[node name="player" type="Node2D" parent="."]
+[node name="player" type="Node2D" parent="." groups=["player"]]
 position = Vector2(559, 719)
+scale = Vector2(1.96, 1.96)
 
 [node name="Player" parent="player" instance=ExtResource("6_bowih")]
-position = Vector2(0, 3)
+position = Vector2(0, -143.36734)
 
 [node name="HUD" parent="player" instance=ExtResource("7_vcop0")]
 
-[node name="mobs" type="Node2D" parent="."]
+[node name="StatusBars" parent="player/HUD" index="0"]
+offset_left = -587.0
+offset_top = -419.0
+offset_right = -437.0
+offset_bottom = -295.0
+
+[node name="BottomBar" parent="player/HUD" index="1"]
+offset_left = 8.999992
+offset_top = -173.0
+offset_right = 714.0
+offset_bottom = -99.0
+scale = Vector2(1.9361082, 1.3351585)
+
+[node name="ClockContainer" parent="player/HUD" index="2"]
+offset_left = -118.0
+offset_top = 30.0
+offset_right = -38.0
+offset_bottom = 110.0
+
+[node name="mobs" type="Node2D" parent="." groups=["enemies", "targetable"]]
 position = Vector2(-6, 25)
 
 [node name="GoblinScout" parent="mobs" instance=ExtResource("8_8abk8")]
 position = Vector2(245, 474)
+
+[editable path="player/HUD"]
+[editable path="mobs/GoblinScout"]

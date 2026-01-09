@@ -27,6 +27,6 @@ func physics_update(delta: float) -> void:
 ## Вызывается когда враг получает урон
 ## @param amount: количество полученного урона
 ## @param attacker: атакующий (Node или null)
-func on_damage_taken(amount: int, attacker: Node = null) -> void:
+## @param from_back: удар в спину (bool)
+func on_damage_taken(amount: int, attacker: Node = null, from_back: bool = false) -> void:
 	pass
-

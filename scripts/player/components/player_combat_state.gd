@@ -5,6 +5,7 @@ class_name PlayerCombatState
 extends Node
 
 # ===== Состояния =====
+const MAX_SEQUENCE_LEN := 6
 var is_blocking: bool = false
 var is_parrying: bool = false
 var _is_attacking: bool = false
@@ -22,6 +23,7 @@ var _combo_buffer_timer: float = 0.0
 var _last_combo_data: Dictionary = {}
 var _active_attack_request: Variant = null  # хранит ссылку на CombatManager.AttackRequest
 var _active_attack_anim: StringName = &""
+var _has_buffered_input: bool = false
 
 # ===== Hit Detection =====
 var _hit_targets: Array[Node] = []
@@ -91,10 +93,13 @@ func reset_combo() -> void:
 	_active_attack_request = null
 	_active_attack_anim = &""
 	_last_combo_data.clear()
+	_has_buffered_input = false
 
 
 func add_to_sequence(button: String) -> void:
 	_current_sequence.append(button)
+	while _current_sequence.size() > MAX_SEQUENCE_LEN:
+		_current_sequence.remove_at(0)
 
 
 func get_sequence() -> Array[String]:
@@ -107,3 +112,27 @@ func set_combo_buffer(duration: float) -> void:
 
 func has_combo_buffer() -> bool:
 	return _combo_buffer_timer > 0.0
+
+
+func consume_sequence(count: int) -> void:
+	if count <= 0:
+		return
+	if count >= _current_sequence.size():
+		_current_sequence.clear()
+		return
+	for i in range(count):
+		if _current_sequence.is_empty():
+			break
+		_current_sequence.remove_at(0)
+
+
+func mark_buffered_input() -> void:
+	_has_buffered_input = true
+
+
+func has_buffered_input() -> bool:
+	return _has_buffered_input
+
+
+func clear_buffered_input() -> void:
+	_has_buffered_input = false

@@ -142,6 +142,22 @@ region = Rect2(300, 0, 150, 150)
 atlas = ExtResource("5_hoi1c")
 region = Rect2(450, 0, 150, 150)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_gfp4u"]
+atlas = ExtResource("8_2swcw")
+region = Rect2(0, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_77cbf"]
+atlas = ExtResource("8_2swcw")
+region = Rect2(150, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i15lk"]
+atlas = ExtResource("8_2swcw")
+region = Rect2(300, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_waq66"]
+atlas = ExtResource("8_2swcw")
+region = Rect2(450, 0, 150, 150)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_sv0tc"]
 atlas = ExtResource("3_14xwe")
 region = Rect2(0, 0, 150, 150)
@@ -189,22 +205,6 @@ region = Rect2(900, 0, 150, 150)
 [sub_resource type="AtlasTexture" id="AtlasTexture_4t456"]
 atlas = ExtResource("4_30sq3")
 region = Rect2(1050, 0, 150, 150)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_gfp4u"]
-atlas = ExtResource("8_2swcw")
-region = Rect2(0, 0, 150, 150)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_77cbf"]
-atlas = ExtResource("8_2swcw")
-region = Rect2(150, 0, 150, 150)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_i15lk"]
-atlas = ExtResource("8_2swcw")
-region = Rect2(300, 0, 150, 150)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_waq66"]
-atlas = ExtResource("8_2swcw")
-region = Rect2(450, 0, 150, 150)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_ewbsk"]
 animations = [{
@@ -326,6 +326,23 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_gfp4u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_77cbf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i15lk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_waq66")
+}],
+"loop": false,
+"name": &"hurt",
+"speed": 20.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_sv0tc")
 }, {
 "duration": 1.0,
@@ -369,23 +386,6 @@ animations = [{
 "loop": true,
 "name": &"run",
 "speed": 12.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_gfp4u")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_77cbf")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_i15lk")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_waq66")
-}],
-"loop": false,
-"name": &"take hit",
-"speed": 5.0
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_2swcw"]
@@ -399,7 +399,7 @@ height = 24.0
 
 [sub_resource type="Animation" id="Animation_hoi1c"]
 length = 0.44444445
-loop_mode = 1
+loop_mode = 0
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -431,12 +431,9 @@ tracks/2/path = NodePath("EnemyBrain")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0.06666667, 0.2, 0.36666667),
-"transitions": PackedFloat32Array(1, 1, 1),
+"times": PackedFloat32Array(0.2, 0.36666667),
+"transitions": PackedFloat32Array(1, 1),
 "values": [{
-"args": [],
-"method": &"start_attack"
-}, {
 "args": [],
 "method": &"_on_attack_frame"
 }, {
@@ -450,7 +447,7 @@ resource_name = "attack1"
 
 [sub_resource type="Animation" id="Animation_2swcw"]
 length = 0.6666667
-loop_mode = 1
+loop_mode = 0
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -477,7 +474,7 @@ tracks/1/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_8dce0"]
-loop_mode = 1
+loop_mode = 0
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -637,7 +634,7 @@ shape = SubResource("CapsuleShape2D_hoi1c")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ewbsk")
-animation = &"attack"
+animation = &"hurt"
 autoplay = "idle"
 
 [node name="Hurtbox" type="Area2D" parent="."]

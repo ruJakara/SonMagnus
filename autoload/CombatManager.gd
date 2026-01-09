@@ -108,6 +108,11 @@ func execute_request(request: AttackRequest) -> AttackResult:
 	ctx.weapon_data = request.weapon_data
 	ctx.flags = request.flags
 	ctx.meta = request.meta
+
+	if not _pay_attack_cost(ctx):
+		if Config.DEBUG_LOGS:
+			print("[CombatManager] Недостаточно стамины для %s" % ctx.combo_id)
+		return result
 	
 	var damage_result = calculate_damage(ctx)
 	apply_damage(ctx, damage_result)
@@ -278,14 +283,6 @@ func apply_damage(ctx: AttackContext, damage_result: Dictionary) -> void:
 		else:
 			push_warning("[CombatManager] Цель %s не имеет метода apply_status_effect()" % ctx.defender.name)
 
-	# Списание стамины у атакующего (только если атака успешна)
-	var cost = ctx.combo_data.get("stamina_cost", 0)
-	if cost > 0 and not ctx.flags.get("skip_cost", false):
-		if ctx.attacker.has_method("reduce_stamina"):
-			ctx.attacker.reduce_stamina(cost)
-		elif ctx.attacker.has("stamina"):
-			ctx.attacker.stamina -= cost
-
 	# Отладочный вывод
 	if Config.DEBUG_LOGS:
 		var attacker_name = ctx.attacker.name if ctx.attacker is Node else str(ctx.attacker)
@@ -296,3 +293,35 @@ func apply_damage(ctx: AttackContext, damage_result: Dictionary) -> void:
 			damage_result.damage,
 			" [CRIT]" if damage_result.crit else ""
 		])
+
+
+func _pay_attack_cost(ctx: AttackContext) -> bool:
+	if ctx is AttackContext:
+		ctx.meta["cost_paid"] = false
+	var combo_data = ctx.combo_data if ctx.combo_data else {}
+	var cost = combo_data.get("stamina_cost", 0)
+	if cost <= 0 or ctx.flags.get("skip_cost", false):
+		return true
+	
+	var stamina = _get_entity_stamina(ctx.attacker)
+	if stamina < cost:
+		return false
+	
+	if ctx.attacker.has_method("reduce_stamina"):
+		ctx.attacker.reduce_stamina(cost)
+	elif ctx.attacker.has("stamina"):
+		ctx.attacker.stamina -= cost
+	
+	ctx.meta["cost_paid"] = true
+	return true
+
+
+func _get_entity_stamina(entity) -> float:
+	if entity == null:
+		return 0.0
+	if entity.has_method("get_stamina"):
+		return float(entity.get_stamina())
+	var stamina_val = entity.get("stamina")
+	if stamina_val == null:
+		return 0.0
+	return float(stamina_val)

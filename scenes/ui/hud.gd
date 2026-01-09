@@ -21,6 +21,8 @@ var skill_panels: Array[Panel] = []
 # Переменная для теста времени (от 0 до 24)
 var debug_game_time: float = 12.0 # Начинаем с полдня
 
+var _bound_player: Node = null
+
 func _ready():
 	# Инициализация скиллов
 	if skills_container:
@@ -36,8 +38,16 @@ func _ready():
 	# Проверяем, нашли ли мы часы
 	if not celestial_pivot:
 		print("Ошибка: Не найден CelestialPivot в сцене HUD!")
+	
+	# На разных тестовых сценах HUD может жить без scenes/main.gd,
+	# поэтому пытаемся привязаться к игроку самостоятельно.
+	_try_bind_player()
 
 func _process(delta):
+	# Подхватываем игрока, если он появился позже HUD.
+	if _bound_player == null or not is_instance_valid(_bound_player):
+		_try_bind_player()
+	
 	# --- ЛОГИКА ВРЕМЕНИ (ДЕМОНСТРАЦИЯ) ---
 	# Если у тебя есть Global.time, удали этот блок и вызывай update_clock извне.
 	# Здесь 1 игровой час проходит за 1 реальную секунду.
@@ -46,6 +56,56 @@ func _process(delta):
 		debug_game_time = 0.0
 	
 	update_clock(debug_game_time)
+
+func _try_bind_player() -> void:
+	var p: Node = null
+	if get_tree():
+		p = get_tree().get_first_node_in_group("player")
+	if p == null:
+		return
+	if _bound_player == p:
+		return
+	
+	_bound_player = p
+	
+	# Подписка на сигналы статов (если доступны)
+	if p.has_signal("health_changed"):
+		var c := Callable(self, "update_health")
+		if not p.health_changed.is_connected(c):
+			p.health_changed.connect(c)
+	if p.has_signal("mana_changed"):
+		var c := Callable(self, "update_mana")
+		if not p.mana_changed.is_connected(c):
+			p.mana_changed.connect(c)
+	if p.has_signal("stamina_changed"):
+		var c := Callable(self, "update_stamina")
+		if not p.stamina_changed.is_connected(c):
+			p.stamina_changed.connect(c)
+	if p.has_signal("hunger_changed"):
+		var c := Callable(self, "update_hunger")
+		if not p.hunger_changed.is_connected(c):
+			p.hunger_changed.connect(c)
+	
+	# Первичная синхронизация значений (через get(), чтобы не падать на тестовых объектах)
+	var hp = p.get("health")
+	var max_hp = p.get("max_health")
+	if hp != null and max_hp != null:
+		update_health(hp, max_hp)
+	
+	var mp = p.get("mana")
+	var max_mp = p.get("max_mana")
+	if mp != null and max_mp != null:
+		update_mana(mp, max_mp)
+	
+	var st = p.get("stamina")
+	var max_st = p.get("max_stamina")
+	if st != null and max_st != null:
+		update_stamina(st, max_st)
+	
+	var hg = p.get("hunger")
+	var max_hg = p.get("max_hunger")
+	if hg != null and max_hg != null:
+		update_hunger(hg, max_hg)
 
 # --- 4. ФУНКЦИЯ ОБНОВЛЕНИЯ ЧАСОВ (НОВОЕ) ---
 func update_clock(time_in_hours: float):

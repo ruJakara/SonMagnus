@@ -65,7 +65,7 @@ func _load_experiments() -> void:
 			var experiment_definition: Dictionary = experiment_variant
 			experiments.append(experiment_definition.duplicate(true))
 
-func try_manual(slot1_id: String, slot2_id: String, slot3_id: String = "", workshop_type := "forge", mode := "craft") -> Dictionary:
+func try_manual(slot1_id: String, slot2_id: String, slot3_id: String = "", workshop_type := "forge", _mode := "craft") -> Dictionary:
 	var result: Dictionary = _initial_result()
 	var primary: String = slot1_id.strip_edges()
 	var secondary: String = slot2_id.strip_edges()

@@ -19,6 +19,7 @@ var states: Dictionary = {}
 var current_state: EnemyState = null
 var current_state_name: String = ""
 
+
 ## Текущая цель
 var current_target: Node = null
 
@@ -43,7 +44,8 @@ func _ready() -> void:
 	if not enemy:
 		push_error("[EnemyBrain] Родитель не является EnemyBase!")
 		return
-	
+	if enemy.has_signal("damage_taken"):
+		enemy.damage_taken.connect(_on_enemy_damage_taken)
 		# ===== ДОБАВЬ ЭТУ СТРОКУ =====
 	# Ждём 1 кадр, чтобы goblin_scout.gd успел загрузить JSON
 	await get_tree().process_frame
@@ -84,7 +86,7 @@ func _register_states() -> void:
 	
 	# Дополнительные состояния
 	_add_state("sleep", preload("res://scripts/entities/enemies/states/sleep_state.gd").new())
-	_add_state("stunned", preload("res://scripts/entities/enemies/states/stunned_state.gd").new())
+	#_add_state("stunned", preload("res://scripts/entities/enemies/states/stunned_state.gd").new())
 	_add_state("call_help", preload("res://scripts/entities/enemies/states/call_help_state.gd").new())
 
 ## Добавляет состояние в словарь
@@ -133,9 +135,7 @@ func _process(delta: float) -> void:
 		current_state.update(delta)
 
 func _physics_process(delta: float) -> void:
-	if not enemy or not enemy.is_alive:
-		return
-	
+	# Вызов текущего состояния (ТОЛЬКО physics_update — update вызывается в _process)
 	if current_state:
 		current_state.physics_update(delta)
 
@@ -182,7 +182,7 @@ func is_hostile_target(target: Node) -> bool:
 		return false
 	
 	# Проверяем по тегам
-	if target.has("tags"):
+	if target.get("tags"):
 		for tag in target.tags:
 			if tag in hostility_data.get("hostile_tags", []):
 				return true
@@ -240,10 +240,28 @@ func start_attack() -> void:
 
 ## Вызывается из EnemyBase._on_attack_frame() (который вызывается из AnimationPlayer)
 func _on_attack_frame() -> void:
+	print("[EnemyBrain] _on_attack_frame вызван!")
 	if current_state and current_state.has_method("_on_attack_frame"):
+		print("[EnemyBrain] Передаём attack_state")
 		current_state._on_attack_frame()
+	else:
+		print("[EnemyBrain] У current_state нет _on_attack_frame")
 
-## Вызывается из EnemyBase._on_attack_end() (который вызывается из AnimationPlayer)
+
 func _on_attack_end() -> void:
 	if current_state and current_state.has_method("_on_attack_end"):
 		current_state._on_attack_end()
+
+func stun(duration: float) -> void:
+	stun_timer = duration
+	change_state("stunned")
+	
+	if Config.DEBUG_LOGS:
+		print("[EnemyBrain] %s оглушён на %.1f сек" % [enemy.entity_name, duration])
+
+func _on_enemy_damage_taken(amount: int, attacker: Node, from_back: bool) -> void:
+	# Передаём событие текущему состоянию
+	if current_state:
+		current_state.on_damage_taken(amount, attacker, from_back)
+
+## Вызывается из AnimationPlayer

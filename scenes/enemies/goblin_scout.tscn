@@ -5,7 +5,7 @@
 
 [sub_resource type="Animation" id="Animation_af0go"]
 length = 0.44444445
-loop_mode = 1
+loop_mode = 0
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -37,11 +37,11 @@ tracks/2/path = NodePath("EnemyBrain")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0.3, 0.4),
+"times": PackedFloat32Array(0.13333334, 0.43333334),
 "transitions": PackedFloat32Array(1, 1),
 "values": [{
 "args": [],
-"method": &"start_attack"
+"method": &"_on_attack_frame"
 }, {
 "args": [],
 "method": &"_on_attack_end"
@@ -50,7 +50,7 @@ tracks/2/keys = {
 
 [sub_resource type="Animation" id="Animation_q5iri"]
 length = 0.4
-loop_mode = 1
+loop_mode = 0
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -82,12 +82,9 @@ tracks/2/path = NodePath("EnemyBrain")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0.26666668, 0.36666667),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0.36666667),
+"transitions": PackedFloat32Array(1),
 "values": [{
-"args": [],
-"method": &"start_attack"
-}, {
 "args": [],
 "method": &"_on_attack_end"
 }]
@@ -246,7 +243,7 @@ _data = {
 script = ExtResource("2_script")
 
 [node name="AnimatedSprite2D" parent="." index="1"]
-animation = &"attack3"
+animation = &"attack"
 
 [node name="AnimationPlayer" parent="." index="5"]
 libraries = {

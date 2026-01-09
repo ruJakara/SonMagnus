@@ -34,6 +34,7 @@ var lock_stance_toggle: bool = false
 
 # ===== Internal state =====
 var forced_target: Node = null
+var _facing_lock_timer: float = 0.0
 
 func _ready() -> void:
 	super._ready()
@@ -47,6 +48,9 @@ func _ready() -> void:
 	_set_facing_direction(1)  # По умолчанию смотрим вправо
 
 func _physics_process(delta: float) -> void:
+	if _facing_lock_timer > 0.0:
+		_facing_lock_timer = max(0.0, _facing_lock_timer - delta)
+	
 	# ИСПРАВЛЕНО: проверка блока ПЕРЕД расчётом движения
 	if player_combat.is_blocking:
 		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)
@@ -112,7 +116,8 @@ func _update_movement_animation() -> void:
 		if _sprite.animation != target_idle or not _sprite.is_playing():
 			_sprite.play(target_idle)
 
-	if velocity.x != 0.0:
+	# Не разворачиваем игрока из-за нокбэка (velocity меняется от удара).
+	if _facing_lock_timer <= 0.0 and velocity.x != 0.0:
 		_set_facing_direction(1 if velocity.x > 0 else -1)
 
 func get_target() -> Node:
@@ -210,3 +215,5 @@ func _play_hit_feedback(attacker: Node = null) -> void:
 	if attacker:
 		var knockback_dir = (global_position - attacker.global_position).normalized()
 		velocity = knockback_dir * 150.0
+		# Короткая блокировка разворота, чтобы нокбэк не флипал спрайт.
+		_facing_lock_timer = 0.2

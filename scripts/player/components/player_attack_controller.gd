@@ -25,6 +25,7 @@ func _ready() -> void:
 	var combat = get_parent()
 	_player = combat.get_parent()
 	_state = combat.get_node("State")
+	set_process(true)
 	
 	_combat_manager = get_node_or_null("/root/CombatManager")
 	if not _combat_manager:
@@ -68,6 +69,7 @@ func request_attack(button: String) -> void:
 	if _state._is_attacking:
 		_state.add_to_sequence(button)
 		_state.set_combo_buffer(COMBO_BUFFER_WINDOW)
+		_state.mark_buffered_input()
 		if Config.DEBUG_LOGS:
 			print("[AttackController] Буферизация: %s → %s" % [button, _state.get_sequence()])
 		return
@@ -81,38 +83,63 @@ func request_attack(button: String) -> void:
 	_state.add_to_sequence(button)
 	_execute_combo()
 
+func _process(_delta: float) -> void:
+	if not _state:
+		return
+	
+	if _state._is_attacking:
+		return
+	
+	if _state.is_on_cooldown():
+		return
+	
+	var sequence = _state.get_sequence()
+	if _state.has_combo_buffer() and _state.has_buffered_input() and sequence.size() > 0:
+		_state.set_combo_buffer(0.0)
+		_state.clear_buffered_input()
+		_execute_combo()
+	elif not _state.has_combo_buffer() and sequence.size() > 0:
+		_state.clear_buffered_input()
+		_state.reset_combo()
 
 func _execute_combo() -> void:
-	"""Ищет комбо по текущей последовательности и запускает анимацию"""
+	"""Ищет комбо по хвосту последовательности и запускает анимацию"""
 	if not _combo_manager:
 		_state.reset_combo()
 		return
 	
-	# Определяем тип комбо из stance игрока
+	var sequence = _state.get_sequence()
+	if sequence.is_empty():
+		return
+	
 	var weapon_type := "unarmed"
 	if _player.stance == _player.Stance.FIGHT:
 		weapon_type = "weapon"
 	
-	# Ищем ID комбо по последовательности и типу оружия
-	var combo_id = _combo_manager.find_combo_by_sequence(_state.get_sequence(), weapon_type)
+	var combo_id := ""
+	var used_tail_len := 0
+	for len in range(sequence.size(), 0, -1):
+		var start_index = sequence.size() - len
+		var tail = sequence.slice(start_index, sequence.size())
+		var candidate = _combo_manager.find_combo_by_sequence(tail, weapon_type)
+		if not candidate.is_empty():
+			combo_id = candidate
+			used_tail_len = len
+			break
 	
 	if combo_id.is_empty():
-		# Не найдено комбо — сбрасываем
 		if Config.DEBUG_LOGS:
-			print("[AttackController] Комбо не найдено для %s (%s)" % [_state.get_sequence(), weapon_type])
+			print("[AttackController] Комбо не найдено для %s (%s)" % [sequence, weapon_type])
 		_state.reset_combo()
 		return
 	
-	# Получаем данные комбо по ID
 	var combo_data = _combo_manager.get_combo(combo_id)
-	
 	if combo_data.is_empty():
 		if Config.DEBUG_LOGS:
 			print("[AttackController] Данные комбо '%s' не найдены" % combo_id)
 		_state.reset_combo()
 		return
 	
-	# Выбираем анимацию (weapon_animation для оружия, animation для голых рук)
 	var anim_name = combo_data.get("weapon_animation", combo_data.get("animation", ""))
 	if anim_name.is_empty():
 		if Config.DEBUG_LOGS:
@@ -120,14 +147,14 @@ func _execute_combo() -> void:
 		_state.reset_combo()
 		return
 	
-	_start_attack_animation(anim_name, combo_data)
+	if _start_attack_animation(anim_name, combo_data):
+		_state.consume_sequence(used_tail_len)
 
-
-func _start_attack_animation(anim_name: String, combo_data: Dictionary) -> void:
+func _start_attack_animation(anim_name: String, combo_data: Dictionary) -> bool:
 	"""Запускает анимацию атаки (удар происходит по method track в анимации)"""
 	if not _animation_player:
 		_state.reset_combo()
-		return
+		return false
 	
 	var combo_id: String = combo_data.get("id", default_combo)
 	var weapon_data := _get_weapon_data()
@@ -141,13 +168,13 @@ func _start_attack_animation(anim_name: String, combo_data: Dictionary) -> void:
 			if Config.DEBUG_LOGS:
 				print("[AttackController] Не удалось создать запрос атаки для %s" % combo_id)
 			_state.reset_combo()
-			return
+			return false
 		
 		if not _combat_manager.validate_attack_request(request):
 			if Config.DEBUG_LOGS:
 				print("[AttackController] Комбо %s недоступно" % combo_id)
 			_state.reset_combo()
-			return
+			return false
 		
 		request.meta["input_sequence"] = _state.get_sequence().duplicate()
 		request.meta["started_at"] = Time.get_ticks_msec()
@@ -158,7 +185,7 @@ func _start_attack_animation(anim_name: String, combo_data: Dictionary) -> void:
 	_state._active_attack_anim = anim_name
 	
 	_state._is_attacking = true
-	_state.set_combo_buffer(combo_data.get("combo_window", COMBO_BUFFER_WINDOW))
+	# НЕ ставим combo_buffer здесь — только при буферизации реального ввода
 	
 	if Config.DEBUG_LOGS:
 		print("[AttackController] Атака: %s (%s)" % [combo_id, _state.get_sequence()])
@@ -166,12 +193,16 @@ func _start_attack_animation(anim_name: String, combo_data: Dictionary) -> void:
 	# Проигрываем анимацию (удар произойдет через method track _on_attack_frame)
 	if _animation_player.has_animation(anim_name):
 		_animation_player.play(anim_name)
+		# Очистить sequence ПОСЛЕ успешного запуска — каждая атака начинается с чистого листа
+		_state._current_sequence.clear()
 	else:
 		push_warning("[AttackController] Анимация '%s' не найдена!" % anim_name)
 		_state._is_attacking = false
 		_state.reset_combo()
 		_state._active_attack_request = null
-		return
+		return false
+
+	return true
 
 
 func _on_animation_finished(anim_name: StringName) -> void:
@@ -191,13 +222,6 @@ func _finalize_attack_cycle() -> void:
 	
 	if Config.DEBUG_LOGS:
 		print("[AttackController] Атака завершена | Буфер: %.2f сек" % _state._combo_buffer_timer)
-	
-	if _state.has_combo_buffer() and _state.get_sequence().size() > 0:
-		if Config.DEBUG_LOGS:
-			print("[AttackController] Продолжение комбо из буфера")
-		_execute_combo()
-	else:
-		_state.reset_combo()
 
 
 # ===== Hit Detection (Event-based, NO await) =====
@@ -211,6 +235,12 @@ func _on_attack_frame() -> void:
 		push_warning("[AttackController] Хитбокс не найден")
 		return
 	
+	if _is_shoot_combo():
+		_state._hit_targets.clear()
+		_state._hit_window_open = false
+		_perform_shoot_stub()
+		return
+	
 	# Открываем окно удара
 	_state._hit_targets.clear()
 	_state._hit_window_open = true
@@ -220,6 +250,33 @@ func _on_attack_frame() -> void:
 	
 	if Config.DEBUG_LOGS:
 		print("[AttackController] Окно удара открыто")
+	
+	# ОБРАБОТКА УЖЕ ПЕРЕКРЫВАЮЩИХСЯ ОБЪЕКТОВ
+	# (body_entered не сработает для тех, кто уже внутри зоны)
+	var overlapping_bodies = _hitbox.get_overlapping_bodies()
+	for body in overlapping_bodies:
+		if body == _player:
+			continue
+		if not body.is_in_group("enemies") or not body.has_method("take_damage"):
+			continue
+		if body in _state._hit_targets:
+			continue
+		
+		_state._hit_targets.append(body)
+		_apply_hit_to_target(body)
+	
+	var overlapping_areas = _hitbox.get_overlapping_areas()
+	for area in overlapping_areas:
+		var enemy = area.get_parent()
+		if not enemy or enemy == _player:
+			continue
+		if not enemy.is_in_group("enemies") or not enemy.has_method("take_damage"):
+			continue
+		if enemy in _state._hit_targets:
+			continue
+		
+		_state._hit_targets.append(enemy)
+		_apply_hit_to_target(enemy)
 
 
 func _on_attack_end() -> void:
@@ -321,6 +378,23 @@ func _is_backstab_target(target: Node) -> bool:
 	if back_area and back_area is Area2D:
 		return _hitbox.overlaps_area(back_area)
 	return false
+
+
+func _is_shoot_combo() -> bool:
+	if _state._last_combo_data.is_empty():
+		return false
+	var combo_type = str(_state._last_combo_data.get("type", ""))
+	if combo_type == "shoot":
+		return true
+	var tags = _state._last_combo_data.get("tags", [])
+	if tags is Array or tags is PackedStringArray:
+		return "shoot" in tags
+	return false
+
+
+func _perform_shoot_stub() -> void:
+	if Config.DEBUG_LOGS:
+		print("[AttackController] Shoot frame (stub)")
 
 
 func _get_weapon_data() -> Dictionary:

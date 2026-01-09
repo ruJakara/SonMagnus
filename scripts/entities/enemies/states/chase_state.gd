@@ -55,7 +55,12 @@ func physics_update(_delta: float) -> void:
 	
 	brain.enemy.move_and_slide()
 
-func on_damage_taken(amount: int, attacker: Node = null) -> void:
+func on_damage_taken(amount: int, attacker: Node = null, from_back: bool = false) -> void:
 	# Обновляем цель если атаковал кто-то другой
 	if attacker and brain.is_hostile_target(attacker):
 		brain.current_target = attacker
+		
+		# Если удар в спину — оглушение
+		if from_back:
+			brain.stun(1.0)
+			return

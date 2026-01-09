@@ -5,9 +5,13 @@
 class_name EnemyBase
 extends BaseEntity
 
+signal damage_taken(amount: int, attacker: Node, from_back: bool)
 
 ## Флаг жизни (для быстрой проверки)
 var is_alive: bool = true
+
+## Боевые параметры (могут загружаться из JSON)
+var crit_chance: float = 0.05
 
 ## Флаг для предотвращения повторного вызова _die()
 var _died: bool = false
@@ -22,7 +26,7 @@ var sounds: Dictionary = {}
 
 ## Ссылки на узлы
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var _animation_player: AnimationPlayer = get_node_or_null("AnimationPlayer")
+@onready var animation_player: AnimationPlayer = get_node_or_null("AnimationPlayer")
 @onready var hurtbox: Area2D = get_node_or_null("Hurtbox")
 @onready var attack_area: Area2D = get_node_or_null("Attack")
 @onready var back_area: Area2D = get_node_or_null("Back")
@@ -62,6 +66,7 @@ func load_from_json(json_path: String) -> bool:
 	attack = data.get("attack", 10.0)
 	defense = data.get("defense", 0.0)
 	speed = data.get("speed", 100.0)
+	crit_chance = float(data.get("crit_chance", 0.05))
 	tags = data.get("tags", [])
 	
 	# Загружаем специфичные данные
@@ -82,50 +87,52 @@ func play_animation(state_name: String) -> void:
 	if not _sprite:
 		return
 	
-	var anim_name = animations.get(state_name, state_name)
+	var anim_name: String = animations.get(state_name, state_name)
+	
+	# Важно: у врагов есть AnimationPlayer с method tracks (удар/конец удара).
+	# Если проигрывать только AnimatedSprite2D, эти треки НЕ срабатывают → атака "залипает" и урон не проходит.
+	if animation_player and animation_player.has_animation(anim_name):
+		# Чтобы не было гонки: останавливаем встроенный плеер спрайта и отдаём контроль AnimationPlayer.
+		if _sprite.is_playing():
+			_sprite.stop()
+		animation_player.play(anim_name)
+		return
+	
+	# Fallback: обычное проигрывание через AnimatedSprite2D
 	if _sprite.sprite_frames and _sprite.sprite_frames.has_animation(anim_name):
-		if _sprite.animation != anim_name:
+		# Если AnimationPlayer играл — останавливаем его, чтобы он не перебивал кадры
+		if animation_player and animation_player.is_playing():
+			animation_player.stop()
+		if _sprite.animation != anim_name or not _sprite.is_playing():
 			_sprite.play(anim_name)
 	elif Config.DEBUG_LOGS:
 		print_debug("[EnemyBase] Анимация не найдена: %s (состояние: %s)" % [anim_name, state_name])
 
 ## Переопределяем take_damage для визуальных эффектов и уведомления Brain
 func take_damage(amount: int, attacker: Node = null, from_back: bool = false) -> void:
-	if not is_alive:
+	if _health <= 0:
 		return
 	
 	var final_damage = amount
-	var stun_duration = 0.0
-	
-	# Бэкстаб
 	if from_back:
-		final_damage = int(final_damage * combat_data.get("backstab_damage_mult", 1.0))
-		stun_duration = combat_data.get("backstab_stun_duration", 0.0)
+		final_damage = int(amount * 2.0)
 	
-	# Удар по спящему
-	if brain and brain.current_state_name == "sleep":
-		final_damage = int(final_damage * combat_data.get("sleeping_damage_mult", 1.0))
-		stun_duration = max(stun_duration, combat_data.get("sleeping_stun_duration", 0.0))
-	
-	# Применяем урон через BaseEntity
-	super.take_damage(final_damage)
-	
-	# Визуальные эффекты (без await!)
-	_play_hit_effects()
-	
-	# Стан
-	if stun_duration > 0.0:
-		apply_status_effect("stunned")
-		if brain:
-			brain.stun_timer = stun_duration
-			brain.change_state("stunned")
-	
-	# Уведомляем Brain
-	if brain:
-		brain.on_damage_taken(final_damage, attacker)
+	damage_taken.emit(final_damage, attacker, from_back)
 	
 	if Config.DEBUG_LOGS:
-		print_debug("[EnemyBase] %s получил %d урона (от спины: %s), HP: %d/%d" % [entity_name, final_damage, from_back, health, max_health])
+		print("[EnemyBase] %s получил %d урона (от спины: %s), HP: %d/%d" % [
+			entity_name, final_damage, from_back, _health, max_health
+		])
+	
+	super.take_damage(final_damage)
+	
+	# Если умер
+	if _health <= 0:
+		_die()
+		return
+	
+	# Мини-стан от удара
+	_play_hurt_reaction(from_back)
 
 ## Визуальные эффекты при получении урона (блинк, толчок, hitstop)
 func _play_hit_effects() -> void:
@@ -236,3 +243,23 @@ func _on_attack_frame() -> void:
 func _on_attack_end() -> void:
 	if brain:
 		brain._on_attack_end()
+		
+func _play_hurt_reaction(from_back: bool) -> void:
+	# Длительность стана
+	var stun_duration = 1.0 if from_back else 0.2
+	
+	# Анимация удара
+	if _sprite.sprite_frames.has_animation("hurt"):
+		play_animation("hurt")
+	elif _sprite.sprite_frames.has_animation("take_hit"):
+		play_animation("take_hit")
+	
+	# Останавливаем движение
+	velocity = Vector2.ZERO
+	
+	# Ждём окончания стана
+	await get_tree().create_timer(stun_duration).timeout
+	
+	# Возвращаемся к idle (если жив)
+	if _health > 0:
+		play_animation("idle")

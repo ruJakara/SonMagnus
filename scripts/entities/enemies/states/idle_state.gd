@@ -17,9 +17,21 @@ func update(delta: float) -> void:
 		brain.change_state("chase")
 		return
 
-func on_damage_taken(amount: int, attacker: Node = null) -> void:
-	# При получении урона переходим в преследование
+func on_damage_taken(amount: int, attacker: Node = null, from_back: bool = false) -> void:
+	# При получении урона сразу переходим в атаку, если атакующий близко
 	if attacker and brain.is_hostile_target(attacker):
 		brain.current_target = attacker
-		brain.change_state("chase")
-
+		
+		# Если удар в спину — оглушение
+		if from_back:
+			brain.stun(1.0)
+			return
+		
+		# Если враг в зоне атаки — сразу в attack
+		var distance = brain.enemy.global_position.distance_to(attacker.global_position)
+		var attack_range = brain.behavior_data.get("attack_range", 50.0)
+		
+		if distance <= attack_range and brain.can_attack():
+			brain.change_state("attack")
+		else:
+			brain.change_state("chase")
