@@ -57,11 +57,11 @@ func update(_delta: float) -> void:
 				# Остаёмся в атаке, но ждём кулдауна
 				if brain.can_attack():
 					# Перезапускаем атаку (через change_state для сброса _is_attacking)
-					brain.change_state("attack")
+					change_state("attack")
 			else:
-				brain.change_state("chase")
+				change_state("chase")
 		else:
-			brain.change_state("idle")
+			change_state("idle")
 
 func on_damage_taken(_amount: int, attacker: Node = null, from_back: bool = false) -> void:
 	# Если удар в спину — прерываем атаку и оглушение
@@ -80,6 +80,17 @@ func _on_attack_frame() -> void:
 	if _hit_frame_fired:
 		return
 	_hit_frame_fired = true
+	
+	# Проверяем дистанцию до цели — если игрок убежал, не наносим урон
+	if brain.current_target and is_instance_valid(brain.current_target):
+		var distance := brain.enemy.global_position.distance_to(brain.current_target.global_position)
+		var attack_range: float = brain.behavior_data.get("attack_range", 38.0) * 1.2  # Небольшой допуск
+		if distance > attack_range:
+			if Config.DEBUG_LOGS:
+				print("[AttackState] %s промахнулся — цель убежала (%.1f > %.1f)" % [
+					brain.enemy.entity_name, distance, attack_range
+				])
+			return
 	
 	# СРАЗУ проверяем overlapping.
 	# Важно: у игрока "hurtbox" — это Area2D, поэтому используем и bodies и areas.

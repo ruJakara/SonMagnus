@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://63bo2osd3edm"]
+[gd_scene load_steps=15 format=3 uid="uid://63bo2osd3edm"]
 
 [ext_resource type="Texture2D" uid="uid://dg201rk3ro2vu" path="res://assets/newAssets/bg/playgroundAddil.png" id="1_k440o"]
 [ext_resource type="Texture2D" uid="uid://drgr6ent0630f" path="res://assets/newAssets/playgroundAddil.png" id="2_bpy6v"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://c85dg4quft5fo" path="res://scenes/player/player.tscn" id="6_bowih"]
 [ext_resource type="PackedScene" uid="uid://bhryskgrey6jf" path="res://scenes/ui/hud.tscn" id="7_vcop0"]
 [ext_resource type="PackedScene" uid="uid://cue2e03e4021n" path="res://scenes/enemies/goblin_scout.tscn" id="8_8abk8"]
+[ext_resource type="PackedScene" path="res://scenes/ui/player_hud.tscn" id="8_vcop0"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_tvyim"]
 particle_flag_disable_z = true
@@ -149,6 +150,8 @@ offset_left = -118.0
 offset_top = 30.0
 offset_right = -38.0
 offset_bottom = 110.0
+
+[node name="PlayerHUD" parent="player" instance=ExtResource("8_vcop0")]
 
 [node name="mobs" type="Node2D" parent="." groups=["enemies", "targetable"]]
 position = Vector2(-6, 25)

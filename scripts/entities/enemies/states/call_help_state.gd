@@ -29,9 +29,9 @@ func update(delta: float) -> void:
 	# После завершения анимации возвращаемся в chase
 	if _animation_finished:
 		if brain.current_target and is_instance_valid(brain.current_target):
-			brain.change_state("chase")
+			change_state("chase")
 		else:
-			brain.change_state("idle")
+			change_state("idle")
 
 func _on_animation_finished() -> void:
 	_animation_finished = true
@@ -44,4 +44,4 @@ func on_damage_taken(_amount: int, attacker: Node = null, from_back: bool = fals
 	# Можем прервать зов помощи и перейти в chase
 	if attacker and brain.is_hostile_target(attacker):
 		brain.current_target = attacker
-		brain.change_state("chase")
+		change_state("chase")

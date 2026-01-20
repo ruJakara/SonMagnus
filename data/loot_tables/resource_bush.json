@@ -1,0 +1,17 @@
+{
+  "id": "resource_bush",
+  "items": [
+    {
+      "item_id": "berries",
+      "min_amount": 1,
+      "max_amount": 3,
+      "drop_chance": 1.0
+    },
+    {
+      "item_id": "fiber",
+      "min_amount": 1,
+      "max_amount": 2,
+      "drop_chance": 0.4
+    }
+  ]
+}

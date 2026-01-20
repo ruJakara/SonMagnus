@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://c6r204k2v873d"]
+[gd_scene load_steps=9 format=3 uid="uid://c6r204k2v873d"]
 
 [ext_resource type="PackedScene" path="res://scenes/forest/ForestScene.tscn" id="1_0wfyh"]
 [ext_resource type="Script" uid="uid://db6m30kv7nay7" path="res://scenes/main.gd" id="1_jyhfs"]
@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://c13s00q0qiy0a" path="res://scripts/debug/hitbox_visualizer.gd" id="2_o6xl0"]
 [ext_resource type="PackedScene" uid="uid://bhryskgrey6jf" path="res://scenes/ui/hud.tscn" id="4_jyhfs"]
 [ext_resource type="Script" uid="uid://bkmlv6ndui0am" path="res://scripts/debug/HitboxDebugDraw.gd" id="8_debug_draw"]
-[ext_resource type="PackedScene" path="res://scenes/camp/CampScene.tscn" id="9_camp"]
+[ext_resource type="PackedScene" uid="uid://bkrtp2s4iemwn" path="res://scenes/camp/CampScene.tscn" id="9_camp"]
 [ext_resource type="PackedScene" path="res://scenes/ui/CraftingUI.tscn" id="10_craft_ui"]
 
 [node name="Main" type="Node"]
@@ -30,9 +30,9 @@ position = Vector2(0, 344)
 scale = Vector2(2.3600025, 2.1200023)
 
 [node name="AnimatedSprite2D" parent="Player/Player" index="1"]
-frame = 2
+frame = 1
 
-[node name="Torch" parent="Player/Player" index="5"]
+[node name="Torch" parent="Player/Player" index="6"]
 energy = 1.0
 texture_scale = 0.52
 
@@ -67,6 +67,7 @@ offset_left = 2.0
 offset_right = 2.0
 
 [node name="CraftingUI" parent="." instance=ExtResource("10_craft_ui")]
+visible = false
 
 [editable path="Player/Player"]
 [editable path="Player/HUD"]

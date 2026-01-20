@@ -1,0 +1,23 @@
+{
+  "location_name": "Пещера",
+  "description": "Тёмная пещера с гоблинами-шахтёрами и пауками",
+  
+  "enemies": {
+    "min_count": 4,
+    "max_count": 10,
+    "pool": ["goblin_worker", "spider_small"],
+    "weights": [2.0, 3.0]
+  },
+  
+  "resources": {
+    "min_count": 5,
+    "max_count": 12,
+    "pool": ["rock", "ore"],
+    "weights": [3.0, 2.0]
+  },
+  
+  "ambient": {
+    "time_of_day": "night",
+    "weather": "none"
+  }
+}

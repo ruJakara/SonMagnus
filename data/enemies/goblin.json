@@ -18,7 +18,7 @@
 	"vision_cone_angle": 120.0,
 	"vision_range": 180.0,
 	"lose_range": 300.0,
-	"attack_range": 50.0,
+	"attack_range": 38.0,
 	
 	"call_help_threshold": 0.3,
 	"call_help_radius": 350.0,

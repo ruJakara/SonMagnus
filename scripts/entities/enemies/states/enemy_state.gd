@@ -1,32 +1,16 @@
 # scripts/entities/enemies/states/enemy_state.gd
-# Базовый класс для всех состояний врагов
-# Реализует паттерн State для AI врагов
+# Base class for all enemy states
+# Uses unified FSM pattern
 
 class_name EnemyState
-extends RefCounted
+extends State
 
 ## Ссылка на мозг врага (владелец state machine)
-var brain: Node = null
+var brain: EnemyBrain:
+	get:
+		return state_machine as EnemyBrain
 
-## Вызывается при входе в состояние
-func enter() -> void:
-	pass
-
-## Вызывается при выходе из состояния
-func exit() -> void:
-	pass
-
-## Вызывается каждый кадр (_process)
-func update(delta: float) -> void:
-	pass
-
-## Вызывается каждый физический кадр (_physics_process)
-func physics_update(delta: float) -> void:
-	pass
-
-## Вызывается когда враг получает урон
-## @param amount: количество полученного урона
-## @param attacker: атакующий (Node или null)
-## @param from_back: удар в спину (bool)
-func on_damage_taken(amount: int, attacker: Node = null, from_back: bool = false) -> void:
-	pass
+## Helper to transition to another state (uses parent's state_machine)
+# Note: This overrides State.transition_to() but calls the same method
+func change_state(state_name: String) -> void:
+	transition_to(state_name)

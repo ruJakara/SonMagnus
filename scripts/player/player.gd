@@ -1,5 +1,5 @@
 ## scripts/player/player.gd
-## Расширенный контроллер игрока: движение, взаимодействие с PlayerCombat.
+## Refactored player with FSM - no lock flags, state machine owns all state
 
 extends BaseEntity
 
@@ -12,113 +12,42 @@ enum Stance { RELAX, FIGHT }
 @export var walk_speed_multiplier: float = 0.5
 @export var is_camp_area: bool = false
 
-const IDLE_ANIM: StringName = &"idle"
-const IDLE_FIGHT_ANIM: StringName = &"idleFight"
-const MOVE_ANIM: StringName = &"run"
-
 # ===== References =====
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var player_combat: Node = $PlayerCombat
+@onready var state_machine: PlayerStateMachine = $PlayerStateMachine
 @onready var _animation_player: AnimationPlayer = $AnimationPlayer
-@onready var _hitbox: Area2D = $zone/Hitbox
 
 # ===== Player State =====
 var stance: Stance = Stance.RELAX
 var invulnerable: bool = false
 
-# Lock flags - when true, action is blocked
-var lock_attack: bool = false
-var lock_block: bool = false
-var lock_slide: bool = false
-var lock_stance_toggle: bool = false
-
 # ===== Internal state =====
 var forced_target: Node = null
-var _facing_lock_timer: float = 0.0
 
 func _ready() -> void:
 	super._ready()
 	add_to_group("player")  # Для поиска врагами через EnemyAI
 	add_to_group("targetable")  # Для системы фракций и охоты
 	_configure_animation_loops()
-	if not _sprite.is_playing():
-		_sprite.play(IDLE_ANIM)
-	_sprite.animation_finished.connect(_on_animation_finished)
-	# Инициализируем позицию Hitbox при старте
+	# State machine will handle animations and facing
+	# Initial facing direction
 	_set_facing_direction(1)  # По умолчанию смотрим вправо
 
 func _physics_process(delta: float) -> void:
-	if _facing_lock_timer > 0.0:
-		_facing_lock_timer = max(0.0, _facing_lock_timer - delta)
-	
-	# ИСПРАВЛЕНО: проверка блока ПЕРЕД расчётом движения
-	if player_combat.is_blocking:
-		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)
-		move_and_slide()
-		return
-	
-	var input_vector := Vector2(
-		Input.get_axis("ui_left", "ui_right"),
-		Input.get_axis("ui_up", "ui_down")
-	)
-	if input_vector.length() > 1.0:
-		input_vector = input_vector.normalized()
-
-	var effective_speed := speed
-	if is_camp_area:
-		effective_speed *= walk_speed_multiplier
-
-	var target_velocity := input_vector * effective_speed
-	var rate := acceleration if input_vector != Vector2.ZERO else deceleration
-	velocity = velocity.move_toward(target_velocity, rate * delta)
-	
-	move_and_slide()
-	_update_movement_animation()
+	# State machine handles all physics
+	pass
 
 func _input(event: InputEvent) -> void:
-	# Q: Stance Toggle
-	if event.is_action_pressed("toggle_weapon"):
-		player_combat.request_toggle_stance()
-	
-	# ЛКМ: Left attack
-	if event.is_action_pressed("attack_left"):
-		player_combat.request_attack("L")
-	
-	# ПКМ: Right attack
-	if event.is_action_pressed("attack_right"):
-		player_combat.request_attack("R")
-	
-	# Space: Block (hold)
-	if event.is_action_pressed("block"):
-		player_combat.request_block(true)
-	elif event.is_action_released("block"):
-		player_combat.request_block(false)
-	
-	# Shift: Slide/Dash
-	if event.is_action_pressed("dash"):
-		player_combat.request_slide()
+	# Delegate all input to state machine
+	if state_machine:
+		state_machine.on_input(event)
 	
 	# TODO: Skills 1-6 (not implemented yet)
 	# TODO: E - interact (not implemented yet)
 	# TODO: R/F - quick items (not implemented yet)
 	# TODO: X - hide (not implemented yet)
 
-func _update_movement_animation() -> void:
-	if player_combat != null and player_combat.is_attacking():
-		return
-
-	if velocity.length() > 5.0:
-		if _sprite.animation != MOVE_ANIM or not _sprite.is_playing():
-			_sprite.play(MOVE_ANIM)
-	else:
-		# Choose idle animation based on stance
-		var target_idle := IDLE_FIGHT_ANIM if stance == Stance.FIGHT else IDLE_ANIM
-		if _sprite.animation != target_idle or not _sprite.is_playing():
-			_sprite.play(target_idle)
-
-	# Не разворачиваем игрока из-за нокбэка (velocity меняется от удара).
-	if _facing_lock_timer <= 0.0 and velocity.x != 0.0:
-		_set_facing_direction(1 if velocity.x > 0 else -1)
+# Movement animation is now handled by states
 
 func get_target() -> Node:
 	if forced_target and is_instance_valid(forced_target):
@@ -126,7 +55,7 @@ func get_target() -> Node:
 	return null
 
 func is_facing_left() -> bool:
-	return _sprite.flip_h
+	return _sprite.flip_h if _sprite else false
 
 func get_facing_direction() -> int:
 	"""Возвращает -1 для левого направления, 1 для правого."""
@@ -135,16 +64,16 @@ func get_facing_direction() -> int:
 func is_camp() -> bool:
 	return is_camp_area
 
-func _on_animation_finished() -> void:
-	_update_movement_animation()
+# Animation finished is now handled by states
 
 func _configure_animation_loops() -> void:
-	if not _sprite.sprite_frames:
+	if not _sprite or not _sprite.sprite_frames:
 		return
 	var frames := _sprite.sprite_frames
-	for anim in [IDLE_ANIM, MOVE_ANIM]:
-		if frames.has_animation(anim) and frames.get_animation_loop(anim):
-			frames.set_animation_loop(anim, false)
+	# Ensure looping animations are set to loop
+	for anim in ["idle", "run", "idleFight", "walk", "sprint"]:
+		if frames.has_animation(anim):
+			frames.set_animation_loop(anim, true)
 
 @onready var _zone: Node2D = $zone
 
@@ -168,7 +97,7 @@ func consume_stamina(cost: float) -> bool:
 # ===== Combat Overrides =====
 
 func take_damage(amount: int, attacker: Node = null, from_back: bool = false) -> void:
-	"""Переопределяем take_damage для проверки invulnerable и блока."""
+	"""Переопределяем take_damage для проверки invulnerable и делегирования в FSM."""
 	
 	# Игнорируем урон если неуязвимы
 	if invulnerable:
@@ -176,16 +105,15 @@ func take_damage(amount: int, attacker: Node = null, from_back: bool = false) ->
 			print("[Player] Урон заблокирован (invulnerable)")
 		return
 	
-	# Проверяем парирование/блок через PlayerCombat
-	if player_combat and player_combat.is_blocking:
-		if player_combat.try_parry(attacker):
-			if Config.DEBUG_LOGS:
-				print("[Player] Парирование успешно!")
-			return
-		else:
-			if Config.DEBUG_LOGS:
-				print("[Player] Блок поглотил урон")
-			return
+	# Delegate to state machine FIRST - let state handle it
+	var damage_prevented = false
+	if state_machine and state_machine.is_blocking():
+		# Block state will handle parry/block logic
+		state_machine.on_damage_taken(amount, attacker, from_back)
+		damage_prevented = true  # Block state handled damage
+	
+	if damage_prevented:
+		return  # Don't apply damage
 	
 	# Обычный урон через BaseEntity
 	super.take_damage(amount)
@@ -212,8 +140,8 @@ func _play_hit_feedback(attacker: Node = null) -> void:
 	tween.finished.connect(func(): _sprite.modulate = Color.WHITE)
 	
 	# Knockback
-	if attacker:
+	if attacker and state_machine:
 		var knockback_dir = (global_position - attacker.global_position).normalized()
 		velocity = knockback_dir * 150.0
 		# Короткая блокировка разворота, чтобы нокбэк не флипал спрайт.
-		_facing_lock_timer = 0.2
+		state_machine.combat_data["facing_lock_timer"] = 0.2

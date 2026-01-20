@@ -12,18 +12,28 @@ extends CanvasLayer
 @onready var left_item_panel = $BottomBar/CenterContainer/LeftItems/LeftWeapon
 @onready var right_item_panel = $BottomBar/CenterContainer/RightItems/RightWeapon
 
-# --- 3. ССЫЛКИ НА ЧАСЫ (НОВОЕ) ---
-# Ссылка на узел вращения, который мы добавили в сцену
+# --- 3. ССЫЛКИ НА ЧАСЫ ---
 @onready var celestial_pivot = $ClockContainer/DayNightClock/CelestialPivot
 
+# --- 4. НОВОЕ: Player Info Panel ---
+@onready var player_info_panel: Panel = $PlayerInfoPanel
+@onready var stance_label: Label = $PlayerInfoPanel/VBox/StanceLabel
+@onready var state_label: Label = $PlayerInfoPanel/VBox/StateLabel
+@onready var combo_hint_label: Label = $PlayerInfoPanel/VBox/ComboHintLabel
+
+# --- 5. НОВОЕ: Combos Panel ---
+@onready var combos_panel: Panel = $CombosPanel
+@onready var combos_list: VBoxContainer = $CombosPanel/ScrollContainer/VBox
+
 var skill_panels: Array[Panel] = []
-
-# Переменная для теста времени (от 0 до 24)
-var debug_game_time: float = 12.0 # Начинаем с полдня
-
+var debug_game_time: float = 12.0
 var _bound_player: Node = null
+var _combo_manager: Node = null
 
 func _ready():
+	# Get ComboManager
+	_combo_manager = get_node_or_null("/root/ComboManager")
+	
 	# Инициализация скиллов
 	if skills_container:
 		for child in skills_container.get_children():
@@ -31,30 +41,38 @@ func _ready():
 				skill_panels.append(child)
 		highlight_skill(0)
 	
-	# Делаем оружие чуть темнее на старте, чтобы вспышка была видна
+	# Делаем оружие чуть темнее на старте
 	if left_item_panel: left_item_panel.modulate = Color(0.8, 0.8, 0.8, 1)
 	if right_item_panel: right_item_panel.modulate = Color(0.8, 0.8, 0.8, 1)
 	
-	# Проверяем, нашли ли мы часы
+	# Проверяем часы
 	if not celestial_pivot:
-		print("Ошибка: Не найден CelestialPivot в сцене HUD!")
+		print("Warning: CelestialPivot not found in HUD!")
 	
-	# На разных тестовых сценах HUD может жить без scenes/main.gd,
-	# поэтому пытаемся привязаться к игроку самостоятельно.
+	# НОВОЕ: Инициализируем player info панель
+	if player_info_panel:
+		player_info_panel.visible = true
+	if combos_panel:
+		combos_panel.visible = false  # Hidden by default, toggle with TAB
+	
+	# Populate combos
+	_populate_combos()
+	
 	_try_bind_player()
 
 func _process(delta):
-	# Подхватываем игрока, если он появился позже HUD.
+	# Подхватываем игрока
 	if _bound_player == null or not is_instance_valid(_bound_player):
 		_try_bind_player()
 	
-	# --- ЛОГИКА ВРЕМЕНИ (ДЕМОНСТРАЦИЯ) ---
-	# Если у тебя есть Global.time, удали этот блок и вызывай update_clock извне.
-	# Здесь 1 игровой час проходит за 1 реальную секунду.
+	# Update player info (stance, state)
+	if _bound_player:
+		_update_player_info()
+	
+	# Логика времени
 	debug_game_time += delta 
 	if debug_game_time >= 24.0:
 		debug_game_time = 0.0
-	
 	update_clock(debug_game_time)
 
 func _try_bind_player() -> void:
@@ -106,6 +124,78 @@ func _try_bind_player() -> void:
 	var max_hg = p.get("max_hunger")
 	if hg != null and max_hg != null:
 		update_hunger(hg, max_hg)
+
+func _input(event: InputEvent) -> void:
+	# TAB: Toggle combos panel
+	if event.is_action_pressed("ui_focus_next") and combos_panel:  # Tab key
+		combos_panel.visible = !combos_panel.visible
+
+func _update_player_info() -> void:
+	"""Update player stance and state display"""
+	if not _bound_player:
+		return
+	
+	# Update stance
+	if stance_label:
+		var stance = _bound_player.get("stance")
+		if stance != null:
+			var stance_text = "FIGHT" if stance == 1 else "RELAX"
+			stance_label.text = "Stance: %s (Q)" % stance_text
+	
+	# Update state
+	if state_label:
+		var state_machine = _bound_player.get("state_machine")
+		if state_machine:
+			var current_state = state_machine.get("current_state_name")
+			if current_state:
+				state_label.text = "State: %s" % current_state
+	
+	# Update combo hint
+	if combo_hint_label:
+		combo_hint_label.text = "TAB - Show Combos"
+
+func _populate_combos() -> void:
+	"""Populate available combos list"""
+	if not _combo_manager or not combos_list:
+		return
+	
+	# Clear existing
+	for child in combos_list.get_children():
+		child.queue_free()
+	
+	# Add header
+	var header = Label.new()
+	header.text = "=== AVAILABLE COMBOS ==="
+	header.add_theme_font_size_override("font_size", 16)
+	combos_list.add_child(header)
+	
+	# Get all combos
+	var weapon_types = ["unarmed", "weapon"]
+	for weapon_type in weapon_types:
+		var type_label = Label.new()
+		type_label.text = "\n[%s]" % weapon_type.to_upper()
+		type_label.add_theme_color_override("font_color", Color.YELLOW)
+		combos_list.add_child(type_label)
+		
+		if _combo_manager.has_method("get_combos_for_weapon"):
+			var weapon_combos = _combo_manager.get_combos_for_weapon(weapon_type)
+			if weapon_combos.size() == 0:
+				var no_combo = Label.new()
+				no_combo.text = "  (No combos)"
+				no_combo.add_theme_color_override("font_color", Color.GRAY)
+				combos_list.add_child(no_combo)
+			else:
+				for combo_id in weapon_combos:
+					var combo_data = _combo_manager.get_combo(combo_id)
+					if not combo_data.is_empty():
+						var sequence = combo_data.get("sequence", [])
+						var name_str = combo_data.get("name", combo_id)
+						var seq_str = " → ".join(sequence)
+						
+						var combo_label = Label.new()
+						combo_label.text = "  %s: %s" % [seq_str, name_str]
+						combo_label.add_theme_font_size_override("font_size", 12)
+						combos_list.add_child(combo_label)
 
 # --- 4. ФУНКЦИЯ ОБНОВЛЕНИЯ ЧАСОВ (НОВОЕ) ---
 func update_clock(time_in_hours: float):

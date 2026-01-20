@@ -22,7 +22,7 @@ func update(delta: float) -> void:
 	if target:
 		brain.current_target = target
 		brain.emit_signal("target_detected", target)
-		brain.change_state("chase")
+		change_state("chase")
 		return
 	
 	# Если на паузе
@@ -67,9 +67,9 @@ func on_damage_taken(amount: int, attacker: Node = null, from_back: bool = false
 		var attack_range = brain.behavior_data.get("attack_range", 50.0)
 		
 		if distance <= attack_range and brain.can_attack():
-			brain.change_state("attack")
+			change_state("attack")
 		else:
-			brain.change_state("chase")
+			change_state("chase")
 
 
 ## Выбирает новую случайную точку для патруля

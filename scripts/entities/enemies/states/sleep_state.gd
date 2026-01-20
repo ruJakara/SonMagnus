@@ -16,7 +16,7 @@ func on_damage_taken(amount: int, attacker: Node = null, from_back: bool = false
 	# Просыпаемся от урона!
 	if attacker and brain.is_hostile_target(attacker):
 		brain.current_target = attacker
-		brain.change_state("chase")
+		change_state("chase")
 		
 		if Config.DEBUG_LOGS:
 			print_debug("[SleepState] %s проснулся от атаки!" % brain.enemy.entity_name)

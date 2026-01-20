@@ -1,0 +1,23 @@
+{
+  "id": "resource_tree",
+  "items": [
+    {
+      "item_id": "wood",
+      "min_amount": 2,
+      "max_amount": 4,
+      "drop_chance": 1.0
+    },
+    {
+      "item_id": "branch",
+      "min_amount": 1,
+      "max_amount": 2,
+      "drop_chance": 0.5
+    },
+    {
+      "item_id": "resin",
+      "min_amount": 1,
+      "max_amount": 1,
+      "drop_chance": 0.1
+    }
+  ]
+}

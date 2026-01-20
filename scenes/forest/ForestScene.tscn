@@ -6,6 +6,8 @@
 
 [node name="ForestScene" type="Node2D"]
 script = ExtResource("1_y1fnr")
+auto_populate = true
+spawn_bounds = Rect2(100, 300, 1500, 400)
 
 [node name="LevelRoot" parent="." instance=ExtResource("1_tsq5b")]
 day_color = Color(0.9019608, 0.9019608, 0.8980392, 1)

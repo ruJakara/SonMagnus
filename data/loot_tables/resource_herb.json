@@ -1,0 +1,23 @@
+{
+  "id": "resource_herb",
+  "items": [
+    {
+      "item_id": "herb_common",
+      "min_amount": 1,
+      "max_amount": 2,
+      "drop_chance": 1.0
+    },
+    {
+      "item_id": "herb_healing",
+      "min_amount": 1,
+      "max_amount": 1,
+      "drop_chance": 0.2
+    },
+    {
+      "item_id": "herb_rare",
+      "min_amount": 1,
+      "max_amount": 1,
+      "drop_chance": 0.05
+    }
+  ]
+}

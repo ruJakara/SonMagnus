@@ -34,6 +34,7 @@ ClassManager="*res://autoload/ClassManager.gd"
 EnemyFactory="*res://autoload/EnemyFactory.gd"
 CombatProfileManager="*res://autoload/CombatProfileManager.tscn"
 LootManager="*res://autoload/LootManager.gd"
+WorldPopulator="*res://autoload/WorldPopulator.gd"
 
 [debug]
 

@@ -228,6 +228,14 @@ func _finalize_attack_cycle() -> void:
 
 func _on_attack_frame() -> void:
 	"""Вызывается из AnimationPlayer method track в момент удара анимации"""
+	# Delegate to FSM if available and in attack state
+	var fsm = _player.get_node_or_null("PlayerStateMachine")
+	if fsm and fsm.has_method("on_attack_frame"):
+		fsm.on_attack_frame()
+		# Also run legacy logic if old state is active
+		if not _state._is_attacking:
+			return
+	
 	if not _state._is_attacking:
 		return
 	
@@ -281,6 +289,11 @@ func _on_attack_frame() -> void:
 
 func _on_attack_end() -> void:
 	"""Вызывается из AnimationPlayer method track в конце окна удара"""
+	# Delegate to FSM if available
+	var fsm = _player.get_node_or_null("PlayerStateMachine")
+	if fsm and fsm.has_method("on_attack_end"):
+		fsm.on_attack_end()
+	
 	_state._hit_window_open = false
 	
 	if Config.DEBUG_LOGS:

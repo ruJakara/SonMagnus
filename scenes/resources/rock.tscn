@@ -1,0 +1,34 @@
+[gd_scene load_steps=4 format=3 uid="uid://resource_rock"]
+
+[ext_resource type="Script" path="res://scripts/world/HarvestableResource.gd" id="1_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rock"]
+size = Vector2(50, 35)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interaction"]
+radius = 45.0
+
+[node name="Rock" type="Node2D" groups=["harvestable", "resource_rock"]]
+script = ExtResource("1_script")
+resource_type = "rock"
+harvest_time = 2.5
+loot_table_id = "resource_rock"
+required_tool = "pickaxe"
+health = 2
+max_health = 2
+
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(0, -17)
+modulate = Color(0.5, 0.5, 0.5, 1)
+scale = Vector2(1.5625, 1.09375)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -17)
+shape = SubResource("RectangleShape2D_rock")
+
+[node name="InteractionArea" type="Area2D" parent="."]
+collision_layer = 512
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
+shape = SubResource("CircleShape2D_interaction")

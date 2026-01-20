@@ -1,0 +1,27 @@
+{
+  "location_name": "Лес",
+  "description": "Густой лес с гоблинами и ресурсами",
+  
+  "enemies": {
+    "min_count": 3,
+    "max_count": 7,
+    "pool": ["goblin_scout"],
+    "weights": [1.0],
+    "spawn_zones": [
+      {"min_x": 100, "max_x": 800, "min_y": 300, "max_y": 600},
+      {"min_x": 900, "max_x": 1600, "min_y": 350, "max_y": 550}
+    ]
+  },
+  
+  "resources": {
+    "min_count": 8,
+    "max_count": 20,
+    "pool": ["tree", "rock", "bush", "herb"],
+    "weights": [4.0, 2.0, 3.0, 1.0]
+  },
+  
+  "ambient": {
+    "time_of_day": "random",
+    "weather": "clear"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "resource_rock",
+  "items": [
+    {
+      "item_id": "stone",
+      "min_amount": 2,
+      "max_amount": 5,
+      "drop_chance": 1.0
+    },
+    {
+      "item_id": "flint",
+      "min_amount": 1,
+      "max_amount": 1,
+      "drop_chance": 0.3
+    },
+    {
+      "item_id": "iron_ore",
+      "min_amount": 1,
+      "max_amount": 1,
+      "drop_chance": 0.1
+    }
+  ]
+}

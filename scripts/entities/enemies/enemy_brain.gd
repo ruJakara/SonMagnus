@@ -1,23 +1,15 @@
 # scripts/entities/enemies/enemy_brain.gd
-# AI и State Machine для врагов
-# Управляет поведением, обнаружением целей, переключением состояний
+# Enemy State Machine (renamed from EnemyBrain for consistency)
+# Manages enemy AI behavior, target detection, and state transitions
 
 class_name EnemyBrain
-extends Node
+extends StateMachine
 
 signal help_called(position: Vector2)
 signal target_detected(target: Node)
-signal state_changed(old_state: String, new_state: String)
 
 ## Ссылка на владельца (EnemyBase)
 var enemy: EnemyBase = null
-
-## Словарь состояний {имя: EnemyState}
-var states: Dictionary = {}
-
-## Текущее состояние
-var current_state: EnemyState = null
-var current_state_name: String = ""
 
 
 ## Текущая цель
@@ -46,10 +38,10 @@ func _ready() -> void:
 		return
 	if enemy.has_signal("damage_taken"):
 		enemy.damage_taken.connect(_on_enemy_damage_taken)
-		# ===== ДОБАВЬ ЭТУ СТРОКУ =====
+	
 	# Ждём 1 кадр, чтобы goblin_scout.gd успел загрузить JSON
 	await get_tree().process_frame
-	# =============================
+	
 	# Копируем ссылки на данные
 	behavior_data = enemy.behavior_data
 	combat_data = enemy.combat_data
@@ -60,9 +52,24 @@ func _ready() -> void:
 	hurtbox = enemy.hurtbox
 	back_area = enemy.back_area
 	
-	# Регистрируем состояния (будут созданы в _register_states)
-	_register_states()
+	# Call parent to initialize state machine
+	super._ready()
+
+## Override from StateMachine
+func _register_states() -> void:
+	# Базовые состояния
+	add_state("idle", preload("res://scripts/entities/enemies/states/idle_state.gd").new())
+	add_state("patrol", preload("res://scripts/entities/enemies/states/patrol_state.gd").new())
+	add_state("chase", preload("res://scripts/entities/enemies/states/chase_state.gd").new())
+	add_state("attack", preload("res://scripts/entities/enemies/states/attack_state.gd").new())
+	add_state("dead", preload("res://scripts/entities/enemies/states/dead_state.gd").new())
 	
+	# Дополнительные состояния
+	add_state("sleep", preload("res://scripts/entities/enemies/states/sleep_state.gd").new())
+	#add_state("stunned", preload("res://scripts/entities/enemies/states/stunned_state.gd").new())
+	add_state("call_help", preload("res://scripts/entities/enemies/states/call_help_state.gd").new())
+
+func _get_initial_state() -> String:
 	# Стартуем с начального состояния
 	var initial_state = "idle"
 	if behavior_data.get("ai_type", "") == "patrol":
@@ -70,55 +77,12 @@ func _ready() -> void:
 	elif behavior_data.get("ai_type", "") == "sleep":
 		initial_state = "sleep"
 	
-	change_state(initial_state)
-	
 	if Config.DEBUG_LOGS:
 		print_debug("[EnemyBrain] Инициализирован для %s, состояние: %s" % [enemy.entity_name, initial_state])
+	
+	return initial_state
 
-## Регистрация всех состояний
-func _register_states() -> void:
-	# Базовые состояния
-	_add_state("idle", preload("res://scripts/entities/enemies/states/idle_state.gd").new())
-	_add_state("patrol", preload("res://scripts/entities/enemies/states/patrol_state.gd").new())
-	_add_state("chase", preload("res://scripts/entities/enemies/states/chase_state.gd").new())
-	_add_state("attack", preload("res://scripts/entities/enemies/states/attack_state.gd").new())
-	_add_state("dead", preload("res://scripts/entities/enemies/states/dead_state.gd").new())
-	
-	# Дополнительные состояния
-	_add_state("sleep", preload("res://scripts/entities/enemies/states/sleep_state.gd").new())
-	#_add_state("stunned", preload("res://scripts/entities/enemies/states/stunned_state.gd").new())
-	_add_state("call_help", preload("res://scripts/entities/enemies/states/call_help_state.gd").new())
-
-## Добавляет состояние в словарь
-func _add_state(state_name: String, state: EnemyState) -> void:
-	state.brain = self
-	states[state_name] = state
-
-## Переключение состояния
-func change_state(new_state_name: String, _context: Dictionary = {}) -> void:
-	if not states.has(new_state_name):
-		push_warning("[EnemyBrain] Состояние не найдено: %s" % new_state_name)
-		return
-	
-	# Выход из текущего состояния
-	if current_state:
-		current_state.exit()
-	
-	# Сохраняем старое имя для сигнала
-	var old_state_name = current_state_name
-	
-	# Переключаем
-	current_state_name = new_state_name
-	current_state = states[new_state_name]
-	
-	# Вход в новое состояние
-	current_state.enter()
-	
-	emit_signal("state_changed", old_state_name, new_state_name)
-	
-	if Config.DEBUG_LOGS:
-		print_debug("[EnemyBrain] %s: %s → %s" % [enemy.entity_name, old_state_name, new_state_name])
-
+## Override parent's _process to add enemy-specific timer updates
 func _process(delta: float) -> void:
 	if not enemy or not enemy.is_alive:
 		return
@@ -130,14 +94,12 @@ func _process(delta: float) -> void:
 	if _attack_cooldown_timer > 0.0:
 		_attack_cooldown_timer -= delta
 	
-	# Обновляем текущее состояние
-	if current_state:
-		current_state.update(delta)
+	# Call parent to update current state
+	super._process(delta)
 
 func _physics_process(delta: float) -> void:
-	# Вызов текущего состояния (ТОЛЬКО physics_update — update вызывается в _process)
-	if current_state:
-		current_state.physics_update(delta)
+	# Call parent to update current state physics
+	super._physics_process(delta)
 
 ## Обнаружение цели в конусе обзора
 func detect_target_in_cone() -> Node:
@@ -194,11 +156,11 @@ func is_hostile_target(target: Node) -> bool:
 	
 	return false
 
-## Вызывается когда враг получает урон
-func on_damage_taken(amount: int, attacker: Node = null) -> void:
+## Вызывается когда враг получает урон (override from StateMachine)
+func on_damage_taken(amount: int, attacker: Node = null, from_back: bool = false) -> void:
 	# Передаём в текущее состояние
 	if current_state:
-		current_state.on_damage_taken(amount, attacker)
+		current_state.on_damage_taken(amount, attacker, from_back)
 	
 	# Устанавливаем цель
 	if attacker and is_hostile_target(attacker):
@@ -221,13 +183,82 @@ func call_for_help() -> void:
 	emit_signal("help_called", enemy.global_position)
 	
 	# Проигрываем звук
-	var sound_path = enemy.sounds.get("call_help", "")
+	var sound_path: String = enemy.sounds.get("call_help", "")
 	if not sound_path.is_empty():
-		# TODO: Воспроизвести звук через AudioManager
-		pass
+		_play_sound(sound_path)
+	
+	# Привлекаем союзников в радиусе
+	var call_radius: float = behavior_data.get("call_help_radius", 350.0)
+	var faction: String = hostility_data.get("faction", "")
+	
+	_alert_nearby_allies(call_radius, faction)
 	
 	if Config.DEBUG_LOGS:
-		print_debug("[EnemyBrain] %s зовёт на помощь!" % enemy.entity_name)
+		print_debug("[EnemyBrain] %s зовёт на помощь! (радиус: %.0f)" % [enemy.entity_name, call_radius])
+
+
+func _alert_nearby_allies(radius: float, faction: String) -> void:
+	if not current_target:
+		return
+	
+	var allies := get_tree().get_nodes_in_group("enemies")
+	for ally in allies:
+		if ally == enemy:
+			continue
+		if not is_instance_valid(ally):
+			continue
+		
+		# Проверяем фракцию
+		var ally_brain: EnemyBrain = ally.get_node_or_null("EnemyBrain") as EnemyBrain
+		if not ally_brain:
+			continue
+		
+		var ally_faction: String = ally_brain.hostility_data.get("faction", "")
+		if not faction.is_empty() and ally_faction != faction:
+			continue
+		
+		# Проверяем расстояние
+		var distance := enemy.global_position.distance_to(ally.global_position)
+		if distance > radius:
+			continue
+		
+		# Устанавливаем цель союзнику
+		if ally_brain.current_target == null:
+			ally_brain.current_target = current_target
+			ally_brain.emit_signal("target_detected", current_target)
+			
+			# Переводим в состояние преследования
+			if ally_brain.current_state_name in ["idle", "patrol", "sleep"]:
+				ally_brain.transition_to("chase")
+			
+			if Config.DEBUG_LOGS:
+				print_debug("[EnemyBrain] %s услышал зов и присоединяется!" % ally.entity_name)
+
+
+func _play_sound(sound_path: String) -> void:
+	if sound_path.is_empty():
+		return
+	
+	# Пробуем AudioManager или создаём AudioStreamPlayer2D
+	var audio_manager = get_node_or_null("/root/AudioManager")
+	if audio_manager and audio_manager.has_method("play_sound_at"):
+		audio_manager.play_sound_at(sound_path, enemy.global_position)
+		return
+	
+	# Фолбэк: создаём временный AudioStreamPlayer2D
+	var stream := load(sound_path) as AudioStream
+	if not stream:
+		if Config.DEBUG_LOGS:
+			print_debug("[EnemyBrain] Не удалось загрузить звук: %s" % sound_path)
+		return
+	
+	var player := AudioStreamPlayer2D.new()
+	player.stream = stream
+	player.position = enemy.global_position
+	player.bus = "SFX"
+	get_tree().current_scene.add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)
 
 ## Проверка может ли атаковать
 func can_attack() -> bool:
@@ -254,7 +285,7 @@ func _on_attack_end() -> void:
 
 func stun(duration: float) -> void:
 	stun_timer = duration
-	change_state("stunned")
+	transition_to("stunned")
 	
 	if Config.DEBUG_LOGS:
 		print("[EnemyBrain] %s оглушён на %.1f сек" % [enemy.entity_name, duration])
